@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width initial-scale=1" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>Freeradius with sms auth</title>
+    <meta name="description" content="Wonder is the beginning of wisdom">
+
+    <link rel="stylesheet" href="/theme/css/main.css">
+    <link rel="icon" href="/theme/icon/leaf.png">
+    <link rel="shortcut icon" href="/theme/icon/leaf.png">
+    <link rel="canonical" href="/network/freeradius-with-sms-auth.html">
+
+    <script src="/theme/js/jquery-2.1.1.min.js"></script>
+    <script src="/theme/js/default.js"></script>
+
+
+</head>
+
+<header>
+  <div class="sidebar">
+    <div align="center">
+      <div class="site-img">
+        <a href="/"><image src="/theme/icon/leaf.png"></a>
+      </div>
+      <a class="side-nav" href="/menu/posts.html">文章</a>
+      <a class="side-nav" href="/menu/categories.html">分类</a>
+      <a class="side-nav" href="/menu/tags.html">标签</a>
+    </div>
+    <div align="center">
+      <a class="side-nav" href="/menu/feed.xml">订阅</a>
+      <a class="side-nav" href="/menu/favorite.html">收藏</a>
+      <a class="side-nav" href="/menu/about.html">关于</a>
+    </div>
+
+    <div class="side-toc">
+      <hr>
+      <div id="sidebar-toc">
+        <div align="center">
+          <br>
+          三千年读史<br>
+          不外功名利禄<br>
+          九万里悟道<br>
+          终归诗酒田园<br>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sidebar-toggler">
+    <div id="sidebar-status">
+
+    </div>
+  </div>
+</header>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+    <div class="site-title">
+      <a class="site-title" href="/">田园牧歌</a>
+    </div>
+  </div>
+
+  <div class="wrapper">
+  <div class="site-subtitle">
+    一花一世界，一叶一菩提。
+  </div>
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <div class="post">
+<!--
+  <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+-->
+  <script src="/theme/js/post.js"></script>
+
+  <header class="post-header">
+    <h1 class="post-title">Freeradius with sms auth</h1>
+    <p class="post-meta">2014年04月07日
+      <span class="author"> 田园牧歌 </span>
+    </p>
+    <p>
+    
+    <a class="post-tags" href="/resource/tags/freeradius.html">freeradius</a>
+    
+    </p>
+    <hr><br>
+  </header>
+
+  <article class="post-content">
+    <div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline1">需求分析</a></li>
+<li><a href="#orgheadline5">freeradius安装与配置</a>
+<ul>
+<li><a href="#orgheadline2">安装步骤</a></li>
+<li><a href="#orgheadline3">配置sql接口</a></li>
+<li><a href="#orgheadline4">NAS配置</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline8">WEB服务器配置mod_perl支持</a>
+<ul>
+<li><a href="#orgheadline6">安装mod_perl</a></li>
+<li><a href="#orgheadline7">配置httpd.conf</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline11">动态口令页面</a>
+<ul>
+<li><a href="#orgheadline9">编写表单</a></li>
+<li><a href="#orgheadline10">编写cgi脚本</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline15">优化</a>
+<ul>
+<li><a href="#orgheadline12">凌晨让密码失效</a></li>
+<li><a href="#orgheadline13">单个用户只能开启一个会话</a></li>
+<li><a href="#orgheadline14">用户获得固定IP</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline17">总结</a>
+<ul>
+<li><a href="#orgheadline16">流程图</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<!--abstract-begin-->
+<p>
+Freeradius是一个开源的AAA认证服务器, 本文讲述Freeradius如何利用sql接口实现短信认证。
+</p>
+<!--abstract-end-->
+
+<div id="outline-container-orgheadline1" class="outline-2">
+<h2 id="orgheadline1">需求分析</h2>
+<div class="outline-text-2" id="text-orgheadline1">
+<p>
+某客户现已有一个VPDN接入平台，接入用户采用用户名+口令的认证方式，AAA认证服务器采用Cisco ACS认证系统，NAS为一台Cisco 2921路由器。现考虑到VPDN本身虽已提供私密性，但口令容易被窃取或不经意泄漏，即实际访问者与账户拥有者是不同身份。在安全领域，手机短信验证与动态口令卡都属于双因素认证，且企业本身如已有短信网关接口，则投入的成本基本只需要考虑短信发送费用即可。本文讲述freeradius如何结合sql接口，实现短信验证方式。
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline5" class="outline-2">
+<h2 id="orgheadline5">freeradius安装与配置</h2>
+<div class="outline-text-2" id="text-orgheadline5">
+</div><div id="outline-container-orgheadline2" class="outline-3">
+<h3 id="orgheadline2">安装步骤</h3>
+<div class="outline-text-3" id="text-orgheadline2">
+<p>
+参见：<a href="http://wiki.freeradius.org/building/Build">Building FreeRadius</a>
+</p>
+
+<p>
+安装视操作系统版本，推荐通过yum或者apt方式，包括freeradius-mysql接口。
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline3" class="outline-3">
+<h3 id="orgheadline3">配置sql接口</h3>
+<div class="outline-text-3" id="text-orgheadline3">
+<p>
+参见：<a href="http://wiki.freeradius.org/guide/SQL-HOWTO">SQL HOWTO</a>
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline4" class="outline-3">
+<h3 id="orgheadline4">NAS配置</h3>
+<div class="outline-text-3" id="text-orgheadline4">
+<pre class="example">
+aaa new-model
+!
+aaa authentication login default local
+aaa authentication ppp default group radius
+aaa authorization network default group radius 
+aaa accounting network default
+ action-type start-stop
+ group radius
+!
+!
+async-bootp dns-server 1.1.1.2
+async-bootp nbns-server 1.1.1.2
+vpdn enable
+!
+vpdn-group 1
+! Default PPTP VPDN group
+ accept-dialin
+  protocol pptp
+  virtual-template 1
+!
+interface Virtual-Template1
+ ip unnumbered FastEthernet0/0
+ no ip redirects
+ no ip unreachables
+ no peer default ip address
+ no keepalive
+ ppp encrypt mppe auto
+ ppp authentication ms-chap ms-chap-v2 pap chap
+!
+radius-server host 1.1.1.2 auth-port 1812 acct-port 1813 key radius_key
+!
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline8" class="outline-2">
+<h2 id="orgheadline8">WEB服务器配置mod_perl支持</h2>
+<div class="outline-text-2" id="text-orgheadline8">
+</div><div id="outline-container-orgheadline6" class="outline-3">
+<h3 id="orgheadline6">安装mod_perl</h3>
+<div class="outline-text-3" id="text-orgheadline6">
+<pre class="example">
+yum install mod_perl
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orgheadline7" class="outline-3">
+<h3 id="orgheadline7">配置httpd.conf</h3>
+<div class="outline-text-3" id="text-orgheadline7">
+<pre class="example">
+LoadModule perl_module modules/mod_perl.so
+ScriptAlias /cgi-bin/ "/var/www/cgi-bin/"
+&lt;Directory "/var/www/cgi-bin"&gt;
+    SetHandler perl-script
+    PerlResponseHandler ModPerl::Registry
+    PerlOptions +ParseHeaders
+    Options +ExecCGI
+&lt;/Directory&gt;
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline11" class="outline-2">
+<h2 id="orgheadline11">动态口令页面</h2>
+<div class="outline-text-2" id="text-orgheadline11">
+</div><div id="outline-container-orgheadline9" class="outline-3">
+<h3 id="orgheadline9">编写表单</h3>
+<div class="outline-text-3" id="text-orgheadline9">
+<div class="org-src-container">
+
+<pre class="src src-html">&lt;<span style="color: #605; font-weight: bold;">html</span>&gt;
+&lt;<span style="color: #605; font-weight: bold;">title</span>&gt;<span style="font-weight: bold; text-decoration: underline;">vpn&#23494;&#30721;&#30003;&#35831;&#31995;&#32479;</span>&lt;/<span style="color: #605; font-weight: bold;">title</span>&gt;
+&lt;<span style="color: #605; font-weight: bold;">body</span>&gt;
+&lt;<span style="color: #605; font-weight: bold;">form</span> <span style="color: #007;">method</span>=<span style="color: #800;">"post"</span> <span style="color: #007;">action</span>=<span style="color: #800;">"/cgi-bin/test.cgi"</span>&gt; 
+&lt;<span style="color: #605; font-weight: bold;">p</span>&gt;&#25163;&#26426;&#21495;&lt;<span style="color: #605; font-weight: bold;">input</span> <span style="color: #007;">name</span>=<span style="color: #800;">"mobileno"</span>&gt;&lt;/<span style="color: #605; font-weight: bold;">p</span>&gt;
+&lt;<span style="color: #605; font-weight: bold;">p</span>&gt;
+&lt;<span style="color: #605; font-weight: bold;">input</span> <span style="color: #007;">type</span>=<span style="color: #800;">"submit"</span> <span style="color: #007;">value</span>=<span style="color: #800;">"&#25552;&#20132;&#34920;&#21333;"</span>&gt;
+&lt;<span style="color: #605; font-weight: bold;">input</span> <span style="color: #007;">type</span>=<span style="color: #800;">"reset"</span> <span style="color: #007;">value</span>=<span style="color: #800;">"&#28165;&#38500;"</span>&gt;
+&lt;/<span style="color: #605; font-weight: bold;">p</span>&gt;
+&lt;/<span style="color: #605; font-weight: bold;">form</span>&gt; 
+&lt;/<span style="color: #605; font-weight: bold;">body</span>&gt;
+&lt;/<span style="color: #605; font-weight: bold;">html</span>&gt;
+</pre>
+</div>
+</div>
+</div>
+
+
+<div id="outline-container-orgheadline10" class="outline-3">
+<h3 id="orgheadline10">编写cgi脚本</h3>
+<div class="outline-text-3" id="text-orgheadline10">
+<div class="org-src-container">
+
+<pre class="src src-perl"><span style="color: #633;">#</span><span style="color: #633;">!/usr/bin/perl</span>
+<span style="color: #800; font-weight: bold;">use</span> <span style="color: #046; font-weight: bold;">DBI</span>;
+
+<span style="color: #058; font-weight: bold;">my</span> ($<span style="color: #007;">data</span>, $<span style="color: #007;">i</span>, @<span style="color: #007; text-decoration: underline;">data</span>, $<span style="color: #007;">key</span>, $<span style="color: #007;">val</span>, %<span style="color: #007; text-decoration: underline;">FORM</span>);
+
+<span style="color: #800; font-weight: bold;">if</span> ($<span style="color: #007;">ENV</span>{<span style="color: #800;">'REQUEST_METHOD'</span>} eq <span style="color: #800;">"GET"</span>) {
+        $<span style="color: #007;">data</span> = $<span style="color: #007;">ENV</span>{<span style="color: #800;">'QUERY_STRING'</span>};
+} <span style="color: #800; font-weight: bold;">elsif</span> ($<span style="color: #007;">ENV</span>{<span style="color: #800;">'REQUEST_METHOD'</span>} eq <span style="color: #800;">"POST"</span>) {
+        read(STDIN,$<span style="color: #007;">data</span>,$<span style="color: #007;">ENV</span>{<span style="color: #800;">'CONTENT_LENGTH'</span>});
+}
+
+@<span style="color: #007; text-decoration: underline;">data</span> = split(<span style="color: #800;">/&amp;/</span>,$<span style="color: #007;">data</span>);
+<span style="color: #800; font-weight: bold;">foreach</span> $<span style="color: #007;">i</span> (0 ..$#<span style="color: #007; text-decoration: underline;">data</span>) {
+        $<span style="color: #007;">data</span>[$<span style="color: #007;">i</span>] =~ s<span style="color: #800;">/\+/ /</span>g;
+        ($<span style="color: #007;">key</span>, $<span style="color: #007;">val</span>) = split(<span style="color: #800;">/=/</span>,$<span style="color: #007;">data</span>[$<span style="color: #007;">i</span>],2);
+         $<span style="color: #007;">key</span> =~ s<span style="color: #800;">/%(..)/pack("c",hex($1))/</span>ge;
+         $<span style="color: #007;">val</span> =~ s<span style="color: #800;">/%(..)/pack("c",hex($1))/</span>ge;
+         $<span style="color: #007;">val</span> =~ s<span style="color: #800;">///</span>g;
+         $<span style="color: #007;">FORM</span>{$<span style="color: #007;">key</span>} .= <span style="color: #800;">"\0"</span> <span style="color: #800; font-weight: bold;">if</span> (defined($<span style="color: #007;">FORM</span>{$<span style="color: #007;">key</span>}));
+         $<span style="color: #007;">FORM</span>{$<span style="color: #007;">key</span>} .= $<span style="color: #007;">val</span>;
+}
+
+$<span style="color: #007;">mobileno</span>=$<span style="color: #007;">FORM</span>{<span style="color: #800;">'mobileno'</span>};
+
+<span style="color: #058; font-weight: bold;">my</span> (@<span style="color: #007; text-decoration: underline;">token</span>, $<span style="color: #007;">token</span>);
+<span style="color: #800; font-weight: bold;">for</span> (<span style="color: #058; font-weight: bold;">my</span> $<span style="color: #007;">i</span> = 0; $<span style="color: #007;">i</span> &lt; 6; $<span style="color: #007;">i</span>++) {
+ $<span style="color: #007;">token</span>[$<span style="color: #007;">i</span>] = int (rand(10));
+ $<span style="color: #007;">token</span> .= $<span style="color: #007;">token</span>[$<span style="color: #007;">i</span>];
+}
+<span style="color: #058; font-weight: bold;">my</span> $<span style="color: #007;">dbname</span> = <span style="color: #800;">'radius'</span>;
+<span style="color: #058; font-weight: bold;">my</span> $<span style="color: #007;">dbuser</span> = <span style="color: #800;">'radius'</span>;
+<span style="color: #058; font-weight: bold;">my</span> $<span style="color: #007;">dbpass</span> = <span style="color: #800;">'radpass'</span>;
+<span style="color: #058; font-weight: bold;">my</span> $<span style="color: #007;">dbtable</span> = <span style="color: #800;">'radcheck'</span>;
+
+<span style="color: #058; font-weight: bold;">my</span> $<span style="color: #007;">dbh</span> = DBI-&gt;connect(<span style="color: #800;">"DBI:mysql:$dbname:host=localhost"</span>, $<span style="color: #007;">dbuser</span>, $<span style="color: #007;">dbpass</span>, {RaiseError =&gt; 0, ShowErrorStatement =&gt; 1});
+<span style="color: #058; font-weight: bold;">my</span> $<span style="color: #007;">sth</span> = $<span style="color: #007;">dbh</span>-&gt;prepare(<span style="color: #800;">'set names utf8'</span>);
+$<span style="color: #007;">sth</span>-&gt;execute();
+
+$<span style="color: #007;">sth</span> = $<span style="color: #007;">dbh</span>-&gt;prepare(qq<span style="color: #800;">{</span>
+<span style="color: #800;">        select username, value from $dbtable where attribute='Cleartext-Password'</span>
+<span style="color: #800;">}</span>);
+<span style="color: #058; font-weight: bold;">my</span> (@<span style="color: #007; text-decoration: underline;">username</span>,@<span style="color: #007; text-decoration: underline;">value</span>);
+
+$<span style="color: #007;">sth</span>-&gt;execute();
+
+
+<span style="color: #800; font-weight: bold;">while</span>(<span style="color: #058; font-weight: bold;">my</span> @<span style="color: #007; text-decoration: underline;">row</span> = $<span style="color: #007;">sth</span>-&gt;fetchrow_array()){
+        push @<span style="color: #007; text-decoration: underline;">username</span>, $<span style="color: #007;">row</span>[0];
+        push @<span style="color: #007; text-decoration: underline;">value</span>, $<span style="color: #007;">row</span>[1];
+}
+
+print <span style="color: #800;">"Content-type: text/html\n\n"</span>;
+
+<span style="color: #800; font-weight: bold;">if</span>(grep {$<span style="color: #007;">_</span> eq $<span style="color: #007;">mobileno</span>} @<span style="color: #007; text-decoration: underline;">username</span>) {
+        &amp;<span style="color: #605; font-weight: bold;">printheader</span>;
+        &amp;<span style="color: #605; font-weight: bold;">updaterecord</span>;
+        &amp;<span style="color: #605; font-weight: bold;">userpassprompt</span>;
+        &amp;<span style="color: #605; font-weight: bold;">sendsms</span>;       
+        &amp;<span style="color: #605; font-weight: bold;">printfooter</span>;
+} <span style="color: #800; font-weight: bold;">else</span> {
+        &amp;<span style="color: #605; font-weight: bold;">printheader</span>;
+        &amp;<span style="color: #605; font-weight: bold;">userforbidprompt</span>;
+        &amp;<span style="color: #605; font-weight: bold;">printfooter</span>;
+}
+
+
+<span style="color: #800; font-weight: bold;">sub</span> <span style="color: #605; font-weight: bold;">sendsms</span> {
+}
+
+<span style="color: #800; font-weight: bold;">sub</span> <span style="color: #605; font-weight: bold;">updaterecord</span> {
+        $<span style="color: #007;">sth</span> = $<span style="color: #007;">dbh</span>-&gt;prepare(qq<span style="color: #800;">{</span>
+<span style="color: #800;">                update `radcheck` set</span>
+<span style="color: #800;">                        `value` = '$token'</span>
+<span style="color: #800;">                where</span>
+<span style="color: #800;">                        `username` = '$mobileno' and `attribute` = 'Cleartext-Password';</span>
+<span style="color: #800;">        }</span>);
+        $<span style="color: #007;">sth</span>-&gt;execute();
+}
+<span style="color: #800; font-weight: bold;">sub</span> <span style="color: #605; font-weight: bold;">userforbidprompt</span> {
+        print <span style="color: #800;">"&lt;p&gt;&#35813;&#25163;&#26426;&#21495;&#26410;&#24320;&#36890;VPN&#26381;&#21153;&#12290;&lt;/p&gt;\n"</span>;
+        print <span style="color: #800;">'&lt;a href="../test.html"&gt;&#36820;&#22238;&lt;/a&gt;'</span>;
+}
+
+<span style="color: #800; font-weight: bold;">sub</span> <span style="color: #605; font-weight: bold;">userpassprompt</span> {
+        print <span style="color: #800;">"&lt;p&gt;VPN&#29992;&#25143;&#21517;&#19982;&#23494;&#30721;&#24050;&#32463;&#21457;&#36865;&#33267;&#25163;&#26426;&#65292;&#35831;&#26597;&#25910;&#12290;&lt;/p&gt;\n"</span>;
+        print <span style="color: #800;">"&lt;p&gt;&#27880;&#24847;&#65306;&#23494;&#30721;&#30340;&#26377;&#25928;&#26399;&#25130;&#27490;&#20110;&#25509;&#25910;&#21040;&#30701;&#20449;&#24403;&#22825;23&#65306;59&#65306;59&#65292;&#27425;&#26085;&#22833;&#25928;, &#20294;&#19981;&#24433;&#21709;&#24050;&#25320;&#21495;&#29992;&#25143;&#20351;&#29992;&lt;/p&gt;\n"</span>;
+        print <span style="color: #800;">'&lt;a href="../test.html"&gt;&#36820;&#22238;&lt;/a&gt;'</span>;
+}
+
+<span style="color: #800; font-weight: bold;">sub</span> <span style="color: #605; font-weight: bold;">printheader</span> {
+        print <span style="color: #800;">"&lt;html&gt;</span>
+<span style="color: #800;">                                        &lt;head&gt;</span>
+<span style="color: #800;">                                                &lt;title&gt;VPN&#23494;&#30721;&#30003;&#35831;&#32467;&#26524;&lt;/title&gt;</span>
+<span style="color: #800;">                                        &lt;/head&gt;</span>
+<span style="color: #800;">                                                &lt;body&gt;</span>
+<span style="color: #800;">                                "</span>;
+}
+
+<span style="color: #800; font-weight: bold;">sub</span> <span style="color: #605; font-weight: bold;">printfooter</span> {
+        print <span style="color: #800;">"         &lt;/body&gt;</span>
+<span style="color: #800;">                                &lt;/html&gt;</span>
+<span style="color: #800;">                                "</span>;
+}
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline15" class="outline-2">
+<h2 id="orgheadline15">优化</h2>
+<div class="outline-text-2" id="text-orgheadline15">
+</div><div id="outline-container-orgheadline12" class="outline-3">
+<h3 id="orgheadline12">凌晨让密码失效</h3>
+<div class="outline-text-3" id="text-orgheadline12">
+<p>
+编写一个perl脚本，更新数据库，让用户的密码随机化,放在crontab中执行。
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline13" class="outline-3">
+<h3 id="orgheadline13">单个用户只能开启一个会话</h3>
+<div class="outline-text-3" id="text-orgheadline13">
+<pre class="example">
+mysql&gt; select * from radcheck;
++----+-------------+--------------------+----+--------+
+| id | username    | attribute          | op | value  |
++----+-------------+--------------------+----+--------+
+|  1 | 18900001111 | Cleartext-Password | := | 881230 |
+|  5 | 18900001111 | Simultaneous-Use   | := | 1      |
++----+-------------+--------------------+----+--------+
+</pre>
+</div>
+</div>
+
+
+
+<div id="outline-container-orgheadline14" class="outline-3">
+<h3 id="orgheadline14">用户获得固定IP</h3>
+<div class="outline-text-3" id="text-orgheadline14">
+<pre class="example">
+mysql&gt; select * from radreply;
++----+-------------+-------------------+----+-------------+
+| id | username    | attribute         | op | value       |
++----+-------------+-------------------+----+-------------+
+|  1 | 18900001111 | Framed-IP-Address | =  | 1.1.10.1    |
++----+-------------+-------------------+----+-------------+
+1 row in set (0.00 sec)
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline17" class="outline-2">
+<h2 id="orgheadline17">总结</h2>
+<div class="outline-text-2" id="text-orgheadline17">
+</div><div id="outline-container-orgheadline16" class="outline-3">
+<h3 id="orgheadline16">流程图</h3>
+<div class="outline-text-3" id="text-orgheadline16">
+<div class="org-center">
+
+<div class="figure">
+<p><img src="/resource/network/fig/FreeRadiusWithSMSAuth.png" alt="FreeRadiusWithSMSAuth.png" />
+</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+    <hr><br>
+    <div class="post-prev">
+      <a class="post-nav" href="/sysadmin/ssh-login-without-password.html">上一篇</a>
+    </div>
+    <div class="post-next">
+      <a class="post-nav" href="/sysadmin/web-server-analysis.html">下一篇</a>
+    </div>
+  </article>
+
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col-1">
+        <ul class="contact-list">
+          <li><a class="username" href="mailto:wlfqware@gmail.com">wlfqware@gmail.com</a></li>
+
+          
+        </ul>
+      </div>
+
+      <div class="footer-col-2">
+        <p class="text">Wonder is the beginning of wisdom</p>
+      </div>
+
+    </div>
+    <div class="footer-col-wrapper">
+      <div align="center">
+        &copy; 2014-2015 |
+          
+            <a class="username" href="https://github.com/wanglf">
+              <span class="icon  icon--github">
+                <svg viewBox="0 0 16 16">
+                  <path fill="#828282" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761 c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32 c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472 c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037 C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65 c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261 c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082 c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129 c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/>
+                </svg>
+              </span>
+              <span class="username">wanglf</span>
+            </a>
+          
+      </div>
+    </div>
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>

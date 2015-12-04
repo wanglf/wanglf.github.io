@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width initial-scale=1" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>Code Review工具Gerrit2安装方法</title>
+    <meta name="description" content="Wonder is the beginning of wisdom">
+
+    <link rel="stylesheet" href="/theme/css/main.css">
+    <link rel="icon" href="/theme/icon/leaf.png">
+    <link rel="shortcut icon" href="/theme/icon/leaf.png">
+    <link rel="canonical" href="/tools/install-gerrit2.html">
+
+    <script src="/theme/js/jquery-2.1.1.min.js"></script>
+    <script src="/theme/js/default.js"></script>
+
+
+</head>
+
+<header>
+  <div class="sidebar">
+    <div align="center">
+      <div class="site-img">
+        <a href="/"><image src="/theme/icon/leaf.png"></a>
+      </div>
+      <a class="side-nav" href="/menu/posts.html">文章</a>
+      <a class="side-nav" href="/menu/categories.html">分类</a>
+      <a class="side-nav" href="/menu/tags.html">标签</a>
+    </div>
+    <div align="center">
+      <a class="side-nav" href="/menu/feed.xml">订阅</a>
+      <a class="side-nav" href="/menu/favorite.html">收藏</a>
+      <a class="side-nav" href="/menu/about.html">关于</a>
+    </div>
+
+    <div class="side-toc">
+      <hr>
+      <div id="sidebar-toc">
+        <div align="center">
+          <br>
+          三千年读史<br>
+          不外功名利禄<br>
+          九万里悟道<br>
+          终归诗酒田园<br>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sidebar-toggler">
+    <div id="sidebar-status">
+
+    </div>
+  </div>
+</header>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+    <div class="site-title">
+      <a class="site-title" href="/">田园牧歌</a>
+    </div>
+  </div>
+
+  <div class="wrapper">
+  <div class="site-subtitle">
+    一花一世界，一叶一菩提。
+  </div>
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <div class="post">
+<!--
+  <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+-->
+  <script src="/theme/js/post.js"></script>
+
+  <header class="post-header">
+    <h1 class="post-title">Code Review工具Gerrit2安装方法</h1>
+    <p class="post-meta">2015年03月20日
+      <span class="author"> 田园牧歌 </span>
+    </p>
+    <p>
+    
+    <a class="post-tags" href="/resource/tags/git.html">git</a>
+    
+    </p>
+    <hr><br>
+  </header>
+
+  <article class="post-content">
+    <div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline1">环境准备</a></li>
+<li><a href="#orgheadline4">数据库准备</a>
+<ul>
+<li><a href="#orgheadline2">mysql-server安装</a></li>
+<li><a href="#orgheadline3">数据库设置</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline5">gerrit2初始化</a></li>
+<li><a href="#orgheadline6">gerrit2 启动</a></li>
+<li><a href="#orgheadline7">nginx设置</a></li>
+<li><a href="#orgheadline8">ssh 配置</a></li>
+<li><a href="#orgheadline14">第一个project的workflow</a>
+<ul>
+<li><a href="#orgheadline9">new project</a></li>
+<li><a href="#orgheadline10">git clone</a></li>
+<li><a href="#orgheadline11">git push</a></li>
+<li><a href="#orgheadline12">review</a></li>
+<li><a href="#orgheadline13">accept</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<!--abstract-begin-->
+<p>
+代码审查是开发流程的重要一环，gerrit2是google开源用于代码审查的工具，其采用Java实现。本文讲述如何安装gerrit2，并示范如何开始第一个工程。
+</p>
+<!--abstract-end-->
+
+<div id="outline-container-orgheadline1" class="outline-2">
+<h2 id="orgheadline1">环境准备</h2>
+<div class="outline-text-2" id="text-orgheadline1">
+<ol class="org-ol">
+<li>准备gerrit.war, 此处为Centos 6.5 64bit环境下v2.10-rc2版本安装</li>
+<li>java 1.7.0以上版本，并设置好CLASSPATH</li>
+<li>准备mysql-connector-java-5.1.21-bin.jar</li>
+<li>提前安装git</li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-orgheadline4" class="outline-2">
+<h2 id="orgheadline4">数据库准备</h2>
+<div class="outline-text-2" id="text-orgheadline4">
+</div><div id="outline-container-orgheadline2" class="outline-3">
+<h3 id="orgheadline2">mysql-server安装</h3>
+</div>
+<div id="outline-container-orgheadline3" class="outline-3">
+<h3 id="orgheadline3">数据库设置</h3>
+<div class="outline-text-3" id="text-orgheadline3">
+<pre class="example">
+CREATE USER 'gerrit2'@'hostip' IDENTIFIED BY 'secret';
+CREATE DATABASE reviewdb;
+GRANT ALL ON reviewdb.* TO 'gerrit2'@'hostip';
+FLUSH PRIVILEGES;
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline5" class="outline-2">
+<h2 id="orgheadline5">gerrit2初始化</h2>
+<div class="outline-text-2" id="text-orgheadline5">
+<div class="org-src-container">
+
+<pre class="src src-sh">adduser gerrit2
+mkdir -p /opt/gerrit2
+chown -R gerrit2.gerrit2 /opt/gerrit2
+su - gerrit2
+java -jar gerrit.war init -d /opt/gerrit2
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline6" class="outline-2">
+<h2 id="orgheadline6">gerrit2 启动</h2>
+<div class="outline-text-2" id="text-orgheadline6">
+<div class="org-src-container">
+
+<pre class="src src-sh"><span style="color: #058; font-weight: bold;">cd</span> /opt/gerrit2/bin
+./gerrit.sh start
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline7" class="outline-2">
+<h2 id="orgheadline7">nginx设置</h2>
+<div class="outline-text-2" id="text-orgheadline7">
+<div class="org-src-container">
+
+<pre class="src src-sh">git config --file /opt/gerrit2/etc/gerrit.config auth.type HTTP
+git config --file /opt/gerrit2/etc/gerrit.config --unset auth.httpHeader
+git config --file /opt/gerrit2/etc/gerrit.config auth.emailFormat <span style="color: #800;">'{0}@citicbank.com'</span>
+
+git config --global user.name <span style="color: #800;">"wanglf"</span>
+git config --global user.email <span style="color: #800;">"wanglifeng_hz@citicbank.com"</span>
+</pre>
+</div>
+
+<p>
+<code>htpasswd生成web服务器认证密码文件， 并修改nginx配置如下</code>
+</p>
+
+<pre class="example">
+location /gerrit2/ {
+      auth_basic "Restricted";
+      auth_basic_user_file /etc/nginx/username.password;
+      proxy_pass http://gerrit2cluster;
+      proxy_set_header    Host    $host;
+      proxy_set_header    X-Real-IP   $remote_addr;
+      proxy_set_header    X-Forwarded-For $proxy_add_x_forwarded_for;
+}
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orgheadline8" class="outline-2">
+<h2 id="orgheadline8">ssh 配置</h2>
+<div class="outline-text-2" id="text-orgheadline8">
+<pre class="example">
+ssh-keygen -t rsa
+</pre>
+
+<p>
+<code>拷贝 id_rsa.pub至web界面的ssh公钥。 vi ~/.ssh/config, 增加如下内容:</code>
+</p>
+
+<pre class="example">
+Host gerrit2
+Hostname gerrit2
+User admin
+Port 29418
+IdentityFile ~/.ssh/id_rsa
+</pre>
+
+<p>
+<code>测试</code>
+</p>
+
+<pre class="example">
+ssh gerrit2
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orgheadline14" class="outline-2">
+<h2 id="orgheadline14">第一个project的workflow</h2>
+<div class="outline-text-2" id="text-orgheadline14">
+</div><div id="outline-container-orgheadline9" class="outline-3">
+<h3 id="orgheadline9">new project</h3>
+<div class="outline-text-3" id="text-orgheadline9">
+<p>
+方式一: 通过web界面或gerrit命令行新建project
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline10" class="outline-3">
+<h3 id="orgheadline10">git clone</h3>
+<div class="outline-text-3" id="text-orgheadline10">
+<p>
+方式二: clone现有的project
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-sh">mkdir -p /opt/git/
+chown -R gerrit2.gerrit2 /opt/git/
+su - gerrit2
+<span style="color: #058; font-weight: bold;">cd</span> /opt/git/
+git clone ssh://admin@hostip:29418/test
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline11" class="outline-3">
+<h3 id="orgheadline11">git push</h3>
+<div class="outline-text-3" id="text-orgheadline11">
+<p>
+日常git操作，commit之后，利用如下命令推送至changes
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-sh">git add readme.MD
+git commit -m <span style="color: #800;">"initial commit"</span>
+git push origin HEAD:refs/for/master
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline12" class="outline-3">
+<h3 id="orgheadline12">review</h3>
+<div class="outline-text-3" id="text-orgheadline12">
+<p>
+gerrit web上进行review
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline13" class="outline-3">
+<h3 id="orgheadline13">accept</h3>
+<div class="outline-text-3" id="text-orgheadline13">
+<p>
+gerrit web上进行accept，正式进入master目录
+</p>
+</div>
+</div>
+</div>
+
+
+    <hr><br>
+    <div class="post-prev">
+      <a class="post-nav" href="/sysadmin/openssh-sftp-setting.html">上一篇</a>
+    </div>
+    <div class="post-next">
+      <a class="post-nav" href="/language/c-null-pointer.html">下一篇</a>
+    </div>
+  </article>
+
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col-1">
+        <ul class="contact-list">
+          <li><a class="username" href="mailto:wlfqware@gmail.com">wlfqware@gmail.com</a></li>
+
+          
+        </ul>
+      </div>
+
+      <div class="footer-col-2">
+        <p class="text">Wonder is the beginning of wisdom</p>
+      </div>
+
+    </div>
+    <div class="footer-col-wrapper">
+      <div align="center">
+        &copy; 2014-2015 |
+          
+            <a class="username" href="https://github.com/wanglf">
+              <span class="icon  icon--github">
+                <svg viewBox="0 0 16 16">
+                  <path fill="#828282" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761 c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32 c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472 c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037 C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65 c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261 c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082 c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129 c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/>
+                </svg>
+              </span>
+              <span class="username">wanglf</span>
+            </a>
+          
+      </div>
+    </div>
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>

@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width initial-scale=1" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>Web Server Log Based Analysis</title>
+    <meta name="description" content="Wonder is the beginning of wisdom">
+
+    <link rel="stylesheet" href="/theme/css/main.css">
+    <link rel="icon" href="/theme/icon/leaf.png">
+    <link rel="shortcut icon" href="/theme/icon/leaf.png">
+    <link rel="canonical" href="/sysadmin/web-server-analysis.html">
+
+    <script src="/theme/js/jquery-2.1.1.min.js"></script>
+    <script src="/theme/js/default.js"></script>
+
+
+</head>
+
+<header>
+  <div class="sidebar">
+    <div align="center">
+      <div class="site-img">
+        <a href="/"><image src="/theme/icon/leaf.png"></a>
+      </div>
+      <a class="side-nav" href="/menu/posts.html">文章</a>
+      <a class="side-nav" href="/menu/categories.html">分类</a>
+      <a class="side-nav" href="/menu/tags.html">标签</a>
+    </div>
+    <div align="center">
+      <a class="side-nav" href="/menu/feed.xml">订阅</a>
+      <a class="side-nav" href="/menu/favorite.html">收藏</a>
+      <a class="side-nav" href="/menu/about.html">关于</a>
+    </div>
+
+    <div class="side-toc">
+      <hr>
+      <div id="sidebar-toc">
+        <div align="center">
+          <br>
+          三千年读史<br>
+          不外功名利禄<br>
+          九万里悟道<br>
+          终归诗酒田园<br>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sidebar-toggler">
+    <div id="sidebar-status">
+
+    </div>
+  </div>
+</header>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+    <div class="site-title">
+      <a class="site-title" href="/">田园牧歌</a>
+    </div>
+  </div>
+
+  <div class="wrapper">
+  <div class="site-subtitle">
+    一花一世界，一叶一菩提。
+  </div>
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <div class="post">
+<!--
+  <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+-->
+  <script src="/theme/js/post.js"></script>
+
+  <header class="post-header">
+    <h1 class="post-title">Web Server Log Based Analysis</h1>
+    <p class="post-meta">2014年04月17日
+      <span class="author"> 田园牧歌 </span>
+    </p>
+    <p>
+    
+    <a class="post-tags" href="/resource/tags/webalizer.html">webalizer</a>
+    
+    </p>
+    <hr><br>
+  </header>
+
+  <article class="post-content">
+    <div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline1">日志分析原理</a></li>
+<li><a href="#orgheadline6">安装配置</a>
+<ul>
+<li><a href="#orgheadline2">安装步骤</a></li>
+<li><a href="#orgheadline3">配置</a></li>
+<li><a href="#orgheadline4">crontab</a></li>
+<li><a href="#orgheadline5">首页效果图</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline7">参考资料</a></li>
+</ul>
+</div>
+</div>
+<!--abstract-begin-->
+<p>
+如何利用webalizer，通过分析Web Server的accesslog生成各类统计报表。
+</p>
+<!--abstract-end-->
+
+<div id="outline-container-orgheadline1" class="outline-2">
+<h2 id="orgheadline1">日志分析原理</h2>
+<div class="outline-text-2" id="text-orgheadline1">
+<p>
+日志格式如下:
+</p>
+
+<pre class="example">
+192.168.45.13 - - [24/May/2005:11:20:39 -0400] "GET /mypage.html HTTP/1.1" 200 117
+192.168.45.13 - - [24/May/2005:11:20:40 -0400] "GET /myimage1.jpg HTTP/1.1" 200 231
+192.168.45.13 - - [24/May/2005:11:20:41 -0400] "GET /myimage2.jpg HTTP/1.1" 200 432
+</pre>
+
+<p>
+我们可以从中得到哪些信息呢？
+</p>
+
+<ul class="org-ul">
+<li>从哪来，即Source IP</li>
+<li>哪个时间点</li>
+<li>哪种类型操作, Get、Post还是其它类型</li>
+<li>访问哪个页面</li>
+<li>采用哪个协议版本</li>
+<li>返回的状态码</li>
+<li>报文长度</li>
+</ul>
+
+<p>
+据此，我们又可以生成哪些信息呢?
+</p>
+
+<ul class="org-ul">
+<li>每个页面被访问了多少次，生成TOP N热门页面</li>
+<li>哪个来源IP的请求最多</li>
+<li>哪个时间段的访问量最大</li>
+<li>流量统计</li>
+<li>返回状态码统计</li>
+</ul>
+
+<p>
+又有哪些是我们无法根据日志信息直接分析得到的呢?
+</p>
+
+<ul class="org-ul">
+<li>按用户统计</li>
+<li>用户的停留时间</li>
+</ul>
+
+<p>
+主要的原因是HTTP本身是无状态的，服务器只是侦听80端口等待请求。你来一个请求，我就处理，不然我就坐着喝咖啡啦。
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline6" class="outline-2">
+<h2 id="orgheadline6">安装配置</h2>
+<div class="outline-text-2" id="text-orgheadline6">
+</div><div id="outline-container-orgheadline2" class="outline-3">
+<h3 id="orgheadline2">安装步骤</h3>
+<div class="outline-text-3" id="text-orgheadline2">
+<p>
+Centos操作系统可以通过如下方式安装：
+</p>
+
+<pre class="example">
+yum install webalizer
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orgheadline3" class="outline-3">
+<h3 id="orgheadline3">配置</h3>
+<div class="outline-text-3" id="text-orgheadline3">
+<p>
+webalizer的配置文件名称为/etc/webalizer.conf，主要的配置选项如下：
+</p>
+
+<pre class="example">
+LogFile        /var/log/nginx/access.log
+OutputDir      /var/www/usage
+HostName       www.wanglifeng.info
+
+HideReferrer  www.wanglifeng.info
+HideReferrer  1.2.3.4
+
+HideURL   *.css
+HideURL   *.js
+HideURL   *.ico
+HideURL   *.woff
+
+SearchEngine  baidu.com  wd=
+SearchEngine  yahoo.com p=
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orgheadline4" class="outline-3">
+<h3 id="orgheadline4">crontab</h3>
+<div class="outline-text-3" id="text-orgheadline4">
+<pre class="example">
+59 23 * * * /usr/bin/webalizer &gt; /dev/null 2&gt;&amp;1
+</pre>
+
+<p>
+<code>注：由于web网站统计信息安全上比较敏感，建议开启HTTP认证，拒绝来宾用户访问。</code>
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline5" class="outline-3">
+<h3 id="orgheadline5">首页效果图</h3>
+<div class="outline-text-3" id="text-orgheadline5">
+<div class="org-center">
+
+<div class="figure">
+<p><img src="/resource/sysadmin/fig/webalizer01.png" alt="webalizer01.png" />
+</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline7" class="outline-2">
+<h2 id="orgheadline7">参考资料</h2>
+<div class="outline-text-2" id="text-orgheadline7">
+<ol class="org-ol">
+<li><a href="http://www.webalizer.org/simpleton.html">Simpletons Guide to Web Server Analysis</a></li>
+<li><a href="ftp://ftp.mrunix.net/pub/webalizer/README">Webalizer README</a></li>
+<li><a href="http://www.webalizer.org/webalizer_help.html">Webalizer Quick Help</a></li>
+</ol>
+</div>
+</div>
+
+
+    <hr><br>
+    <div class="post-prev">
+      <a class="post-nav" href="/network/freeradius-with-sms-auth.html">上一篇</a>
+    </div>
+    <div class="post-next">
+      <a class="post-nav" href="/editor/vim-notes-move.html">下一篇</a>
+    </div>
+  </article>
+
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col-1">
+        <ul class="contact-list">
+          <li><a class="username" href="mailto:wlfqware@gmail.com">wlfqware@gmail.com</a></li>
+
+          
+        </ul>
+      </div>
+
+      <div class="footer-col-2">
+        <p class="text">Wonder is the beginning of wisdom</p>
+      </div>
+
+    </div>
+    <div class="footer-col-wrapper">
+      <div align="center">
+        &copy; 2014-2015 |
+          
+            <a class="username" href="https://github.com/wanglf">
+              <span class="icon  icon--github">
+                <svg viewBox="0 0 16 16">
+                  <path fill="#828282" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761 c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32 c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472 c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037 C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65 c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261 c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082 c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129 c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/>
+                </svg>
+              </span>
+              <span class="username">wanglf</span>
+            </a>
+          
+      </div>
+    </div>
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>

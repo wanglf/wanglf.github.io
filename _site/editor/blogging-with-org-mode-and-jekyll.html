@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width initial-scale=1" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>Bloging with org-mode and Jekyll</title>
+    <meta name="description" content="Wonder is the beginning of wisdom">
+
+    <link rel="stylesheet" href="/theme/css/main.css">
+    <link rel="icon" href="/theme/icon/leaf.png">
+    <link rel="shortcut icon" href="/theme/icon/leaf.png">
+    <link rel="canonical" href="/editor/blogging-with-org-mode-and-jekyll.html">
+
+    <script src="/theme/js/jquery-2.1.1.min.js"></script>
+    <script src="/theme/js/default.js"></script>
+
+
+</head>
+
+<header>
+  <div class="sidebar">
+    <div align="center">
+      <div class="site-img">
+        <a href="/"><image src="/theme/icon/leaf.png"></a>
+      </div>
+      <a class="side-nav" href="/menu/posts.html">文章</a>
+      <a class="side-nav" href="/menu/categories.html">分类</a>
+      <a class="side-nav" href="/menu/tags.html">标签</a>
+    </div>
+    <div align="center">
+      <a class="side-nav" href="/menu/feed.xml">订阅</a>
+      <a class="side-nav" href="/menu/favorite.html">收藏</a>
+      <a class="side-nav" href="/menu/about.html">关于</a>
+    </div>
+
+    <div class="side-toc">
+      <hr>
+      <div id="sidebar-toc">
+        <div align="center">
+          <br>
+          三千年读史<br>
+          不外功名利禄<br>
+          九万里悟道<br>
+          终归诗酒田园<br>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sidebar-toggler">
+    <div id="sidebar-status">
+
+    </div>
+  </div>
+</header>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+    <div class="site-title">
+      <a class="site-title" href="/">田园牧歌</a>
+    </div>
+  </div>
+
+  <div class="wrapper">
+  <div class="site-subtitle">
+    一花一世界，一叶一菩提。
+  </div>
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <div class="post">
+<!--
+  <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+-->
+  <script src="/theme/js/post.js"></script>
+
+  <header class="post-header">
+    <h1 class="post-title">Bloging with org-mode and Jekyll</h1>
+    <p class="post-meta">2015年10月19日
+      <span class="author"> 田园牧歌 </span>
+    </p>
+    <p>
+    
+    <a class="post-tags" href="/resource/tags/emacs.html">emacs</a>
+    
+    </p>
+    <hr><br>
+  </header>
+
+  <article class="post-content">
+    <div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline1">环境设置</a></li>
+<li><a href="#orgheadline2">Emacs设置</a></li>
+<li><a href="#orgheadline3">目录结构</a></li>
+<li><a href="#orgheadline4">jekyll相关</a></li>
+</ul>
+</div>
+</div>
+<!--abstract-begin-->
+<p>
+Emacs org-mode是Emacs非常强大的一个插件, 可用于记事，并直接导出为html, latex, pdf, asciidoc等格式。本文主要讲述如何利用Emacs org-mode编写文章，并直接导出为blog post。
+</p>
+<!--abstract-end-->
+
+<div id="outline-container-orgheadline1" class="outline-2">
+<h2 id="orgheadline1">环境设置</h2>
+</div>
+<div id="outline-container-orgheadline2" class="outline-2">
+<h2 id="orgheadline2">Emacs设置</h2>
+<div class="outline-text-2" id="text-orgheadline2">
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp" id="orgsrcblock1">(setq org-publish-project-alist
+ '(
+         (<span style="color: #800;">"org-jekyll"</span>
+          <span style="color: #633;">;; </span><span style="color: #633;">Path to your org files.</span>
+          <span style="color: #058; font-weight: bold;">:base-directory</span> <span style="color: #800;">"/opt/git/org-jekyll.git/"</span>
+          <span style="color: #058; font-weight: bold;">:base-extension</span> <span style="color: #800;">"org"</span>
+
+          <span style="color: #633;">;; </span><span style="color: #633;">Path to your Jekyll project.</span>
+          <span style="color: #058; font-weight: bold;">:publishing-directory</span> <span style="color: #800;">"/var/www/org-jekyll/"</span>
+          <span style="color: #058; font-weight: bold;">:recursive</span> t
+          <span style="color: #058; font-weight: bold;">:publishing-function</span> org-html-publish-to-html
+          <span style="color: #058; font-weight: bold;">:headline-levels</span> 4
+          <span style="color: #058; font-weight: bold;">:html-extension</span> <span style="color: #800;">"html"</span>
+          <span style="color: #058; font-weight: bold;">:body-only</span> t <span style="color: #633;">;; </span><span style="color: #633;">Only export section between &lt;body&gt; &lt;/body&gt;</span>
+         )
+
+
+         (<span style="color: #800;">"org-jekyll-static"</span>
+          <span style="color: #058; font-weight: bold;">:base-directory</span> <span style="color: #800;">"/opt/git/org-jekyll.git/"</span>
+          <span style="color: #058; font-weight: bold;">:base-extension</span> <span style="color: #800;">"css</span><span style="color: #E9C;">\\</span><span style="color: #E9C;">|</span><span style="color: #800;">js</span><span style="color: #E9C;">\\</span><span style="color: #E9C;">|</span><span style="color: #800;">png</span><span style="color: #E9C;">\\</span><span style="color: #E9C;">|</span><span style="color: #800;">jpg</span><span style="color: #E9C;">\\</span><span style="color: #E9C;">|</span><span style="color: #800;">gif</span><span style="color: #E9C;">\\</span><span style="color: #E9C;">|</span><span style="color: #800;">pdf</span><span style="color: #E9C;">\\</span><span style="color: #E9C;">|</span><span style="color: #800;">mp3</span><span style="color: #E9C;">\\</span><span style="color: #E9C;">|</span><span style="color: #800;">ogg</span><span style="color: #E9C;">\\</span><span style="color: #E9C;">|</span><span style="color: #800;">swf</span><span style="color: #E9C;">\\</span><span style="color: #E9C;">|</span><span style="color: #800;">php"</span>
+          <span style="color: #058; font-weight: bold;">:publishing-directory</span> <span style="color: #800;">"/var/www/org-jekyll/"</span>
+          <span style="color: #058; font-weight: bold;">:recursive</span> t
+          <span style="color: #058; font-weight: bold;">:publishing-function</span> org-publish-attachment)
+
+         (<span style="color: #800;">"jekyll"</span> <span style="color: #058; font-weight: bold;">:components</span> (<span style="color: #800;">"org-jekyll"</span> <span style="color: #800;">"org-jekyll-static"</span>))
+         ))
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline3" class="outline-2">
+<h2 id="orgheadline3">目录结构</h2>
+<div class="outline-text-2" id="text-orgheadline3">
+<div class="org-src-container">
+
+<pre class="src src-sh" id="orgsrcblock2">mkdir -p /opt/git/org-jekyll.git/_posts
+<span style="color: #058; font-weight: bold;">cd</span> /opt/git/org-jekyll.git/_posts
+emacs 2015-10-19-blogging-with-org-mode-and-jekyll.org
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline4" class="outline-2">
+<h2 id="orgheadline4">jekyll相关</h2>
+<div class="outline-text-2" id="text-orgheadline4">
+<div class="org-src-container">
+
+<pre class="src src-sh"><span style="color: #058; font-weight: bold;">cd</span> /var/www/org-jekyll/
+jekyll build
+</pre>
+</div>
+</div>
+</div>
+
+
+    <hr><br>
+    <div class="post-prev">
+      <a class="post-nav" href="/editor/my-vim-environment.html">上一篇</a>
+    </div>
+    <div class="post-next">
+      <a class="post-nav" href="/sysadmin/amazing-openssh.html">下一篇</a>
+    </div>
+  </article>
+
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col-1">
+        <ul class="contact-list">
+          <li><a class="username" href="mailto:wlfqware@gmail.com">wlfqware@gmail.com</a></li>
+
+          
+        </ul>
+      </div>
+
+      <div class="footer-col-2">
+        <p class="text">Wonder is the beginning of wisdom</p>
+      </div>
+
+    </div>
+    <div class="footer-col-wrapper">
+      <div align="center">
+        &copy; 2014-2015 |
+          
+            <a class="username" href="https://github.com/wanglf">
+              <span class="icon  icon--github">
+                <svg viewBox="0 0 16 16">
+                  <path fill="#828282" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761 c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32 c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472 c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037 C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65 c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261 c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082 c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129 c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/>
+                </svg>
+              </span>
+              <span class="username">wanglf</span>
+            </a>
+          
+      </div>
+    </div>
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>

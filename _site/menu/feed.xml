@@ -1,0 +1,1453 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>田园牧歌</title>
+    <description>Wonder is the beginning of wisdom</description>
+    <link>/</link>
+    <atom:link href="/feed.xml" rel="self" type="application/rss+xml" />
+    <pubDate>Fri, 04 Dec 2015 17:23:17 +0800</pubDate>
+    <lastBuildDate>Fri, 04 Dec 2015 17:23:17 +0800</lastBuildDate>
+    <generator>Jekyll v2.5.3</generator>
+    
+      <item>
+        <title>Setup yum repository for centos 7</title>
+        <description>&lt;div id=&quot;table-of-contents&quot;&gt;
+&lt;h2&gt;Table of Contents&lt;/h2&gt;
+&lt;div id=&quot;text-table-of-contents&quot;&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline5&quot;&gt;服务器端设置&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline1&quot;&gt;rsync脚本&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline2&quot;&gt;查看磁盘空间&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline3&quot;&gt;nginx配置&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline4&quot;&gt;定期同步&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline6&quot;&gt;客户端设置&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;!--abstract-begin--&gt;
+&lt;p&gt;
+搭建本地yum repository，重要意义如下:
+&lt;/p&gt;
+
+&lt;ul class=&quot;org-ul&quot;&gt;
+&lt;li&gt;如企业内部服务器没有互联网连接，则可以通过本地repo服务器安装软件包，无需代理&lt;/li&gt;
+&lt;li&gt;服务器通过yum安装软件包的速度将大大提高，这是因为下载方式将由互联网变更为局域网&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;!--abstract-end--&gt;
+
+
+&lt;div id=&quot;outline-container-orgheadline5&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline5&quot;&gt;服务器端设置&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline5&quot;&gt;
+&lt;/div&gt;&lt;div id=&quot;outline-container-orgheadline1&quot; class=&quot;outline-3&quot;&gt;
+&lt;h3 id=&quot;orgheadline1&quot;&gt;rsync脚本&lt;/h3&gt;
+&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline1&quot;&gt;
+&lt;div class=&quot;org-src-container&quot;&gt;
+
+&lt;pre class=&quot;src src-sh&quot;&gt;&lt;span style=&quot;color: #633;&quot;&gt;#&lt;/span&gt;&lt;span style=&quot;color: #633;&quot;&gt;!/bin/&lt;/span&gt;&lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;bash&lt;/span&gt;
+&lt;span style=&quot;color: #633;&quot;&gt;#&lt;/span&gt;&lt;span style=&quot;color: #633;&quot;&gt;script name:rsync_yumrepo.sh&lt;/span&gt;
+
+&lt;span style=&quot;color: #007;&quot;&gt;RsyncBin&lt;/span&gt;=&lt;span style=&quot;color: #800;&quot;&gt;&quot;/usr/bin/rsync&quot;&lt;/span&gt;
+&lt;span style=&quot;color: #007;&quot;&gt;RsyncPerm&lt;/span&gt;=&lt;span style=&quot;color: #800;&quot;&gt;&#39;-avrt --delete --no-iconv --bwlimit=800&#39;&lt;/span&gt;
+&lt;span style=&quot;color: #007;&quot;&gt;Centos_7_base&lt;/span&gt;=&lt;span style=&quot;color: #800;&quot;&gt;&#39;/var/www/html/repos/centos/base/&#39;&lt;/span&gt;
+&lt;span style=&quot;color: #007;&quot;&gt;Centos_7_extras&lt;/span&gt;=&lt;span style=&quot;color: #800;&quot;&gt;&#39;/var/www/html/repos/centos/extras/&#39;&lt;/span&gt;
+&lt;span style=&quot;color: #007;&quot;&gt;Centos_7_updates&lt;/span&gt;=&lt;span style=&quot;color: #800;&quot;&gt;&#39;/var/www/html/repos/centos/updates/&#39;&lt;/span&gt;
+&lt;span style=&quot;color: #007;&quot;&gt;Centos_7_epel&lt;/span&gt;=&lt;span style=&quot;color: #800;&quot;&gt;&#39;/var/www/html/repos/centos/epel/&#39;&lt;/span&gt;
+&lt;span style=&quot;color: #007;&quot;&gt;Centos_7_mariadb&lt;/span&gt;=&lt;span style=&quot;color: #800;&quot;&gt;&#39;/var/www/html/repos/mariadb/10/0/&#39;&lt;/span&gt;
+
+&lt;span style=&quot;color: #007;&quot;&gt;LogFile&lt;/span&gt;=&lt;span style=&quot;color: #800;&quot;&gt;&#39;/var/log/rsyncyumrepo&#39;&lt;/span&gt;
+&lt;span style=&quot;color: #007;&quot;&gt;Date&lt;/span&gt;=&lt;span style=&quot;font-weight: bold;&quot;&gt;`date +%Y-%m-%d`&lt;/span&gt;
+
+&lt;span style=&quot;color: #633;&quot;&gt;#&lt;/span&gt;&lt;span style=&quot;color: #633;&quot;&gt;check function&lt;/span&gt;
+
+&lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;function&lt;/span&gt; &lt;span style=&quot;color: #605; font-weight: bold;&quot;&gt;check&lt;/span&gt; {
+&lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;if&lt;/span&gt; [ $&lt;span style=&quot;color: #007;&quot;&gt;?&lt;/span&gt; -eq 0 ];&lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;then&lt;/span&gt;
+&lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;echo&lt;/span&gt; -e &lt;span style=&quot;color: #800;&quot;&gt;&quot;33[1;32mRsync is success!33[0m&quot;&lt;/span&gt; &amp;gt;&amp;gt;$&lt;span style=&quot;color: #007;&quot;&gt;LogFile&lt;/span&gt;/$&lt;span style=&quot;color: #007;&quot;&gt;Date&lt;/span&gt;.log
+&lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;else&lt;/span&gt;
+&lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;echo&lt;/span&gt; -e &lt;span style=&quot;color: #800;&quot;&gt;&quot;33[1;31mRsync is fail!33[0m&quot;&lt;/span&gt; &amp;gt;&amp;gt;$&lt;span style=&quot;color: #007;&quot;&gt;LogFile&lt;/span&gt;/$&lt;span style=&quot;color: #007;&quot;&gt;Date&lt;/span&gt;.log
+&lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;fi&lt;/span&gt;
+
+&lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;if&lt;/span&gt; [ &lt;span style=&quot;color: #C00;&quot;&gt;!&lt;/span&gt; -d &lt;span style=&quot;color: #800;&quot;&gt;&quot;$Centos_7_base&quot;&lt;/span&gt; ];&lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;then&lt;/span&gt;
+mkdir -pv $&lt;span style=&quot;color: #007;&quot;&gt;Centos_7_base&lt;/span&gt;
+&lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;fi&lt;/span&gt;
+
+&lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;if&lt;/span&gt; [ &lt;span style=&quot;color: #C00;&quot;&gt;!&lt;/span&gt; -d &lt;span style=&quot;color: #800;&quot;&gt;&quot;$Centos_7_extras&quot;&lt;/span&gt; ];&lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;then&lt;/span&gt;
+mkdir -pv $&lt;span style=&quot;color: #007;&quot;&gt;Centos_7_extras&lt;/span&gt;
+&lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;fi&lt;/span&gt;
+
+&lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;if&lt;/span&gt; [ &lt;span style=&quot;color: #C00;&quot;&gt;!&lt;/span&gt; -d &lt;span style=&quot;color: #800;&quot;&gt;&quot;$Centos_7_updates&quot;&lt;/span&gt; ];&lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;then&lt;/span&gt;
+mkdir -pv $&lt;span style=&quot;color: #007;&quot;&gt;Centos_7_updates&lt;/span&gt;
+&lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;fi&lt;/span&gt;
+
+&lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;if&lt;/span&gt; [ &lt;span style=&quot;color: #C00;&quot;&gt;!&lt;/span&gt; -d &lt;span style=&quot;color: #800;&quot;&gt;&quot;$Centos_7_epel&quot;&lt;/span&gt; ];&lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;then&lt;/span&gt;
+mkdir -pv $&lt;span style=&quot;color: #007;&quot;&gt;Centos_7_epel&lt;/span&gt;
+&lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;fi&lt;/span&gt;
+
+&lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;if&lt;/span&gt; [ &lt;span style=&quot;color: #C00;&quot;&gt;!&lt;/span&gt; -d &lt;span style=&quot;color: #800;&quot;&gt;&quot;$Centos_7_mariadb&quot;&lt;/span&gt; ];&lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;then&lt;/span&gt;
+mkdir -pv $&lt;span style=&quot;color: #007;&quot;&gt;Centos_7_mariadb&lt;/span&gt;
+&lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;fi&lt;/span&gt;
+
+&lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;if&lt;/span&gt; [ &lt;span style=&quot;color: #C00;&quot;&gt;!&lt;/span&gt; -d &lt;span style=&quot;color: #800;&quot;&gt;&quot;$LogFile&quot;&lt;/span&gt; ];&lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;then&lt;/span&gt;
+mkdir -pv $&lt;span style=&quot;color: #007;&quot;&gt;LogFile&lt;/span&gt;
+&lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;fi&lt;/span&gt;
+
+&lt;span style=&quot;color: #633;&quot;&gt;#&lt;/span&gt;&lt;span style=&quot;color: #633;&quot;&gt;rsync centos 7 base&lt;/span&gt;
+&lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;echo&lt;/span&gt; &lt;span style=&quot;color: #800;&quot;&gt;&#39;Now start to rsync centos 7 base!&#39;&lt;/span&gt; &amp;gt;&amp;gt;$&lt;span style=&quot;color: #007;&quot;&gt;LogFile&lt;/span&gt;/$&lt;span style=&quot;color: #007;&quot;&gt;Date&lt;/span&gt;.log
+$&lt;span style=&quot;color: #007;&quot;&gt;RsyncBin&lt;/span&gt; $&lt;span style=&quot;color: #007;&quot;&gt;RsyncPerm&lt;/span&gt; rsync://mirrors.yun-idc.com/centos/7/os/ $&lt;span style=&quot;color: #007;&quot;&gt;Centos_7_base&lt;/span&gt; &amp;gt;&amp;gt;$&lt;span style=&quot;color: #007;&quot;&gt;LogFile&lt;/span&gt;/$&lt;span style=&quot;color: #007;&quot;&gt;Date&lt;/span&gt;.log
+check
+
+&lt;span style=&quot;color: #633;&quot;&gt;#&lt;/span&gt;&lt;span style=&quot;color: #633;&quot;&gt;rsync centos 7 extras&lt;/span&gt;
+&lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;echo&lt;/span&gt; &lt;span style=&quot;color: #800;&quot;&gt;&#39;Now start to rsync centos 7 extras!&#39;&lt;/span&gt; &amp;gt;&amp;gt;$&lt;span style=&quot;color: #007;&quot;&gt;LogFile&lt;/span&gt;/$&lt;span style=&quot;color: #007;&quot;&gt;Date&lt;/span&gt;.log
+$&lt;span style=&quot;color: #007;&quot;&gt;RsyncBin&lt;/span&gt; $&lt;span style=&quot;color: #007;&quot;&gt;RsyncPerm&lt;/span&gt; rsync://mirrors.yun-idc.com/centos/7/extras/ $&lt;span style=&quot;color: #007;&quot;&gt;Centos_7_extras&lt;/span&gt; &amp;gt;&amp;gt;$&lt;span style=&quot;color: #007;&quot;&gt;LogFile&lt;/span&gt;/$&lt;span style=&quot;color: #007;&quot;&gt;Date&lt;/span&gt;.log
+check
+
+&lt;span style=&quot;color: #633;&quot;&gt;#&lt;/span&gt;&lt;span style=&quot;color: #633;&quot;&gt;rsync centos 7 updates&lt;/span&gt;
+&lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;echo&lt;/span&gt; &lt;span style=&quot;color: #800;&quot;&gt;&#39;Now start to rsync centos 7 updates!&#39;&lt;/span&gt; &amp;gt;&amp;gt;$&lt;span style=&quot;color: #007;&quot;&gt;LogFile&lt;/span&gt;/$&lt;span style=&quot;color: #007;&quot;&gt;Date&lt;/span&gt;.log
+$&lt;span style=&quot;color: #007;&quot;&gt;RsyncBin&lt;/span&gt; $&lt;span style=&quot;color: #007;&quot;&gt;RsyncPerm&lt;/span&gt; rsync://mirrors.yun-idc.com/centos/7/updates/ $&lt;span style=&quot;color: #007;&quot;&gt;Centos_7_updates&lt;/span&gt; &amp;gt;&amp;gt;$&lt;span style=&quot;color: #007;&quot;&gt;LogFile&lt;/span&gt;/$&lt;span style=&quot;color: #007;&quot;&gt;Date&lt;/span&gt;.log
+check
+
+&lt;span style=&quot;color: #633;&quot;&gt;#&lt;/span&gt;&lt;span style=&quot;color: #633;&quot;&gt;rsync centos 7 epel&lt;/span&gt;
+&lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;echo&lt;/span&gt; &lt;span style=&quot;color: #800;&quot;&gt;&#39;Now start to rsync centos 7 epel!&#39;&lt;/span&gt; &amp;gt;&amp;gt;$&lt;span style=&quot;color: #007;&quot;&gt;LogFile&lt;/span&gt;/$&lt;span style=&quot;color: #007;&quot;&gt;Date&lt;/span&gt;.log
+$&lt;span style=&quot;color: #007;&quot;&gt;RsyncBin&lt;/span&gt; $&lt;span style=&quot;color: #007;&quot;&gt;RsyncPerm&lt;/span&gt; --exclude=SRPMS/ --exclude=ppc64/ rsync://mirrors.yun-idc.com/epel/7/ $&lt;span style=&quot;color: #007;&quot;&gt;Centos_7_epel&lt;/span&gt; &amp;gt;&amp;gt;$&lt;span style=&quot;color: #007;&quot;&gt;LogFile&lt;/span&gt;/$&lt;span style=&quot;color: #007;&quot;&gt;Date&lt;/span&gt;.log
+check
+
+&lt;span style=&quot;color: #633;&quot;&gt;#&lt;/span&gt;&lt;span style=&quot;color: #633;&quot;&gt;rsync centos 7 mariadb&lt;/span&gt;
+&lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;echo&lt;/span&gt; &lt;span style=&quot;color: #800;&quot;&gt;&#39;Now start to rsync centos 7 mariadb!&#39;&lt;/span&gt; &amp;gt;&amp;gt;$&lt;span style=&quot;color: #007;&quot;&gt;LogFile&lt;/span&gt;/$&lt;span style=&quot;color: #007;&quot;&gt;Date&lt;/span&gt;.log
+$&lt;span style=&quot;color: #007;&quot;&gt;RsyncBin&lt;/span&gt;  -vai4CH --safe-links --delay-updates --delete rsync://rsync.osuosl.org/mariadb/mariadb-10.0.22/yum/centos7-amd64/ $&lt;span style=&quot;color: #007;&quot;&gt;Centos_7_mariadb&lt;/span&gt; &amp;gt;&amp;gt;$&lt;span style=&quot;color: #007;&quot;&gt;LogFile&lt;/span&gt;/$&lt;span style=&quot;color: #007;&quot;&gt;Date&lt;/span&gt;.log
+check
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline2&quot; class=&quot;outline-3&quot;&gt;
+&lt;h3 id=&quot;orgheadline2&quot;&gt;查看磁盘空间&lt;/h3&gt;
+&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline2&quot;&gt;
+&lt;div class=&quot;org-src-container&quot;&gt;
+
+&lt;pre class=&quot;src src-sh&quot;&gt;du -sch /var/www/html/repos/
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline3&quot; class=&quot;outline-3&quot;&gt;
+&lt;h3 id=&quot;orgheadline3&quot;&gt;nginx配置&lt;/h3&gt;
+&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline3&quot;&gt;
+&lt;pre class=&quot;example&quot;&gt;
+location /repos {
+  root   /var/www/html;
+  autoindex on;
+}
+&lt;/pre&gt;
+
+&lt;p&gt;
+open browser, try &lt;a href=&quot;http://hostname/repos&quot;&gt;http://hostname/repos&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline4&quot; class=&quot;outline-3&quot;&gt;
+&lt;h3 id=&quot;orgheadline4&quot;&gt;定期同步&lt;/h3&gt;
+&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline4&quot;&gt;
+&lt;pre class=&quot;example&quot;&gt;
+30 02 * * * /bin/sh /root/sh/rsyncyumrepo.sh &amp;gt; /dev/null 2&amp;gt;&amp;amp;1
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline6&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline6&quot;&gt;客户端设置&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline6&quot;&gt;
+&lt;div class=&quot;org-src-container&quot;&gt;
+
+&lt;pre class=&quot;src src-sh&quot;&gt;rm -rf /etc/yum.repos.d/*.repo
+vi /etc/yum.repos.d/CentOS-Base.repo
+&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;
+repo文件内容如下:
+&lt;/p&gt;
+
+&lt;pre class=&quot;example&quot;&gt;
+# filename: CentOS-Base.repo
+#
+[base]
+name=CentOS-$releasever - Base
+baseurl=http://reposrv/repos/centos/base/$basearch
+gpgcheck=0
+
+
+#released updates
+[updates]
+name=CentOS-$releasever - Updates
+baseurl=http://reposrv/repos/centos/updates/$basearch
+gpgcheck=0
+
+#additional packages that may be useful
+[extras]
+name=CentOS-$releasever - Extras
+baseurl=http://reposrv/repos/centos/extras/$basearch
+gpgcheck=0
+
+#additional packages From Epel Release
+[epel]
+name=CentOS-$releasever - Epel Release
+baseurl=http://reposrv/repos/centos/epel/$basearch
+gpgcheck=0
+
+#Officail mariadb repo
+[mariadb]
+name=CentOS-$releasever - MariaDB
+baseurl=http://reposrv/repos/mariadb/10/0/
+gpgcheck=0
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+</description>
+        <pubDate>Thu, 12 Nov 2015 00:00:00 +0800</pubDate>
+        <link>/sysadmin/setup-local-yum-repo-for-centos7.html</link>
+        <guid isPermaLink="true">/sysadmin/setup-local-yum-repo-for-centos7.html</guid>
+        
+        <category>yum</category>
+        
+        
+        <category>sysadmin</category>
+        
+      </item>
+    
+      <item>
+        <title>神奇的openssh</title>
+        <description>&lt;div id=&quot;table-of-contents&quot;&gt;
+&lt;h2&gt;Table of Contents&lt;/h2&gt;
+&lt;div id=&quot;text-table-of-contents&quot;&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline1&quot;&gt;SSH作socks代理&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline2&quot;&gt;SSH作DNAT&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline3&quot;&gt;SSH X forward&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline4&quot;&gt;SSH作为文件传输协议&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline5&quot;&gt;参考链接&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;!--abstract-begin--&gt;
+&lt;p&gt;
+openssh是管理服务器的一种通讯协议，本身包含加密功能。此外，openssh还有如下用途:
+&lt;/p&gt;
+&lt;ul class=&quot;org-ul&quot;&gt;
+&lt;li&gt;socks代理&lt;/li&gt;
+&lt;li&gt;目的端口转发&lt;/li&gt;
+&lt;li&gt;x forward&lt;/li&gt;
+&lt;li&gt;文件传输协议&lt;/li&gt;
+&lt;/ul&gt;
+&lt;!--abstract-end--&gt;
+
+&lt;div id=&quot;outline-container-orgheadline1&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline1&quot;&gt;SSH作socks代理&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline1&quot;&gt;
+&lt;div class=&quot;org-src-container&quot;&gt;
+
+&lt;pre class=&quot;src src-sh&quot;&gt;ssh -p 22 -qTfnN -D 0.0.0.0:1919 root@hostname
+&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;
+如此时连接hostname成功，则本机侦听1919，并可为其它机器提供socks代理服务。openssh同时支持socksv4与socksv5。
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+
+&lt;div id=&quot;outline-container-orgheadline2&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline2&quot;&gt;SSH作DNAT&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline2&quot;&gt;
+&lt;p&gt;
+假如A可以连接B，B可连接C，但A不能直连C。此时我们可以在B上开启端口转发，当A连接B的某端口时，实际连接的是机器C。
+&lt;/p&gt;
+&lt;div class=&quot;org-src-container&quot;&gt;
+
+&lt;pre class=&quot;src src-sh&quot;&gt;ssh -p 22 -qTfnN -g -L 33089:ip_of_c:3389 root@localhost
+&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;
+上述示例，我们在A上连接B的33089端口，实际连接的是机器C的3389端口。
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline3&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline3&quot;&gt;SSH X forward&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline3&quot;&gt;
+&lt;div class=&quot;org-src-container&quot;&gt;
+
+&lt;pre class=&quot;src src-sh&quot;&gt;ssh -X &amp;lt;server&amp;gt;
+&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;
+此时我们可以在本地运行server上的X程序，例如通过服务器上的wireshark gui抓包。
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline4&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline4&quot;&gt;SSH作为文件传输协议&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline4&quot;&gt;
+&lt;div class=&quot;org-src-container&quot;&gt;
+
+&lt;pre class=&quot;src src-sh&quot;&gt;/usr/bin/rsync --delete -avz -e &lt;span style=&quot;color: #800;&quot;&gt;&#39;ssh -p 22222&#39;&lt;/span&gt; root@nginx01:/etc/nginx/ /etc/nginx/
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline5&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline5&quot;&gt;参考链接&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline5&quot;&gt;
+&lt;p&gt;
+&lt;a href=&quot;https://www.ibm.com/developerworks/cn/linux/l-cn-sshforward/&quot;&gt;实战SSH端口转发&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+</description>
+        <pubDate>Sun, 01 Nov 2015 00:00:00 +0800</pubDate>
+        <link>/sysadmin/amazing-openssh.html</link>
+        <guid isPermaLink="true">/sysadmin/amazing-openssh.html</guid>
+        
+        <category>ssh</category>
+        
+        
+        <category>sysadmin</category>
+        
+      </item>
+    
+      <item>
+        <title>Bloging with org-mode and Jekyll</title>
+        <description>&lt;div id=&quot;table-of-contents&quot;&gt;
+&lt;h2&gt;Table of Contents&lt;/h2&gt;
+&lt;div id=&quot;text-table-of-contents&quot;&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline1&quot;&gt;环境设置&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline2&quot;&gt;Emacs设置&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline3&quot;&gt;目录结构&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline4&quot;&gt;jekyll相关&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;!--abstract-begin--&gt;
+&lt;p&gt;
+Emacs org-mode是Emacs非常强大的一个插件, 可用于记事，并直接导出为html, latex, pdf, asciidoc等格式。本文主要讲述如何利用Emacs org-mode编写文章，并直接导出为blog post。
+&lt;/p&gt;
+&lt;!--abstract-end--&gt;
+
+&lt;div id=&quot;outline-container-orgheadline1&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline1&quot;&gt;环境设置&lt;/h2&gt;
+&lt;/div&gt;
+&lt;div id=&quot;outline-container-orgheadline2&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline2&quot;&gt;Emacs设置&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline2&quot;&gt;
+&lt;div class=&quot;org-src-container&quot;&gt;
+
+&lt;pre class=&quot;src src-emacs-lisp&quot; id=&quot;orgsrcblock1&quot;&gt;(setq org-publish-project-alist
+ &#39;(
+         (&lt;span style=&quot;color: #800;&quot;&gt;&quot;org-jekyll&quot;&lt;/span&gt;
+          &lt;span style=&quot;color: #633;&quot;&gt;;; &lt;/span&gt;&lt;span style=&quot;color: #633;&quot;&gt;Path to your org files.&lt;/span&gt;
+          &lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;:base-directory&lt;/span&gt; &lt;span style=&quot;color: #800;&quot;&gt;&quot;/opt/git/org-jekyll.git/&quot;&lt;/span&gt;
+          &lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;:base-extension&lt;/span&gt; &lt;span style=&quot;color: #800;&quot;&gt;&quot;org&quot;&lt;/span&gt;
+
+          &lt;span style=&quot;color: #633;&quot;&gt;;; &lt;/span&gt;&lt;span style=&quot;color: #633;&quot;&gt;Path to your Jekyll project.&lt;/span&gt;
+          &lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;:publishing-directory&lt;/span&gt; &lt;span style=&quot;color: #800;&quot;&gt;&quot;/var/www/org-jekyll/&quot;&lt;/span&gt;
+          &lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;:recursive&lt;/span&gt; t
+          &lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;:publishing-function&lt;/span&gt; org-html-publish-to-html
+          &lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;:headline-levels&lt;/span&gt; 4
+          &lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;:html-extension&lt;/span&gt; &lt;span style=&quot;color: #800;&quot;&gt;&quot;html&quot;&lt;/span&gt;
+          &lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;:body-only&lt;/span&gt; t &lt;span style=&quot;color: #633;&quot;&gt;;; &lt;/span&gt;&lt;span style=&quot;color: #633;&quot;&gt;Only export section between &amp;lt;body&amp;gt; &amp;lt;/body&amp;gt;&lt;/span&gt;
+         )
+
+
+         (&lt;span style=&quot;color: #800;&quot;&gt;&quot;org-jekyll-static&quot;&lt;/span&gt;
+          &lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;:base-directory&lt;/span&gt; &lt;span style=&quot;color: #800;&quot;&gt;&quot;/opt/git/org-jekyll.git/&quot;&lt;/span&gt;
+          &lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;:base-extension&lt;/span&gt; &lt;span style=&quot;color: #800;&quot;&gt;&quot;css&lt;/span&gt;&lt;span style=&quot;color: #E9C;&quot;&gt;\\&lt;/span&gt;&lt;span style=&quot;color: #E9C;&quot;&gt;|&lt;/span&gt;&lt;span style=&quot;color: #800;&quot;&gt;js&lt;/span&gt;&lt;span style=&quot;color: #E9C;&quot;&gt;\\&lt;/span&gt;&lt;span style=&quot;color: #E9C;&quot;&gt;|&lt;/span&gt;&lt;span style=&quot;color: #800;&quot;&gt;png&lt;/span&gt;&lt;span style=&quot;color: #E9C;&quot;&gt;\\&lt;/span&gt;&lt;span style=&quot;color: #E9C;&quot;&gt;|&lt;/span&gt;&lt;span style=&quot;color: #800;&quot;&gt;jpg&lt;/span&gt;&lt;span style=&quot;color: #E9C;&quot;&gt;\\&lt;/span&gt;&lt;span style=&quot;color: #E9C;&quot;&gt;|&lt;/span&gt;&lt;span style=&quot;color: #800;&quot;&gt;gif&lt;/span&gt;&lt;span style=&quot;color: #E9C;&quot;&gt;\\&lt;/span&gt;&lt;span style=&quot;color: #E9C;&quot;&gt;|&lt;/span&gt;&lt;span style=&quot;color: #800;&quot;&gt;pdf&lt;/span&gt;&lt;span style=&quot;color: #E9C;&quot;&gt;\\&lt;/span&gt;&lt;span style=&quot;color: #E9C;&quot;&gt;|&lt;/span&gt;&lt;span style=&quot;color: #800;&quot;&gt;mp3&lt;/span&gt;&lt;span style=&quot;color: #E9C;&quot;&gt;\\&lt;/span&gt;&lt;span style=&quot;color: #E9C;&quot;&gt;|&lt;/span&gt;&lt;span style=&quot;color: #800;&quot;&gt;ogg&lt;/span&gt;&lt;span style=&quot;color: #E9C;&quot;&gt;\\&lt;/span&gt;&lt;span style=&quot;color: #E9C;&quot;&gt;|&lt;/span&gt;&lt;span style=&quot;color: #800;&quot;&gt;swf&lt;/span&gt;&lt;span style=&quot;color: #E9C;&quot;&gt;\\&lt;/span&gt;&lt;span style=&quot;color: #E9C;&quot;&gt;|&lt;/span&gt;&lt;span style=&quot;color: #800;&quot;&gt;php&quot;&lt;/span&gt;
+          &lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;:publishing-directory&lt;/span&gt; &lt;span style=&quot;color: #800;&quot;&gt;&quot;/var/www/org-jekyll/&quot;&lt;/span&gt;
+          &lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;:recursive&lt;/span&gt; t
+          &lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;:publishing-function&lt;/span&gt; org-publish-attachment)
+
+         (&lt;span style=&quot;color: #800;&quot;&gt;&quot;jekyll&quot;&lt;/span&gt; &lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;:components&lt;/span&gt; (&lt;span style=&quot;color: #800;&quot;&gt;&quot;org-jekyll&quot;&lt;/span&gt; &lt;span style=&quot;color: #800;&quot;&gt;&quot;org-jekyll-static&quot;&lt;/span&gt;))
+         ))
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline3&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline3&quot;&gt;目录结构&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline3&quot;&gt;
+&lt;div class=&quot;org-src-container&quot;&gt;
+
+&lt;pre class=&quot;src src-sh&quot; id=&quot;orgsrcblock2&quot;&gt;mkdir -p /opt/git/org-jekyll.git/_posts
+&lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;cd&lt;/span&gt; /opt/git/org-jekyll.git/_posts
+emacs 2015-10-19-blogging-with-org-mode-and-jekyll.org
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline4&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline4&quot;&gt;jekyll相关&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline4&quot;&gt;
+&lt;div class=&quot;org-src-container&quot;&gt;
+
+&lt;pre class=&quot;src src-sh&quot;&gt;&lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;cd&lt;/span&gt; /var/www/org-jekyll/
+jekyll build
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+</description>
+        <pubDate>Mon, 19 Oct 2015 00:00:00 +0800</pubDate>
+        <link>/editor/blogging-with-org-mode-and-jekyll.html</link>
+        <guid isPermaLink="true">/editor/blogging-with-org-mode-and-jekyll.html</guid>
+        
+        <category>emacs</category>
+        
+        
+        <category>editor</category>
+        
+      </item>
+    
+      <item>
+        <title>我的vim工作环境</title>
+        <description>&lt;div id=&quot;table-of-contents&quot;&gt;
+&lt;h2&gt;Table of Contents&lt;/h2&gt;
+&lt;div id=&quot;text-table-of-contents&quot;&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline1&quot;&gt;通过vundle管理插件&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline8&quot;&gt;常用插件&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline2&quot;&gt;vim-airline&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline3&quot;&gt;vim-fugitive&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline4&quot;&gt;nerdtree&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline5&quot;&gt;nerdtreeCommenter&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline6&quot;&gt;delimitMate&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline7&quot;&gt;vim-markdown&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline9&quot;&gt;完整的vimrc文件&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;!--abstract-begin--&gt;
+&lt;p&gt;
+vim是linux下功能非常强大的一款编辑器，打造适合自己的vim环境需要长年的积累。若需要在不同的机器编辑修改文件，则势必涉及到vim工作环境的迁移。如何进行vim环境快速迁移，此文可作为参考。
+&lt;/p&gt;
+&lt;!--abstract-end--&gt;
+
+&lt;div id=&quot;outline-container-orgheadline1&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline1&quot;&gt;通过vundle管理插件&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline1&quot;&gt;
+&lt;pre class=&quot;example&quot;&gt;
+set rtp+=~/.vim/bundle/Vundle.vim
+call vundle#begin()
+&quot; let Vundle manage Vundle, required
+Plugin &#39;gmarik/Vundle.vim&#39;&quot;
+call vundle#end()
+filetype plugin indent on
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline8&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline8&quot;&gt;常用插件&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline8&quot;&gt;
+&lt;/div&gt;&lt;div id=&quot;outline-container-orgheadline2&quot; class=&quot;outline-3&quot;&gt;
+&lt;h3 id=&quot;orgheadline2&quot;&gt;vim-airline&lt;/h3&gt;
+&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline2&quot;&gt;
+&lt;pre class=&quot;example&quot;&gt;
+Plugin &#39;bling/vim-airline&#39;
+let g:airline#extensions#tabline#enabled = 1
+let g:airline_powerline_fonts = 1
+set laststatus=2
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline3&quot; class=&quot;outline-3&quot;&gt;
+&lt;h3 id=&quot;orgheadline3&quot;&gt;vim-fugitive&lt;/h3&gt;
+&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline3&quot;&gt;
+&lt;pre class=&quot;example&quot;&gt;
+Plugin &#39;tpope/vim-fugitive&#39;
+set statusline=%&amp;lt;%f\ %h%m%r%{fugitive#statusline()}%=%-14.(%l,%c%V%)\ %P
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline4&quot; class=&quot;outline-3&quot;&gt;
+&lt;h3 id=&quot;orgheadline4&quot;&gt;nerdtree&lt;/h3&gt;
+&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline4&quot;&gt;
+&lt;pre class=&quot;example&quot;&gt;
+Plugin &#39;https://github.com/scrooloose/nerdtree.git&#39;
+autocmd bufenter * if (winnr(&quot;$&quot;) == 1 &amp;amp;&amp;amp; exists(&quot;b:NERDTreeType&quot;) &amp;amp;&amp;amp; b:NERDTreeType == &quot;primary&quot;) | q | endif
+map &amp;lt;C-n&amp;gt; :NERDTreeToggle&amp;lt;CR&amp;gt;
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline5&quot; class=&quot;outline-3&quot;&gt;
+&lt;h3 id=&quot;orgheadline5&quot;&gt;nerdtreeCommenter&lt;/h3&gt;
+&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline5&quot;&gt;
+&lt;pre class=&quot;example&quot;&gt;
+Plugin &#39;scrooloose/nerdcommenter&#39;
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline6&quot; class=&quot;outline-3&quot;&gt;
+&lt;h3 id=&quot;orgheadline6&quot;&gt;delimitMate&lt;/h3&gt;
+&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline6&quot;&gt;
+&lt;pre class=&quot;example&quot;&gt;
+Plugin &#39;Raimondi/delimitMate&#39;
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline7&quot; class=&quot;outline-3&quot;&gt;
+&lt;h3 id=&quot;orgheadline7&quot;&gt;vim-markdown&lt;/h3&gt;
+&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline7&quot;&gt;
+&lt;pre class=&quot;example&quot;&gt;
+Plugin &#39;godlygeek/tabular&#39;
+Plugin &#39;plasticboy/vim-markdown&#39;
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline9&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline9&quot;&gt;完整的vimrc文件&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline9&quot;&gt;
+&lt;pre class=&quot;example&quot;&gt;
+&quot; begin vundle configuration
+&quot; pre job: 
+&quot; 1. mkdir -p ~/.vim/bundle/ &amp;amp;&amp;amp; cd ~/.vim/bundle/
+&quot; 2. git clone https://github.com/gmarik/Vundle.vim.git
+set nocompatible              &quot; be iMproved, required
+filetype off                  &quot; required
+
+&quot; set the runtime path to include Vundle and initialize
+&quot; ~/.vim/bundle/Vundle.vim
+set rtp+=~/.vim/bundle/Vundle.vim
+call vundle#begin()
+&quot; alternatively, pass a path where Vundle should install plugins
+&quot;call vundle#begin(&#39;~/some/path/here&#39;)
+
+&quot; let Vundle manage Vundle, required
+Plugin &#39;gmarik/Vundle.vim&#39;
+&quot; Plugin &#39;altercation/vim-colors-solarized&#39;
+
+Plugin &#39;https://github.com/scrooloose/nerdtree.git&#39;
+Plugin &#39;scrooloose/nerdcommenter&#39;
+Plugin &#39;mattn/emmet-vim&#39;
+Plugin &#39;pangloss/vim-javascript&#39;
+Plugin &#39;othree/html5.vim&#39;
+
+&quot; fugitive for git
+Plugin &#39;tpope/vim-fugitive&#39;
+
+&quot; youcompleteme 
+&quot; Plugin &#39;Valloric/YouCompleteMe&#39;
+
+&quot; Vim plugin, provides insert mode auto-completion for quotes, parens,
+&quot; brackets, etc.
+Plugin &#39;Raimondi/delimitMate&#39;
+
+&quot; Syntax checking hacks for vim
+&quot; Plugin &#39;scrooloose/syntastic&#39;
+
+&quot; lean &amp;amp; mean status/tabline for vim that&#39;s light as air
+Plugin &#39;bling/vim-airline&#39;
+&quot; Plugin &#39;edkolev/tmuxline.vim&#39;
+
+
+&quot; snipMate plugin
+Plugin &#39;MarcWeber/vim-addon-mw-utils&#39;
+Plugin &#39;tomtom/tlib_vim&#39;
+Plugin &#39;garbas/vim-snipmate&#39;
+Plugin &#39;honza/vim-snippets&#39;
+
+&quot; markdown vim mode
+Plugin &#39;godlygeek/tabular&#39;
+Plugin &#39;plasticboy/vim-markdown&#39;
+&quot; disable the folding configuration:
+&quot; let g:vim_markdown_folding_disabled=1
+&quot; Highlight YAML frontmatter as used by Jekyll:
+let g:vim_markdown_frontmatter=1
+
+&quot; set snips_author variable
+let g:snips_author=&#39;wanglifeng&#39;
+
+&quot; nerdtree plugin
+&quot; autocmd vimenter * NERDTree
+&quot; close nerdtree when the last window left is nerdtree
+autocmd bufenter * if (winnr(&quot;$&quot;) == 1 &amp;amp;&amp;amp; exists(&quot;b:NERDTreeType&quot;) &amp;amp;&amp;amp; b:NERDTreeType == &quot;primary&quot;) | q | endif
+map &amp;lt;C-n&amp;gt; :NERDTreeToggle&amp;lt;CR&amp;gt;
+
+&quot; The following are examples of different formats supported.
+&quot; Keep Plugin commands between vundle#begin/end.
+&quot; plugin on GitHub repo
+&quot; Plugin &#39;tpope/vim-fugitive&#39;
+&quot; plugin from http://vim-scripts.org/vim/scripts.html
+&quot; Plugin &#39;L9&#39;
+&quot; Git plugin not hosted on GitHub
+&quot; Plugin &#39;git://git.wincent.com/command-t.git&#39;
+&quot; git repos on your local machine (i.e. when working on your own plugin)
+&quot; Plugin &#39;file:///home/gmarik/path/to/plugin&#39;
+&quot; The sparkup vim script is in a subdirectory of this repo called vim.
+&quot; Pass the path to set the runtimepath properly.
+&quot; Plugin &#39;rstacruz/sparkup&#39;, {&#39;rtp&#39;: &#39;vim/&#39;}
+&quot; Avoid a name conflict with L9
+&quot; Plugin &#39;user/L9&#39;, {&#39;name&#39;: &#39;newL9&#39;}
+
+&quot; All of your Plugins must be added before the following line
+call vundle#end()            &quot; required
+filetype plugin indent on    &quot; required
+&quot; To ignore plugin indent changes, instead use:
+&quot;filetype plugin on
+&quot;
+&quot; Brief help
+&quot; :PluginList       - lists configured plugins
+&quot; :PluginInstall    - installs plugins; append `!` to update or just :PluginUpdate
+&quot; :PluginSearch foo - searches for foo; append `!` to refresh local cache
+&quot; :PluginClean      - confirms removal of unused plugins; append `!` to auto-approve removal
+&quot;
+&quot; see :h vundle for more details or wiki for FAQ
+&quot; Put your non-Plugin stuff after this line
+
+&quot;
+&quot;settings for plugin scrooloose/syntastic
+&quot;set statusline+=%#warningmsg#
+&quot;set statusline+=%{SyntasticStatuslineFlag()}
+&quot;set statusline+=%*
+
+&quot;let g:syntastic_always_populate_loc_list = 1
+&quot;let g:syntastic_auto_loc_list = 1
+&quot;let g:syntastic_check_on_open = 1
+&quot;let g:syntastic_check_on_wq = 0
+
+&quot; vim-airline
+&quot; Automatically displays all buffers when there&#39;s only one tab open.
+let g:airline#extensions#tabline#enabled = 1
+let g:airline_powerline_fonts = 1
+set laststatus=2
+nnoremap [b :bp&amp;lt;CR&amp;gt;
+nnoremap ]b :bn&amp;lt;CR&amp;gt;
+
+&quot; set expandtab
+&quot; used by fugitive to show current git branch
+set statusline=%&amp;lt;%f\ %h%m%r%{fugitive#statusline()}%=%-14.(%l,%c%V%)\ %P
+
+&quot; Separators can be configured independently for the tabline, so here is how
+&quot; you can define &quot;straight&quot; tabs:
+let g:airline#extensions#tabline#left_sep = &#39; &#39;
+let g:airline#extensions#tabline#left_alt_sep = &#39;|&#39;
+
+&quot;detect and display in right encoding
+set fileencodings=ucs-bom,utf-8,cp936,gb18030,big5,euc-jp,euc-kr,latin1
+set autoindent
+set cindent
+set smartindent
+set tabstop=4
+set shiftwidth=4
+set t_Co=256
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+</description>
+        <pubDate>Wed, 12 Aug 2015 00:00:00 +0800</pubDate>
+        <link>/editor/my-vim-environment.html</link>
+        <guid isPermaLink="true">/editor/my-vim-environment.html</guid>
+        
+        <category>vim</category>
+        
+        
+        <category>editor</category>
+        
+      </item>
+    
+      <item>
+        <title>Git basic operation</title>
+        <description>&lt;div id=&quot;table-of-contents&quot;&gt;
+&lt;h2&gt;Table of Contents&lt;/h2&gt;
+&lt;div id=&quot;text-table-of-contents&quot;&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline1&quot;&gt;flow chart&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline2&quot;&gt;create project&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline3&quot;&gt;stage,commit,push, tags&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline4&quot;&gt;branches&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline5&quot;&gt;rebase&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline6&quot;&gt;git设置socks 代理&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;!--abstract-begin--&gt;
+&lt;p&gt;
+本文介绍git常用操作。
+&lt;/p&gt;
+&lt;!--abstract-end--&gt;
+
+&lt;div id=&quot;outline-container-orgheadline1&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline1&quot;&gt;flow chart&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline1&quot;&gt;
+&lt;div class=&quot;org-center&quot;&gt;
+
+&lt;div class=&quot;figure&quot;&gt;
+&lt;p&gt;&lt;img src=&quot;/resource/tools/fig/git/bg20150807.png&quot; alt=&quot;bg20150807.png&quot; /&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline2&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline2&quot;&gt;create project&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline2&quot;&gt;
+&lt;div class=&quot;org-src-container&quot;&gt;
+
+&lt;pre class=&quot;src src-sh&quot;&gt;mkdir -p repo.git
+git init
+&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;org-src-container&quot;&gt;
+
+&lt;pre class=&quot;src src-sh&quot;&gt;git clone url/filepath repo.git
+&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;org-src-container&quot;&gt;
+
+&lt;pre class=&quot;src src-sh&quot;&gt;mkdir -p repo.git
+git init --bare
+&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;
+&lt;code&gt;notes: repo only, not allowed to see text content in file&lt;/code&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+
+&lt;div id=&quot;outline-container-orgheadline3&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline3&quot;&gt;stage,commit,push, tags&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline3&quot;&gt;
+&lt;div class=&quot;org-src-container&quot;&gt;
+
+&lt;pre class=&quot;src src-sh&quot;&gt;&lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;echo&lt;/span&gt; &lt;span style=&quot;color: #800;&quot;&gt;&quot;bin/&quot;&lt;/span&gt; &amp;gt; .gitignore
+&lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;echo&lt;/span&gt; &lt;span style=&quot;color: #800;&quot;&gt;&quot;*.o&quot;&lt;/span&gt; &amp;gt;&amp;gt; .gitignore
+git add README.md
+git add -A .
+git reset
+git commit -m &lt;span style=&quot;color: #800;&quot;&gt;&quot;1st commit&quot;&lt;/span&gt;
+git remote add origin git@github.com:/username/repo.git
+
+git tag -a v0.1.2 -m &amp;#8220;version0.1.2&amp;#8221;
+git tag -a v0.1.1 9fbc3d0 -m &lt;span style=&quot;color: #800;&quot;&gt;&quot;version0.1.1&quot;&lt;/span&gt;
+
+git push origin master
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline4&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline4&quot;&gt;branches&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline4&quot;&gt;
+&lt;div class=&quot;org-src-container&quot;&gt;
+
+&lt;pre class=&quot;src src-sh&quot;&gt;git checkout -b feature
+git checkout master
+git checkout master~2 Makefile
+rm -f hello.c
+git checkout hello.c
+git stash
+git stash list
+git stash pop
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline5&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline5&quot;&gt;rebase&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline5&quot;&gt;
+&lt;div class=&quot;org-src-container&quot;&gt;
+
+&lt;pre class=&quot;src src-sh&quot;&gt;git rebase -i origin/master
+git rebase -i HEAD~3
+&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;
+&lt;code&gt;rebase can be used to combine multiple commits into single one before push to remote repo&lt;/code&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline6&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline6&quot;&gt;git设置socks 代理&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline6&quot;&gt;
+&lt;p&gt;
+vi ~/.ssh/config
+&lt;/p&gt;
+&lt;pre class=&quot;example&quot;&gt;
+Host github.com
+  User  git
+  ProxyCommand  nc -x localhost:1080 %h %p
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+</description>
+        <pubDate>Fri, 07 Aug 2015 00:00:00 +0800</pubDate>
+        <link>/tools/git-basic-operation.html</link>
+        <guid isPermaLink="true">/tools/git-basic-operation.html</guid>
+        
+        <category>git</category>
+        
+        
+        <category>tools</category>
+        
+      </item>
+    
+      <item>
+        <title>CentOS 安装pptpd服务</title>
+        <description>&lt;div id=&quot;table-of-contents&quot;&gt;
+&lt;h2&gt;Table of Contents&lt;/h2&gt;
+&lt;div id=&quot;text-table-of-contents&quot;&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline1&quot;&gt;安装pptpd&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline6&quot;&gt;设置&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline2&quot;&gt;编辑/etc/sysctl.conf&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline3&quot;&gt;配置脚本&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline4&quot;&gt;编辑/etc/ppp/chap-secrets&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline5&quot;&gt;连线测试&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;!--abstract-begin--&gt;
+&lt;p&gt;
+PPTP是远程接入VPN技术的其中一种，一般用于企业员工通过互联网接入内部网。PPTP作为一种服务，一般在路由器或者防火墙上实现。但本文主要讲述，在没有网络设备的情况下，如何通过服务器安装pptpd来实现remote access VPN功能。
+&lt;/p&gt;
+&lt;!--abstract-end--&gt;
+
+
+&lt;div id=&quot;outline-container-orgheadline1&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline1&quot;&gt;安装pptpd&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline1&quot;&gt;
+&lt;pre class=&quot;example&quot;&gt;
+yum -y install pptpd
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline6&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline6&quot;&gt;设置&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline6&quot;&gt;
+&lt;/div&gt;&lt;div id=&quot;outline-container-orgheadline2&quot; class=&quot;outline-3&quot;&gt;
+&lt;h3 id=&quot;orgheadline2&quot;&gt;编辑/etc/sysctl.conf&lt;/h3&gt;
+&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline2&quot;&gt;
+&lt;pre class=&quot;example&quot;&gt;
+net.ipv4.ip_forward = 1
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline3&quot; class=&quot;outline-3&quot;&gt;
+&lt;h3 id=&quot;orgheadline3&quot;&gt;配置脚本&lt;/h3&gt;
+&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline3&quot;&gt;
+&lt;p&gt;
+将如下文件内容加入pptp.sh, 并手工执行。
+&lt;/p&gt;
+
+&lt;div class=&quot;org-src-container&quot;&gt;
+
+&lt;pre class=&quot;src src-sh&quot;&gt;sysctl -p
+&lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;echo&lt;/span&gt; &lt;span style=&quot;color: #800;&quot;&gt;&quot;localip 192.168.240.1&quot;&lt;/span&gt; &amp;gt;&amp;gt; /etc/pptpd.conf
+&lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;echo&lt;/span&gt; &lt;span style=&quot;color: #800;&quot;&gt;&quot;remoteip 192.168.240.101-200&quot;&lt;/span&gt; &amp;gt;&amp;gt; /etc/pptpd.conf
+&lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;echo&lt;/span&gt; &lt;span style=&quot;color: #800;&quot;&gt;&quot;ms-dns 8.8.8.8&quot;&lt;/span&gt; &amp;gt;&amp;gt; /etc/ppp/options.pptpd
+&lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;echo&lt;/span&gt; &lt;span style=&quot;color: #800;&quot;&gt;&quot;ms-dns 8.8.4.4&quot;&lt;/span&gt; &amp;gt;&amp;gt; /etc/ppp/options.pptpd
+iptables --flush POSTROUTING --table nat
+iptables --flush FORWARD
+iptables -A INPUT -p tcp -m tcp --dport 1723 -j ACCEPT
+iptables -A INPUT -p gre -j ACCEPT
+iptables -t nat -A POSTROUTING -s 192.168.240.0/24 -o ens33 -j MASQUERADE
+iptables -A INPUT -s 192.168.240.0/24 -p tcp -m tcp -j ACCEPT
+service iptables save
+service pptpd restart
+service iptables restart
+chkconfig pptpd on
+chkconfig iptables on
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline4&quot; class=&quot;outline-3&quot;&gt;
+&lt;h3 id=&quot;orgheadline4&quot;&gt;编辑/etc/ppp/chap-secrets&lt;/h3&gt;
+&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline4&quot;&gt;
+&lt;pre class=&quot;example&quot;&gt;
+帐号名称 pptpd 密码 *
+wesley pptpd 123456 *
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline5&quot; class=&quot;outline-3&quot;&gt;
+&lt;h3 id=&quot;orgheadline5&quot;&gt;连线测试&lt;/h3&gt;
+&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline5&quot;&gt;
+&lt;p&gt;
+部分客户端操作系统，可能需要手工添加私网路由。例如mac系统：
+&lt;/p&gt;
+
+&lt;div class=&quot;org-src-container&quot;&gt;
+
+&lt;pre class=&quot;src src-sh&quot;&gt;sudo route add -net 172.16.0.0 192.168.240.1
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+</description>
+        <pubDate>Sat, 01 Aug 2015 00:00:00 +0800</pubDate>
+        <link>/network/install-pptpd-on-linux.html</link>
+        <guid isPermaLink="true">/network/install-pptpd-on-linux.html</guid>
+        
+        <category>pptp</category>
+        
+        
+        <category>network</category>
+        
+      </item>
+    
+      <item>
+        <title>vim-snipmate插件</title>
+        <description>&lt;div id=&quot;table-of-contents&quot;&gt;
+&lt;h2&gt;Table of Contents&lt;/h2&gt;
+&lt;div id=&quot;text-table-of-contents&quot;&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline1&quot;&gt;安装方法&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline2&quot;&gt;使用方法&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline3&quot;&gt;自定义snippet内容&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;!--abstract-begin--&gt;
+&lt;p&gt;
+vim-snipmate插件的安装及使用
+&lt;/p&gt;
+&lt;!--abstract-end--&gt;
+
+&lt;div id=&quot;outline-container-orgheadline1&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline1&quot;&gt;安装方法&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline1&quot;&gt;
+&lt;p&gt;
+如vim插件通过Vundle进行管理，则在vimrc中添加如下内容：
+&lt;/p&gt;
+
+&lt;pre class=&quot;example&quot;&gt;
+&quot; snipMate plugin
+Plugin &#39;MarcWeber/vim-addon-mw-utils&#39;
+Plugin &#39;tomtom/tlib_vim&#39;
+Plugin &#39;garbas/vim-snipmate&#39;
+Plugin &#39;honza/vim-snippets&#39;
+let g:snips_author=&#39;wanglifeng&#39;
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+
+&lt;div id=&quot;outline-container-orgheadline2&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline2&quot;&gt;使用方法&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline2&quot;&gt;
+&lt;p&gt;
+以C语言为例，默认的snippet文件为c.snippets，已预定义了部分snippet内容
+&lt;/p&gt;
+
+&lt;p&gt;
+例: 输入include按tab键，内容补全为如下内容：
+&lt;/p&gt;
+
+
+&lt;div class=&quot;org-src-container&quot;&gt;
+
+&lt;pre class=&quot;src src-c&quot;&gt;&lt;span style=&quot;color: #800;&quot;&gt;#include&lt;/span&gt; &lt;span style=&quot;color: #800;&quot;&gt;&amp;lt;stdio.h&amp;gt;&lt;/span&gt;
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline3&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline3&quot;&gt;自定义snippet内容&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline3&quot;&gt;
+&lt;div class=&quot;org-src-container&quot;&gt;
+
+&lt;pre class=&quot;src src-c&quot;&gt;## self defined snippets
+snippet basic
+    &lt;span style=&quot;color: #633;&quot;&gt;/*&lt;/span&gt;
+&lt;span style=&quot;color: #633;&quot;&gt;     * author: `g:snips_author`&lt;/span&gt;
+&lt;span style=&quot;color: #633;&quot;&gt;     * filename: `vim_snippets#Filename(&quot;$1.c&quot;)`&lt;/span&gt;
+&lt;span style=&quot;color: #633;&quot;&gt;     * date: `strftime(&quot;%Y-%m-%d&quot;)`&lt;/span&gt;
+&lt;span style=&quot;color: #633;&quot;&gt;     *&lt;/span&gt;
+&lt;span style=&quot;color: #633;&quot;&gt;     &lt;/span&gt;&lt;span style=&quot;color: #633;&quot;&gt;*/&lt;/span&gt;
+
+&lt;span style=&quot;color: #800;&quot;&gt;    #include&lt;/span&gt; &lt;span style=&quot;color: #800;&quot;&gt;&amp;lt;stdio.h&amp;gt;&lt;/span&gt;
+&lt;span style=&quot;color: #800;&quot;&gt;    #include&lt;/span&gt; &lt;span style=&quot;color: #800;&quot;&gt;&amp;lt;stdlib.h&amp;gt;&lt;/span&gt;
+    &lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;int&lt;/span&gt;
+    main() {
+        ${0}
+        &lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;return&lt;/span&gt; EXIT_SUCCESS;
+    }
+#+END_EXAMPLE
+
+- ${0}&amp;#34920;&amp;#31034;&amp;#20809;&amp;#26631;&amp;#20301;&amp;#32622;
+- g:snips_author&amp;#34920;&amp;#31034;vimrc&amp;#20013;&amp;#30340;&amp;#21464;&amp;#37327;
+- Filename&amp;#20026;&amp;#25554;&amp;#20214;&amp;#33258;&amp;#24102;&amp;#30340;&amp;#20989;&amp;#25968;
+- strftime&amp;#20026;vim&amp;#20989;&amp;#25968;
+
+&amp;#22312;C&amp;#28304;&amp;#25991;&amp;#20214;abc.c&amp;#36755;&amp;#20837;basic&amp;#24182;&amp;#21152;tab&amp;#34917;&amp;#20840;&amp;#21518;&amp;#65292;&amp;#36716;&amp;#25442;&amp;#20026;&amp;#22914;&amp;#19979;&amp;#20869;&amp;#23481;&amp;#65306;
+
+#+BEGIN_SRC c
+&lt;span style=&quot;color: #633;&quot;&gt;/*&lt;/span&gt;
+&lt;span style=&quot;color: #633;&quot;&gt; * author: wanglifeng&lt;/span&gt;
+&lt;span style=&quot;color: #633;&quot;&gt; * filename: abc.c&lt;/span&gt;
+&lt;span style=&quot;color: #633;&quot;&gt; * date: 2015-07-22&lt;/span&gt;
+&lt;span style=&quot;color: #633;&quot;&gt; *&lt;/span&gt;
+&lt;span style=&quot;color: #633;&quot;&gt; &lt;/span&gt;&lt;span style=&quot;color: #633;&quot;&gt;*/&lt;/span&gt;
+
+&lt;span style=&quot;color: #800;&quot;&gt;#include&lt;/span&gt; &lt;span style=&quot;color: #800;&quot;&gt;&amp;lt;stdio.h&amp;gt;&lt;/span&gt;
+&lt;span style=&quot;color: #800;&quot;&gt;#include&lt;/span&gt; &lt;span style=&quot;color: #800;&quot;&gt;&amp;lt;stdlib.h&amp;gt;&lt;/span&gt;
+&lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;int&lt;/span&gt;
+main() {
+    &lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;return&lt;/span&gt; EXIT_SUCCESS;
+}
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+</description>
+        <pubDate>Wed, 22 Jul 2015 00:00:00 +0800</pubDate>
+        <link>/editor/vim-snipmate-plugin.html</link>
+        <guid isPermaLink="true">/editor/vim-snipmate-plugin.html</guid>
+        
+        <category>vim</category>
+        
+        
+        <category>editor</category>
+        
+      </item>
+    
+      <item>
+        <title>C语言NULL指针FAQ</title>
+        <description>&lt;div id=&quot;table-of-contents&quot;&gt;
+&lt;h2&gt;Table of Contents&lt;/h2&gt;
+&lt;div id=&quot;text-table-of-contents&quot;&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline1&quot;&gt;Q: What is NULL and how is it defined?&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline2&quot;&gt;Q:How do I get a null pointer in my programs?&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;!--abstract-begin--&gt;
+&lt;p&gt;
+C NULL Pointer FAQ
+&lt;/p&gt;
+&lt;!--abstract-end--&gt;
+
+
+&lt;div id=&quot;outline-container-orgheadline1&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline1&quot;&gt;Q: What is NULL and how is it defined?&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline1&quot;&gt;
+&lt;pre class=&quot;example&quot;&gt;
+As a matter of style, many programmers prefer not to have unadorned 0&#39;s scattered through their programs, some representing numbers and some representing pointers. Therefore, the preprocessor macro NULL is defined (by several headers, including &amp;lt;stdio.h&amp;gt; and &amp;lt;stddef.h&amp;gt;) as a null pointer constant, typically 0 or ((void *)0). A programmer who wishes to make explicit the distinction between 0 the integer and 0 the null pointer constant can then use NULL whenever a null pointer is required.
+
+Using NULL is a stylistic convention only; the preprocessor turns NULL back into 0 which is then recognized by the compiler, in pointer contexts, as before. In particular, a cast may still be necessary before NULL (as before 0) in a function call argument. The table under question 5.2 above applies for NULL as well as 0 (an unadorned NULL is equivalent to an unadorned 0).
+NULL should be used only as a pointer constant;
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline2&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline2&quot;&gt;Q:How do I get a null pointer in my programs?&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline2&quot;&gt;
+&lt;pre class=&quot;example&quot;&gt;
+With a null pointer constant.
+
+According to the language definition, an &quot;integral constant expression with the value 0&quot; in a pointer context is converted into a null pointer at compile time. That is, in an initialization, assignment, or comparison when one side is a variable or expression of pointer type, the compiler can tell that a constant 0 on the other side requests a null pointer, and generate the correctly-typed null pointer value. Therefore, the following fragments are perfectly legal:
+	char *p = 0;
+	if(p != 0)
+
+However, an argument being passed to a function is not necessarily recognizable as a pointer context, and the compiler may not be able to tell that an unadorned 0 &quot;means&quot; a null pointer. To generate a null pointer in a function call context, an explicit cast may be required, to force the 0 to be recognized as a pointer. For example, the Unix system call execl takes a variable-length, null-pointer-terminated list of character pointer arguments, and is correctly called like this:
+	execl(&quot;/bin/sh&quot;, &quot;sh&quot;, &quot;-c&quot;, &quot;date&quot;, (char *)0);
+If the (char *) cast on the last argument were omitted, the compiler would not know to pass a null pointer, and would pass an integer 0 instead.
+
+When function prototypes are in scope, argument passing becomes an &quot;assignment context,&quot; and most casts may safely be omitted, since the prototype tells the compiler that a pointer is required, and of which type, enabling it to correctly convert an unadorned 0. Function prototypes cannot provide the types for variable arguments in variable-length argument lists however, so explicit casts are still required for those arguments.  It is probably safest to properly cast all null pointer constants in function calls, to guard against varargs functions or those without prototypes.
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+</description>
+        <pubDate>Wed, 15 Jul 2015 00:00:00 +0800</pubDate>
+        <link>/language/c-null-pointer.html</link>
+        <guid isPermaLink="true">/language/c-null-pointer.html</guid>
+        
+        <category>c</category>
+        
+        
+        <category>language</category>
+        
+      </item>
+    
+      <item>
+        <title>Code Review工具Gerrit2安装方法</title>
+        <description>&lt;div id=&quot;table-of-contents&quot;&gt;
+&lt;h2&gt;Table of Contents&lt;/h2&gt;
+&lt;div id=&quot;text-table-of-contents&quot;&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline1&quot;&gt;环境准备&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline4&quot;&gt;数据库准备&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline2&quot;&gt;mysql-server安装&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline3&quot;&gt;数据库设置&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline5&quot;&gt;gerrit2初始化&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline6&quot;&gt;gerrit2 启动&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline7&quot;&gt;nginx设置&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline8&quot;&gt;ssh 配置&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline14&quot;&gt;第一个project的workflow&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline9&quot;&gt;new project&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline10&quot;&gt;git clone&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline11&quot;&gt;git push&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline12&quot;&gt;review&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline13&quot;&gt;accept&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;!--abstract-begin--&gt;
+&lt;p&gt;
+代码审查是开发流程的重要一环，gerrit2是google开源用于代码审查的工具，其采用Java实现。本文讲述如何安装gerrit2，并示范如何开始第一个工程。
+&lt;/p&gt;
+&lt;!--abstract-end--&gt;
+
+&lt;div id=&quot;outline-container-orgheadline1&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline1&quot;&gt;环境准备&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline1&quot;&gt;
+&lt;ol class=&quot;org-ol&quot;&gt;
+&lt;li&gt;准备gerrit.war, 此处为Centos 6.5 64bit环境下v2.10-rc2版本安装&lt;/li&gt;
+&lt;li&gt;java 1.7.0以上版本，并设置好CLASSPATH&lt;/li&gt;
+&lt;li&gt;准备mysql-connector-java-5.1.21-bin.jar&lt;/li&gt;
+&lt;li&gt;提前安装git&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline4&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline4&quot;&gt;数据库准备&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline4&quot;&gt;
+&lt;/div&gt;&lt;div id=&quot;outline-container-orgheadline2&quot; class=&quot;outline-3&quot;&gt;
+&lt;h3 id=&quot;orgheadline2&quot;&gt;mysql-server安装&lt;/h3&gt;
+&lt;/div&gt;
+&lt;div id=&quot;outline-container-orgheadline3&quot; class=&quot;outline-3&quot;&gt;
+&lt;h3 id=&quot;orgheadline3&quot;&gt;数据库设置&lt;/h3&gt;
+&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline3&quot;&gt;
+&lt;pre class=&quot;example&quot;&gt;
+CREATE USER &#39;gerrit2&#39;@&#39;hostip&#39; IDENTIFIED BY &#39;secret&#39;;
+CREATE DATABASE reviewdb;
+GRANT ALL ON reviewdb.* TO &#39;gerrit2&#39;@&#39;hostip&#39;;
+FLUSH PRIVILEGES;
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline5&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline5&quot;&gt;gerrit2初始化&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline5&quot;&gt;
+&lt;div class=&quot;org-src-container&quot;&gt;
+
+&lt;pre class=&quot;src src-sh&quot;&gt;adduser gerrit2
+mkdir -p /opt/gerrit2
+chown -R gerrit2.gerrit2 /opt/gerrit2
+su - gerrit2
+java -jar gerrit.war init -d /opt/gerrit2
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline6&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline6&quot;&gt;gerrit2 启动&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline6&quot;&gt;
+&lt;div class=&quot;org-src-container&quot;&gt;
+
+&lt;pre class=&quot;src src-sh&quot;&gt;&lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;cd&lt;/span&gt; /opt/gerrit2/bin
+./gerrit.sh start
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline7&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline7&quot;&gt;nginx设置&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline7&quot;&gt;
+&lt;div class=&quot;org-src-container&quot;&gt;
+
+&lt;pre class=&quot;src src-sh&quot;&gt;git config --file /opt/gerrit2/etc/gerrit.config auth.type HTTP
+git config --file /opt/gerrit2/etc/gerrit.config --unset auth.httpHeader
+git config --file /opt/gerrit2/etc/gerrit.config auth.emailFormat &lt;span style=&quot;color: #800;&quot;&gt;&#39;{0}@citicbank.com&#39;&lt;/span&gt;
+
+git config --global user.name &lt;span style=&quot;color: #800;&quot;&gt;&quot;wanglf&quot;&lt;/span&gt;
+git config --global user.email &lt;span style=&quot;color: #800;&quot;&gt;&quot;wanglifeng_hz@citicbank.com&quot;&lt;/span&gt;
+&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;
+&lt;code&gt;htpasswd生成web服务器认证密码文件， 并修改nginx配置如下&lt;/code&gt;
+&lt;/p&gt;
+
+&lt;pre class=&quot;example&quot;&gt;
+location /gerrit2/ {
+      auth_basic &quot;Restricted&quot;;
+      auth_basic_user_file /etc/nginx/username.password;
+      proxy_pass http://gerrit2cluster;
+      proxy_set_header    Host    $host;
+      proxy_set_header    X-Real-IP   $remote_addr;
+      proxy_set_header    X-Forwarded-For $proxy_add_x_forwarded_for;
+}
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline8&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline8&quot;&gt;ssh 配置&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline8&quot;&gt;
+&lt;pre class=&quot;example&quot;&gt;
+ssh-keygen -t rsa
+&lt;/pre&gt;
+
+&lt;p&gt;
+&lt;code&gt;拷贝 id_rsa.pub至web界面的ssh公钥。 vi ~/.ssh/config, 增加如下内容:&lt;/code&gt;
+&lt;/p&gt;
+
+&lt;pre class=&quot;example&quot;&gt;
+Host gerrit2
+Hostname gerrit2
+User admin
+Port 29418
+IdentityFile ~/.ssh/id_rsa
+&lt;/pre&gt;
+
+&lt;p&gt;
+&lt;code&gt;测试&lt;/code&gt;
+&lt;/p&gt;
+
+&lt;pre class=&quot;example&quot;&gt;
+ssh gerrit2
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline14&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline14&quot;&gt;第一个project的workflow&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline14&quot;&gt;
+&lt;/div&gt;&lt;div id=&quot;outline-container-orgheadline9&quot; class=&quot;outline-3&quot;&gt;
+&lt;h3 id=&quot;orgheadline9&quot;&gt;new project&lt;/h3&gt;
+&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline9&quot;&gt;
+&lt;p&gt;
+方式一: 通过web界面或gerrit命令行新建project
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline10&quot; class=&quot;outline-3&quot;&gt;
+&lt;h3 id=&quot;orgheadline10&quot;&gt;git clone&lt;/h3&gt;
+&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline10&quot;&gt;
+&lt;p&gt;
+方式二: clone现有的project
+&lt;/p&gt;
+
+&lt;div class=&quot;org-src-container&quot;&gt;
+
+&lt;pre class=&quot;src src-sh&quot;&gt;mkdir -p /opt/git/
+chown -R gerrit2.gerrit2 /opt/git/
+su - gerrit2
+&lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;cd&lt;/span&gt; /opt/git/
+git clone ssh://admin@hostip:29418/test
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline11&quot; class=&quot;outline-3&quot;&gt;
+&lt;h3 id=&quot;orgheadline11&quot;&gt;git push&lt;/h3&gt;
+&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline11&quot;&gt;
+&lt;p&gt;
+日常git操作，commit之后，利用如下命令推送至changes
+&lt;/p&gt;
+
+&lt;div class=&quot;org-src-container&quot;&gt;
+
+&lt;pre class=&quot;src src-sh&quot;&gt;git add readme.MD
+git commit -m &lt;span style=&quot;color: #800;&quot;&gt;&quot;initial commit&quot;&lt;/span&gt;
+git push origin HEAD:refs/for/master
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline12&quot; class=&quot;outline-3&quot;&gt;
+&lt;h3 id=&quot;orgheadline12&quot;&gt;review&lt;/h3&gt;
+&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline12&quot;&gt;
+&lt;p&gt;
+gerrit web上进行review
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline13&quot; class=&quot;outline-3&quot;&gt;
+&lt;h3 id=&quot;orgheadline13&quot;&gt;accept&lt;/h3&gt;
+&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline13&quot;&gt;
+&lt;p&gt;
+gerrit web上进行accept，正式进入master目录
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+</description>
+        <pubDate>Fri, 20 Mar 2015 00:00:00 +0800</pubDate>
+        <link>/tools/install-gerrit2.html</link>
+        <guid isPermaLink="true">/tools/install-gerrit2.html</guid>
+        
+        <category>git</category>
+        
+        
+        <category>tools</category>
+        
+      </item>
+    
+      <item>
+        <title>Openssh SFTP chroot设置方法</title>
+        <description>&lt;div id=&quot;table-of-contents&quot;&gt;
+&lt;h2&gt;Table of Contents&lt;/h2&gt;
+&lt;div id=&quot;text-table-of-contents&quot;&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline1&quot;&gt;修改sshd_config&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline2&quot;&gt;增加用户与组&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline3&quot;&gt;修改目录权限&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline4&quot;&gt;删除Home目录无关文件&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline5&quot;&gt;测试&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;!--abstract-begin--&gt;
+&lt;p&gt;
+SFTP是一种基于openssh，采用加密方式传输文件的协议。本文主要讲述如何在linux平台上对sftp进行安全加固，确保指定用户只能用于文件交换，无法登录系统shell。
+&lt;/p&gt;
+&lt;!--abstract-end--&gt;
+
+&lt;div id=&quot;outline-container-orgheadline1&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline1&quot;&gt;修改sshd_config&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline1&quot;&gt;
+&lt;pre class=&quot;example&quot;&gt;
+# Subsystem sftp /usr/libexec/openssh/sftp-server
+Subsystem sftp internal-sftp
+Match Group sftpuser
+  ChrootDirectory %h
+  AllowTCPForwarding no
+  X11Forwarding no
+  ForceCommand internal-sftp
+&lt;/pre&gt;
+
+&lt;p&gt;
+&lt;code&gt;service sshd restart&lt;/code&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline2&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline2&quot;&gt;增加用户与组&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline2&quot;&gt;
+&lt;div class=&quot;org-src-container&quot;&gt;
+
+&lt;pre class=&quot;src src-sh&quot;&gt;groupadd --system sftpuser
+useradd sftpuser -g sftpuser -s /sbin/nologin
+&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;
+&lt;code&gt;nologin阻止操作系统用户sftpuser作其它用途，仅允许sftp文件传输&lt;/code&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline3&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline3&quot;&gt;修改目录权限&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline3&quot;&gt;
+&lt;div class=&quot;org-src-container&quot;&gt;
+
+&lt;pre class=&quot;src src-sh&quot;&gt;chown -R root:root /home/sftpuser
+chmod 755 -R /home/sftpuser
+mkdir -p /home/sftpuser/outgoing/
+chown -R sftpuser:sftpuser /home/sftpuser/outgoing/
+mkdir -p /home/sftpuser/incoming/
+chown -R sftpuser:sftpuser /home/sftpuser/incoming/
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline4&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline4&quot;&gt;删除Home目录无关文件&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline4&quot;&gt;
+&lt;div class=&quot;org-src-container&quot;&gt;
+
+&lt;pre class=&quot;src src-sh&quot;&gt;rm -rf .bash*
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline5&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline5&quot;&gt;测试&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline5&quot;&gt;
+&lt;div class=&quot;org-src-container&quot;&gt;
+
+&lt;pre class=&quot;src src-sh&quot;&gt;sftp sftpuser@localhost
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+</description>
+        <pubDate>Thu, 26 Feb 2015 00:00:00 +0800</pubDate>
+        <link>/sysadmin/openssh-sftp-setting.html</link>
+        <guid isPermaLink="true">/sysadmin/openssh-sftp-setting.html</guid>
+        
+        <category>sftp</category>
+        
+        
+        <category>sysadmin</category>
+        
+      </item>
+    
+  </channel>
+</rss>

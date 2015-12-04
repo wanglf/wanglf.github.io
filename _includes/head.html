@@ -1,0 +1,55 @@
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width initial-scale=1" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>{% if page.title %}{{ page.title }}{% else %}{{ site.title }}{% endif %}</title>
+    <meta name="description" content="{{ site.description }}">
+
+    <link rel="stylesheet" href="{{ "/theme/css/main.css" | prepend: site.baseurl }}">
+    <link rel="icon" href="{{ "/theme/icon/leaf.png" | prepend: site.baseurl }}">
+    <link rel="shortcut icon" href="{{ "/theme/icon/leaf.png" | prepend: site.baseurl }}">
+    <link rel="canonical" href="{{ page.url | replace:'index.html','' | prepend: site.baseurl | prepend: site.url }}">
+
+    <script src="/theme/js/jquery-2.1.1.min.js"></script>
+    <script src="/theme/js/default.js"></script>
+
+
+</head>
+
+<header>
+  <div class="sidebar">
+    <div align="center">
+      <div class="site-img">
+        <a href="{{ site.baseurl }}/"><image src="/theme/icon/leaf.png"></a>
+      </div>
+      <a class="side-nav" href="{{ "/menu/posts.html" | prepend: site.baseurl }}">文章</a>
+      <a class="side-nav" href="{{ "/menu/categories.html" | prepend: site.baseurl }}">分类</a>
+      <a class="side-nav" href="{{ "/menu/tags.html" | prepend: site.baseurl }}">标签</a>
+    </div>
+    <div align="center">
+      <a class="side-nav" href="{{ "/menu/feed.xml" | prepend: site.baseurl }}">订阅</a>
+      <a class="side-nav" href="{{ "/menu/favorite.html" | prepend: site.baseurl }}">收藏</a>
+      <a class="side-nav" href="{{ "/menu/about.html" | prepend: site.baseurl }}">关于</a>
+    </div>
+
+    <div class="side-toc">
+      <hr>
+      <div id="sidebar-toc">
+        <div align="center">
+          <br>
+          三千年读史<br>
+          不外功名利禄<br>
+          九万里悟道<br>
+          终归诗酒田园<br>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sidebar-toggler">
+    <div id="sidebar-status">
+
+    </div>
+  </div>
+</header>

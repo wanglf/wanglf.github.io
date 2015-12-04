@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width initial-scale=1" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>Howto enlarge lvm space</title>
+    <meta name="description" content="Wonder is the beginning of wisdom">
+
+    <link rel="stylesheet" href="/theme/css/main.css">
+    <link rel="icon" href="/theme/icon/leaf.png">
+    <link rel="shortcut icon" href="/theme/icon/leaf.png">
+    <link rel="canonical" href="/sysadmin/lvm-enlarge-space.html">
+
+    <script src="/theme/js/jquery-2.1.1.min.js"></script>
+    <script src="/theme/js/default.js"></script>
+
+
+</head>
+
+<header>
+  <div class="sidebar">
+    <div align="center">
+      <div class="site-img">
+        <a href="/"><image src="/theme/icon/leaf.png"></a>
+      </div>
+      <a class="side-nav" href="/menu/posts.html">文章</a>
+      <a class="side-nav" href="/menu/categories.html">分类</a>
+      <a class="side-nav" href="/menu/tags.html">标签</a>
+    </div>
+    <div align="center">
+      <a class="side-nav" href="/menu/feed.xml">订阅</a>
+      <a class="side-nav" href="/menu/favorite.html">收藏</a>
+      <a class="side-nav" href="/menu/about.html">关于</a>
+    </div>
+
+    <div class="side-toc">
+      <hr>
+      <div id="sidebar-toc">
+        <div align="center">
+          <br>
+          三千年读史<br>
+          不外功名利禄<br>
+          九万里悟道<br>
+          终归诗酒田园<br>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sidebar-toggler">
+    <div id="sidebar-status">
+
+    </div>
+  </div>
+</header>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+    <div class="site-title">
+      <a class="site-title" href="/">田园牧歌</a>
+    </div>
+  </div>
+
+  <div class="wrapper">
+  <div class="site-subtitle">
+    一花一世界，一叶一菩提。
+  </div>
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <div class="post">
+<!--
+  <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+-->
+  <script src="/theme/js/post.js"></script>
+
+  <header class="post-header">
+    <h1 class="post-title">Howto enlarge lvm space</h1>
+    <p class="post-meta">2014年12月26日
+      <span class="author"> 田园牧歌 </span>
+    </p>
+    <p>
+    
+    <a class="post-tags" href="/resource/tags/lvm.html">lvm</a>
+    
+    </p>
+    <hr><br>
+  </header>
+
+  <article class="post-content">
+    <div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline1">虚拟机增加硬盘</a></li>
+<li><a href="#orgheadline10">Guest OS操作</a>
+<ul>
+<li><a href="#orgheadline2">fdisk</a></li>
+<li><a href="#orgheadline3">pvcreate</a></li>
+<li><a href="#orgheadline4">vgextend</a></li>
+<li><a href="#orgheadline5">lvextent</a></li>
+<li><a href="#orgheadline6">resize2fs</a></li>
+<li><a href="#orgheadline7">df -h</a></li>
+<li><a href="#orgheadline8">vgdisplay</a></li>
+<li><a href="#orgheadline9">lvdisplay</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<!--abstract-begin-->
+<p>
+目前linux操作系统安装时基本会采用lvm的方式来管理磁盘，这是由于lvm具有灵活可扩展的特点。本文记录虚拟机增加磁盘后，如何在客户机系统将新增磁盘空间并入现有lvm。
+</p>
+<!--abstract-end-->
+
+<div id="outline-container-orgheadline1" class="outline-2">
+<h2 id="orgheadline1">虚拟机增加硬盘</h2>
+</div>
+
+<div id="outline-container-orgheadline10" class="outline-2">
+<h2 id="orgheadline10">Guest OS操作</h2>
+<div class="outline-text-2" id="text-orgheadline10">
+</div><div id="outline-container-orgheadline2" class="outline-3">
+<h3 id="orgheadline2">fdisk</h3>
+<div class="outline-text-3" id="text-orgheadline2">
+<p>
+<code>fdisk /dev/sdb</code>
+</p>
+
+<pre class="example">
+Command (m for help): new
+Command action
+e   extended
+p   primary partition (1-4) p
+Partition number (1-4): 1
+First cylinder (1-512, default 1):
+Last cylinder or +size or +sizeM or +sizeK (1--65270, default 65270):
+Command (m for help): t
+Partition's system id: 8e
+Command(m for help): w
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orgheadline3" class="outline-3">
+<h3 id="orgheadline3">pvcreate</h3>
+<div class="outline-text-3" id="text-orgheadline3">
+<p>
+<code>pvcreate /dev/sdb1</code>
+</p>
+
+<pre class="example">
+Physical volume "/dev/sdb1" successfully created
+</pre>
+
+<p>
+<code>vgdisplay</code>
+</p>
+
+<pre class="example">
+  --- Volume group ---
+  VG Name               vg_bigdatavm116
+  System ID
+  Format                lvm2
+  Metadata Areas        1
+  Metadata Sequence No  3
+  VG Access             read/write
+  VG Status             resizable
+  MAX LV                0
+  Cur LV                2
+  Open LV               2
+  Max PV                0
+  Cur PV                1
+  Act PV                1
+  VG Size               199.80 GiB
+  PE Size               4.00 MiB
+  Total PE              51149
+  Alloc PE / Size       51149 / 199.80 GiB
+  Free  PE / Size       0 / 0   
+  VG UUID               zFfi0K-jfi8-3TXg-wjUC-XD2w-GZkm-SSUtyJ
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orgheadline4" class="outline-3">
+<h3 id="orgheadline4">vgextend</h3>
+<div class="outline-text-3" id="text-orgheadline4">
+<p>
+<code>vgextend vg_bigdatavm116 /dev/sdb1</code>
+</p>
+
+<pre class="example">
+  Volume group "vg_bigdatavm116" successfully extended
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orgheadline5" class="outline-3">
+<h3 id="orgheadline5">lvextent</h3>
+<div class="outline-text-3" id="text-orgheadline5">
+<p>
+<code>lvextend -l +100%FREE  /dev/vg_bigdatavm116/LogVol00</code>
+</p>
+</div>
+</div>
+
+
+<div id="outline-container-orgheadline6" class="outline-3">
+<h3 id="orgheadline6">resize2fs</h3>
+<div class="outline-text-3" id="text-orgheadline6">
+<p>
+<code>resize2fs -p /dev/vg_bigdatavm116/LogVol00</code>
+</p>
+
+
+<pre class="example">
+resize2fs 1.41.12 (17-May-2010)
+Filesystem at /dev/vg_bigdatavm116/LogVol00 is mounted on /; on-line resizing required
+old desc_blocks = 12, new_desc_blocks = 43
+Performing an on-line resize of /dev/vg_bigdatavm116/LogVol00 to 177090560 (4k) blocks.
+The filesystem on /dev/vg_bigdatavm116/LogVol00 is now 177090560 blocks long.
+</pre>
+</div>
+</div>
+
+
+<div id="outline-container-orgheadline7" class="outline-3">
+<h3 id="orgheadline7">df -h</h3>
+<div class="outline-text-3" id="text-orgheadline7">
+<p>
+<code>df -h</code>
+</p>
+
+<pre class="example">
+Filesystem                            Size  Used Avail Use% Mounted on
+/dev/mapper/vg_bigdatavm116-LogVol00  665G  934M  631G   1% /
+tmpfs                                 7.8G     0  7.8G   0% /dev/shm
+/dev/sda1                             194M   28M  156M  16% /boot
+</pre>
+</div>
+</div>
+
+
+<div id="outline-container-orgheadline8" class="outline-3">
+<h3 id="orgheadline8">vgdisplay</h3>
+<div class="outline-text-3" id="text-orgheadline8">
+<pre class="example">
+  --- Volume group ---
+  VG Name               vg_bigdatavm116
+  System ID             
+  Format                lvm2
+  Metadata Areas        2
+  Metadata Sequence No  5
+  VG Access             read/write
+  VG Status             resizable
+  MAX LV                0
+  Cur LV                2
+  Open LV               2
+  Max PV                0
+  Cur PV                2
+  Act PV                2
+  VG Size               699.79 GiB
+  PE Size               4.00 MiB
+  Total PE              179147
+  Alloc PE / Size       176589 / 689.80 GiB
+  Free  PE / Size       2558 / 9.99 GiB
+  VG UUID               zFfi0K-jfi8-3TXg-wjUC-XD2w-GZkm-SSUtyJ
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orgheadline9" class="outline-3">
+<h3 id="orgheadline9">lvdisplay</h3>
+<div class="outline-text-3" id="text-orgheadline9">
+<pre class="example">
+  --- Logical volume ---
+  LV Path                /dev/vg_bigdatavm116/LogVol01
+  LV Name                LogVol01
+  VG Name                vg_bigdatavm116
+  LV UUID                NpuQLx-ZtYl-XeCY-SqFa-BT1c-6VIw-LfqXMI
+  LV Write Access        read/write
+  LV Creation host, time bigdata-vm116, 2014-12-13 21:04:05 +0800
+  LV Status              available
+  # open                 1
+  LV Size                14.25 GiB
+  Current LE             3649
+  Segments               1
+  Allocation             inherit
+  Read ahead sectors     auto
+  - currently set to     256
+  Block device           253:0
+   
+  --- Logical volume ---
+  LV Path                /dev/vg_bigdatavm116/LogVol00
+  LV Name                LogVol00
+  VG Name                vg_bigdatavm116
+  LV UUID                pSKS9q-RRZ4-wcxK-Al9U-Qwo0-UkrK-JKdAX1
+  LV Write Access        read/write
+  LV Creation host, time bigdata-vm116, 2014-12-13 21:04:05 +0800
+  LV Status              available
+  # open                 1
+  LV Size                675.55 GiB
+  Current LE             172940
+  Segments               2
+  Allocation             inherit
+  Read ahead sectors     auto
+  - currently set to     256
+  Block device           253:1
+</pre>
+</div>
+</div>
+</div>
+
+
+    <hr><br>
+    <div class="post-prev">
+      <a class="post-nav" href="/tools/centos6_5-install-tomcat.html">上一篇</a>
+    </div>
+    <div class="post-next">
+      <a class="post-nav" href="/sysadmin/openssh-sftp-setting.html">下一篇</a>
+    </div>
+  </article>
+
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col-1">
+        <ul class="contact-list">
+          <li><a class="username" href="mailto:wlfqware@gmail.com">wlfqware@gmail.com</a></li>
+
+          
+        </ul>
+      </div>
+
+      <div class="footer-col-2">
+        <p class="text">Wonder is the beginning of wisdom</p>
+      </div>
+
+    </div>
+    <div class="footer-col-wrapper">
+      <div align="center">
+        &copy; 2014-2015 |
+          
+            <a class="username" href="https://github.com/wanglf">
+              <span class="icon  icon--github">
+                <svg viewBox="0 0 16 16">
+                  <path fill="#828282" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761 c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32 c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472 c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037 C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65 c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261 c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082 c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129 c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/>
+                </svg>
+              </span>
+              <span class="username">wanglf</span>
+            </a>
+          
+      </div>
+    </div>
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>

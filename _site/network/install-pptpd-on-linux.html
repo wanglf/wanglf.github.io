@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width initial-scale=1" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>CentOS 安装pptpd服务</title>
+    <meta name="description" content="Wonder is the beginning of wisdom">
+
+    <link rel="stylesheet" href="/theme/css/main.css">
+    <link rel="icon" href="/theme/icon/leaf.png">
+    <link rel="shortcut icon" href="/theme/icon/leaf.png">
+    <link rel="canonical" href="/network/install-pptpd-on-linux.html">
+
+    <script src="/theme/js/jquery-2.1.1.min.js"></script>
+    <script src="/theme/js/default.js"></script>
+
+
+</head>
+
+<header>
+  <div class="sidebar">
+    <div align="center">
+      <div class="site-img">
+        <a href="/"><image src="/theme/icon/leaf.png"></a>
+      </div>
+      <a class="side-nav" href="/menu/posts.html">文章</a>
+      <a class="side-nav" href="/menu/categories.html">分类</a>
+      <a class="side-nav" href="/menu/tags.html">标签</a>
+    </div>
+    <div align="center">
+      <a class="side-nav" href="/menu/feed.xml">订阅</a>
+      <a class="side-nav" href="/menu/favorite.html">收藏</a>
+      <a class="side-nav" href="/menu/about.html">关于</a>
+    </div>
+
+    <div class="side-toc">
+      <hr>
+      <div id="sidebar-toc">
+        <div align="center">
+          <br>
+          三千年读史<br>
+          不外功名利禄<br>
+          九万里悟道<br>
+          终归诗酒田园<br>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sidebar-toggler">
+    <div id="sidebar-status">
+
+    </div>
+  </div>
+</header>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+    <div class="site-title">
+      <a class="site-title" href="/">田园牧歌</a>
+    </div>
+  </div>
+
+  <div class="wrapper">
+  <div class="site-subtitle">
+    一花一世界，一叶一菩提。
+  </div>
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <div class="post">
+<!--
+  <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+-->
+  <script src="/theme/js/post.js"></script>
+
+  <header class="post-header">
+    <h1 class="post-title">CentOS 安装pptpd服务</h1>
+    <p class="post-meta">2015年08月01日
+      <span class="author"> 田园牧歌 </span>
+    </p>
+    <p>
+    
+    <a class="post-tags" href="/resource/tags/pptp.html">pptp</a>
+    
+    </p>
+    <hr><br>
+  </header>
+
+  <article class="post-content">
+    <div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline1">安装pptpd</a></li>
+<li><a href="#orgheadline6">设置</a>
+<ul>
+<li><a href="#orgheadline2">编辑/etc/sysctl.conf</a></li>
+<li><a href="#orgheadline3">配置脚本</a></li>
+<li><a href="#orgheadline4">编辑/etc/ppp/chap-secrets</a></li>
+<li><a href="#orgheadline5">连线测试</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<!--abstract-begin-->
+<p>
+PPTP是远程接入VPN技术的其中一种，一般用于企业员工通过互联网接入内部网。PPTP作为一种服务，一般在路由器或者防火墙上实现。但本文主要讲述，在没有网络设备的情况下，如何通过服务器安装pptpd来实现remote access VPN功能。
+</p>
+<!--abstract-end-->
+
+
+<div id="outline-container-orgheadline1" class="outline-2">
+<h2 id="orgheadline1">安装pptpd</h2>
+<div class="outline-text-2" id="text-orgheadline1">
+<pre class="example">
+yum -y install pptpd
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orgheadline6" class="outline-2">
+<h2 id="orgheadline6">设置</h2>
+<div class="outline-text-2" id="text-orgheadline6">
+</div><div id="outline-container-orgheadline2" class="outline-3">
+<h3 id="orgheadline2">编辑/etc/sysctl.conf</h3>
+<div class="outline-text-3" id="text-orgheadline2">
+<pre class="example">
+net.ipv4.ip_forward = 1
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orgheadline3" class="outline-3">
+<h3 id="orgheadline3">配置脚本</h3>
+<div class="outline-text-3" id="text-orgheadline3">
+<p>
+将如下文件内容加入pptp.sh, 并手工执行。
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-sh">sysctl -p
+<span style="color: #058; font-weight: bold;">echo</span> <span style="color: #800;">"localip 192.168.240.1"</span> &gt;&gt; /etc/pptpd.conf
+<span style="color: #058; font-weight: bold;">echo</span> <span style="color: #800;">"remoteip 192.168.240.101-200"</span> &gt;&gt; /etc/pptpd.conf
+<span style="color: #058; font-weight: bold;">echo</span> <span style="color: #800;">"ms-dns 8.8.8.8"</span> &gt;&gt; /etc/ppp/options.pptpd
+<span style="color: #058; font-weight: bold;">echo</span> <span style="color: #800;">"ms-dns 8.8.4.4"</span> &gt;&gt; /etc/ppp/options.pptpd
+iptables --flush POSTROUTING --table nat
+iptables --flush FORWARD
+iptables -A INPUT -p tcp -m tcp --dport 1723 -j ACCEPT
+iptables -A INPUT -p gre -j ACCEPT
+iptables -t nat -A POSTROUTING -s 192.168.240.0/24 -o ens33 -j MASQUERADE
+iptables -A INPUT -s 192.168.240.0/24 -p tcp -m tcp -j ACCEPT
+service iptables save
+service pptpd restart
+service iptables restart
+chkconfig pptpd on
+chkconfig iptables on
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline4" class="outline-3">
+<h3 id="orgheadline4">编辑/etc/ppp/chap-secrets</h3>
+<div class="outline-text-3" id="text-orgheadline4">
+<pre class="example">
+帐号名称 pptpd 密码 *
+wesley pptpd 123456 *
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orgheadline5" class="outline-3">
+<h3 id="orgheadline5">连线测试</h3>
+<div class="outline-text-3" id="text-orgheadline5">
+<p>
+部分客户端操作系统，可能需要手工添加私网路由。例如mac系统：
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-sh">sudo route add -net 172.16.0.0 192.168.240.1
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+
+    <hr><br>
+    <div class="post-prev">
+      <a class="post-nav" href="/editor/vim-snipmate-plugin.html">上一篇</a>
+    </div>
+    <div class="post-next">
+      <a class="post-nav" href="/tools/git-basic-operation.html">下一篇</a>
+    </div>
+  </article>
+
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col-1">
+        <ul class="contact-list">
+          <li><a class="username" href="mailto:wlfqware@gmail.com">wlfqware@gmail.com</a></li>
+
+          
+        </ul>
+      </div>
+
+      <div class="footer-col-2">
+        <p class="text">Wonder is the beginning of wisdom</p>
+      </div>
+
+    </div>
+    <div class="footer-col-wrapper">
+      <div align="center">
+        &copy; 2014-2015 |
+          
+            <a class="username" href="https://github.com/wanglf">
+              <span class="icon  icon--github">
+                <svg viewBox="0 0 16 16">
+                  <path fill="#828282" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761 c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32 c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472 c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037 C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65 c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261 c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082 c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129 c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/>
+                </svg>
+              </span>
+              <span class="username">wanglf</span>
+            </a>
+          
+      </div>
+    </div>
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>

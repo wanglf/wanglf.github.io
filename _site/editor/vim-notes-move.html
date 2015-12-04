@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width initial-scale=1" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>Vim学习笔记之移动光标</title>
+    <meta name="description" content="Wonder is the beginning of wisdom">
+
+    <link rel="stylesheet" href="/theme/css/main.css">
+    <link rel="icon" href="/theme/icon/leaf.png">
+    <link rel="shortcut icon" href="/theme/icon/leaf.png">
+    <link rel="canonical" href="/editor/vim-notes-move.html">
+
+    <script src="/theme/js/jquery-2.1.1.min.js"></script>
+    <script src="/theme/js/default.js"></script>
+
+
+</head>
+
+<header>
+  <div class="sidebar">
+    <div align="center">
+      <div class="site-img">
+        <a href="/"><image src="/theme/icon/leaf.png"></a>
+      </div>
+      <a class="side-nav" href="/menu/posts.html">文章</a>
+      <a class="side-nav" href="/menu/categories.html">分类</a>
+      <a class="side-nav" href="/menu/tags.html">标签</a>
+    </div>
+    <div align="center">
+      <a class="side-nav" href="/menu/feed.xml">订阅</a>
+      <a class="side-nav" href="/menu/favorite.html">收藏</a>
+      <a class="side-nav" href="/menu/about.html">关于</a>
+    </div>
+
+    <div class="side-toc">
+      <hr>
+      <div id="sidebar-toc">
+        <div align="center">
+          <br>
+          三千年读史<br>
+          不外功名利禄<br>
+          九万里悟道<br>
+          终归诗酒田园<br>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sidebar-toggler">
+    <div id="sidebar-status">
+
+    </div>
+  </div>
+</header>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+    <div class="site-title">
+      <a class="site-title" href="/">田园牧歌</a>
+    </div>
+  </div>
+
+  <div class="wrapper">
+  <div class="site-subtitle">
+    一花一世界，一叶一菩提。
+  </div>
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <div class="post">
+<!--
+  <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+-->
+  <script src="/theme/js/post.js"></script>
+
+  <header class="post-header">
+    <h1 class="post-title">Vim学习笔记之移动光标</h1>
+    <p class="post-meta">2014年04月20日
+      <span class="author"> 田园牧歌 </span>
+    </p>
+    <p>
+    
+    <a class="post-tags" href="/resource/tags/vim.html">vim</a>
+    
+    </p>
+    <hr><br>
+  </header>
+
+  <article class="post-content">
+    <div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline7">基本的移动指令</a>
+<ul>
+<li><a href="#orgheadline1">jkhl</a></li>
+<li><a href="#orgheadline2">w</a></li>
+<li><a href="#orgheadline3">e</a></li>
+<li><a href="#orgheadline4">^$</a></li>
+<li><a href="#orgheadline5">+, -</a></li>
+<li><a href="#orgheadline6">0</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline11">g?</a>
+<ul>
+<li><a href="#orgheadline8">g*, g#</a></li>
+<li><a href="#orgheadline9">g0, g_</a></li>
+<li><a href="#orgheadline10">gj, gk</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline15">CTRL-?</a>
+<ul>
+<li><a href="#orgheadline12">CTRL-F, CTRL-B</a></li>
+<li><a href="#orgheadline13">CTRL-E, CTRL-Y</a></li>
+<li><a href="#orgheadline14">CTRL-D, CTRL-U</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline18">z?</a>
+<ul>
+<li><a href="#orgheadline16">z+, z^</a></li>
+<li><a href="#orgheadline17">z., zz</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline22">Various motions</a>
+<ul>
+<li><a href="#orgheadline19">HML</a></li>
+<li><a href="#orgheadline20">%</a></li>
+<li><a href="#orgheadline21">[({</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline23">Pipe STDOUT to vim</a></li>
+</ul>
+</div>
+</div>
+<!--abstract-begin-->
+<p>
+本文总结vim中移动光标常用技巧。
+</p>
+<!--abstract-end-->
+
+<div id="outline-container-orgheadline7" class="outline-2">
+<h2 id="orgheadline7">基本的移动指令</h2>
+<div class="outline-text-2" id="text-orgheadline7">
+</div><div id="outline-container-orgheadline1" class="outline-3">
+<h3 id="orgheadline1">jkhl</h3>
+<div class="outline-text-3" id="text-orgheadline1">
+<p>
+基本的前后左右移动
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline2" class="outline-3">
+<h3 id="orgheadline2">w</h3>
+<div class="outline-text-3" id="text-orgheadline2">
+<p>
+往前移一个单词
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline3" class="outline-3">
+<h3 id="orgheadline3">e</h3>
+<div class="outline-text-3" id="text-orgheadline3">
+<p>
+移到本单词末尾
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline4" class="outline-3">
+<h3 id="orgheadline4">^$</h3>
+<div class="outline-text-3" id="text-orgheadline4">
+<p>
+行首或行尾, ^不包含空格符, 但$包含
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline5" class="outline-3">
+<h3 id="orgheadline5">+, -</h3>
+<div class="outline-text-3" id="text-orgheadline5">
+<p>
+往前或往回移一行，第一个非空格符位置
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline6" class="outline-3">
+<h3 id="orgheadline6">0</h3>
+<div class="outline-text-3" id="text-orgheadline6">
+<p>
+0移到行首，包含空格
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline11" class="outline-2">
+<h2 id="orgheadline11">g?</h2>
+<div class="outline-text-2" id="text-orgheadline11">
+</div><div id="outline-container-orgheadline8" class="outline-3">
+<h3 id="orgheadline8">g*, g#</h3>
+<div class="outline-text-3" id="text-orgheadline8">
+<p>
+移动至光标所在单词下一个或前一个出现位置
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline9" class="outline-3">
+<h3 id="orgheadline9">g0, g_</h3>
+<div class="outline-text-3" id="text-orgheadline9">
+<p>
+移动光标至screen line的第一个或最后一个非空格符位置
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline10" class="outline-3">
+<h3 id="orgheadline10">gj, gk</h3>
+<div class="outline-text-3" id="text-orgheadline10">
+<p>
+移到screen lie中的前一行或后一行
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline15" class="outline-2">
+<h2 id="orgheadline15">CTRL-?</h2>
+<div class="outline-text-2" id="text-orgheadline15">
+</div><div id="outline-container-orgheadline12" class="outline-3">
+<h3 id="orgheadline12">CTRL-F, CTRL-B</h3>
+<div class="outline-text-3" id="text-orgheadline12">
+<p>
+往前或往回翻一页
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline13" class="outline-3">
+<h3 id="orgheadline13">CTRL-E, CTRL-Y</h3>
+<div class="outline-text-3" id="text-orgheadline13">
+<p>
+往前或往回移一行, 支持count
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline14" class="outline-3">
+<h3 id="orgheadline14">CTRL-D, CTRL-U</h3>
+<div class="outline-text-3" id="text-orgheadline14">
+<p>
+往前或往回翻半屏
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline18" class="outline-2">
+<h2 id="orgheadline18">z?</h2>
+<div class="outline-text-2" id="text-orgheadline18">
+</div><div id="outline-container-orgheadline16" class="outline-3">
+<h3 id="orgheadline16">z+, z^</h3>
+<div class="outline-text-3" id="text-orgheadline16">
+<p>
+往前或往回翻一页，到该行行首第一个非空字符
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline17" class="outline-3">
+<h3 id="orgheadline17">z., zz</h3>
+<div class="outline-text-3" id="text-orgheadline17">
+<p>
+到窗口中央，前者到行首，后者到相同列所在位置
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline22" class="outline-2">
+<h2 id="orgheadline22">Various motions</h2>
+<div class="outline-text-2" id="text-orgheadline22">
+</div><div id="outline-container-orgheadline19" class="outline-3">
+<h3 id="orgheadline19">HML</h3>
+<div class="outline-text-3" id="text-orgheadline19">
+<p>
+走到屏幕的顶部，中间或者底部。
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline20" class="outline-3">
+<h3 id="orgheadline20">%</h3>
+<div class="outline-text-3" id="text-orgheadline20">
+<p>
+走到相匹配的括号。
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline21" class="outline-3">
+<h3 id="orgheadline21">[({</h3>
+<div class="outline-text-3" id="text-orgheadline21">
+<p>
+句、段落、节。
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline23" class="outline-2">
+<h2 id="orgheadline23">Pipe STDOUT to vim</h2>
+<div class="outline-text-2" id="text-orgheadline23">
+<div class="org-src-container">
+
+<pre class="src src-sh">git diff | vim -
+</pre>
+</div>
+</div>
+</div>
+
+
+    <hr><br>
+    <div class="post-prev">
+      <a class="post-nav" href="/sysadmin/web-server-analysis.html">上一篇</a>
+    </div>
+    <div class="post-next">
+      <a class="post-nav" href="/sysadmin/linux-useful-tips.html">下一篇</a>
+    </div>
+  </article>
+
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col-1">
+        <ul class="contact-list">
+          <li><a class="username" href="mailto:wlfqware@gmail.com">wlfqware@gmail.com</a></li>
+
+          
+        </ul>
+      </div>
+
+      <div class="footer-col-2">
+        <p class="text">Wonder is the beginning of wisdom</p>
+      </div>
+
+    </div>
+    <div class="footer-col-wrapper">
+      <div align="center">
+        &copy; 2014-2015 |
+          
+            <a class="username" href="https://github.com/wanglf">
+              <span class="icon  icon--github">
+                <svg viewBox="0 0 16 16">
+                  <path fill="#828282" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761 c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32 c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472 c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037 C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65 c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261 c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082 c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129 c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/>
+                </svg>
+              </span>
+              <span class="username">wanglf</span>
+            </a>
+          
+      </div>
+    </div>
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>
