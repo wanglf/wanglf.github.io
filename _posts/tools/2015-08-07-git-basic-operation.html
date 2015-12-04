@@ -1,0 +1,137 @@
+---
+title:  "Git basic operation"
+tags: git
+layout: post
+categories: tools
+---
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline1">flow chart</a></li>
+<li><a href="#orgheadline2">create project</a></li>
+<li><a href="#orgheadline3">stage,commit,push, tags</a></li>
+<li><a href="#orgheadline4">branches</a></li>
+<li><a href="#orgheadline5">rebase</a></li>
+<li><a href="#orgheadline6">git设置socks 代理</a></li>
+</ul>
+</div>
+</div>
+<!--abstract-begin-->
+<p>
+本文介绍git常用操作。
+</p>
+<!--abstract-end-->
+
+<div id="outline-container-orgheadline1" class="outline-2">
+<h2 id="orgheadline1">flow chart</h2>
+<div class="outline-text-2" id="text-orgheadline1">
+<div class="org-center">
+
+<div class="figure">
+<p><img src="/resource/tools/fig/git/bg20150807.png" alt="bg20150807.png" />
+</p>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline2" class="outline-2">
+<h2 id="orgheadline2">create project</h2>
+<div class="outline-text-2" id="text-orgheadline2">
+<div class="org-src-container">
+
+<pre class="src src-sh">mkdir -p repo.git
+git init
+</pre>
+</div>
+
+<div class="org-src-container">
+
+<pre class="src src-sh">git clone url/filepath repo.git
+</pre>
+</div>
+
+<div class="org-src-container">
+
+<pre class="src src-sh">mkdir -p repo.git
+git init --bare
+</pre>
+</div>
+
+<p>
+<code>notes: repo only, not allowed to see text content in file</code>
+</p>
+</div>
+</div>
+
+
+<div id="outline-container-orgheadline3" class="outline-2">
+<h2 id="orgheadline3">stage,commit,push, tags</h2>
+<div class="outline-text-2" id="text-orgheadline3">
+<div class="org-src-container">
+
+<pre class="src src-sh"><span style="color: #058; font-weight: bold;">echo</span> <span style="color: #800;">"bin/"</span> &gt; .gitignore
+<span style="color: #058; font-weight: bold;">echo</span> <span style="color: #800;">"*.o"</span> &gt;&gt; .gitignore
+git add README.md
+git add -A .
+git reset
+git commit -m <span style="color: #800;">"1st commit"</span>
+git remote add origin git@github.com:/username/repo.git
+
+git tag -a v0.1.2 -m &#8220;version0.1.2&#8221;
+git tag -a v0.1.1 9fbc3d0 -m <span style="color: #800;">"version0.1.1"</span>
+
+git push origin master
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline4" class="outline-2">
+<h2 id="orgheadline4">branches</h2>
+<div class="outline-text-2" id="text-orgheadline4">
+<div class="org-src-container">
+
+<pre class="src src-sh">git checkout -b feature
+git checkout master
+git checkout master~2 Makefile
+rm -f hello.c
+git checkout hello.c
+git stash
+git stash list
+git stash pop
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline5" class="outline-2">
+<h2 id="orgheadline5">rebase</h2>
+<div class="outline-text-2" id="text-orgheadline5">
+<div class="org-src-container">
+
+<pre class="src src-sh">git rebase -i origin/master
+git rebase -i HEAD~3
+</pre>
+</div>
+
+<p>
+<code>rebase can be used to combine multiple commits into single one before push to remote repo</code>
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline6" class="outline-2">
+<h2 id="orgheadline6">git设置socks 代理</h2>
+<div class="outline-text-2" id="text-orgheadline6">
+<p>
+vi ~/.ssh/config
+</p>
+<pre class="example">
+Host github.com
+  User  git
+  ProxyCommand  nc -x localhost:1080 %h %p
+</pre>
+</div>
+</div>

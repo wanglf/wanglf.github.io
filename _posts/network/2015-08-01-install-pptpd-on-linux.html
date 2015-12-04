@@ -1,0 +1,105 @@
+---
+title:  "CentOS 安装pptpd服务"
+tags: pptp
+layout: post
+categories: network
+---
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline1">安装pptpd</a></li>
+<li><a href="#orgheadline6">设置</a>
+<ul>
+<li><a href="#orgheadline2">编辑/etc/sysctl.conf</a></li>
+<li><a href="#orgheadline3">配置脚本</a></li>
+<li><a href="#orgheadline4">编辑/etc/ppp/chap-secrets</a></li>
+<li><a href="#orgheadline5">连线测试</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<!--abstract-begin-->
+<p>
+PPTP是远程接入VPN技术的其中一种，一般用于企业员工通过互联网接入内部网。PPTP作为一种服务，一般在路由器或者防火墙上实现。但本文主要讲述，在没有网络设备的情况下，如何通过服务器安装pptpd来实现remote access VPN功能。
+</p>
+<!--abstract-end-->
+
+
+<div id="outline-container-orgheadline1" class="outline-2">
+<h2 id="orgheadline1">安装pptpd</h2>
+<div class="outline-text-2" id="text-orgheadline1">
+<pre class="example">
+yum -y install pptpd
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orgheadline6" class="outline-2">
+<h2 id="orgheadline6">设置</h2>
+<div class="outline-text-2" id="text-orgheadline6">
+</div><div id="outline-container-orgheadline2" class="outline-3">
+<h3 id="orgheadline2">编辑/etc/sysctl.conf</h3>
+<div class="outline-text-3" id="text-orgheadline2">
+<pre class="example">
+net.ipv4.ip_forward = 1
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orgheadline3" class="outline-3">
+<h3 id="orgheadline3">配置脚本</h3>
+<div class="outline-text-3" id="text-orgheadline3">
+<p>
+将如下文件内容加入pptp.sh, 并手工执行。
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-sh">sysctl -p
+<span style="color: #058; font-weight: bold;">echo</span> <span style="color: #800;">"localip 192.168.240.1"</span> &gt;&gt; /etc/pptpd.conf
+<span style="color: #058; font-weight: bold;">echo</span> <span style="color: #800;">"remoteip 192.168.240.101-200"</span> &gt;&gt; /etc/pptpd.conf
+<span style="color: #058; font-weight: bold;">echo</span> <span style="color: #800;">"ms-dns 8.8.8.8"</span> &gt;&gt; /etc/ppp/options.pptpd
+<span style="color: #058; font-weight: bold;">echo</span> <span style="color: #800;">"ms-dns 8.8.4.4"</span> &gt;&gt; /etc/ppp/options.pptpd
+iptables --flush POSTROUTING --table nat
+iptables --flush FORWARD
+iptables -A INPUT -p tcp -m tcp --dport 1723 -j ACCEPT
+iptables -A INPUT -p gre -j ACCEPT
+iptables -t nat -A POSTROUTING -s 192.168.240.0/24 -o ens33 -j MASQUERADE
+iptables -A INPUT -s 192.168.240.0/24 -p tcp -m tcp -j ACCEPT
+service iptables save
+service pptpd restart
+service iptables restart
+chkconfig pptpd on
+chkconfig iptables on
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline4" class="outline-3">
+<h3 id="orgheadline4">编辑/etc/ppp/chap-secrets</h3>
+<div class="outline-text-3" id="text-orgheadline4">
+<pre class="example">
+帐号名称 pptpd 密码 *
+wesley pptpd 123456 *
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orgheadline5" class="outline-3">
+<h3 id="orgheadline5">连线测试</h3>
+<div class="outline-text-3" id="text-orgheadline5">
+<p>
+部分客户端操作系统，可能需要手工添加私网路由。例如mac系统：
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-sh">sudo route add -net 172.16.0.0 192.168.240.1
+</pre>
+</div>
+</div>
+</div>
+</div>

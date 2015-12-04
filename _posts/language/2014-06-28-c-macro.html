@@ -1,0 +1,66 @@
+---
+title:  "C语言编译预处理"
+tags: c
+layout: post
+categories: language
+---
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline1">两种include方式</a></li>
+<li><a href="#orgheadline2">##与#的使用</a></li>
+<li><a href="#orgheadline3">参考资料</a></li>
+</ul>
+</div>
+</div>
+<!--abstract-begin-->
+<p>
+编译预处理执行宏替换、条件编译以及包含指定文件。
+</p>
+<!--abstract-end-->
+
+
+<div id="outline-container-orgheadline1" class="outline-2">
+<h2 id="orgheadline1">两种include方式</h2>
+<div class="outline-text-2" id="text-orgheadline1">
+<p>
+尖括号一般先查找系统自身的库，再查找当前目录;双引号反之。
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline2" class="outline-2">
+<h2 id="orgheadline2">##与#的使用</h2>
+<div class="outline-text-2" id="text-orgheadline2">
+<p>
+两者一般用于字符串连接，如下为示例：
+</p>
+
+
+<div class="org-src-container">
+
+<pre class="src src-c"><span style="color: #800;">#define</span> <span style="color: #605; font-weight: bold;">tempfile</span>(<span style="color: #007;">dir</span>) #dir <span style="color: #800;">"/%s"</span> 
+<span style="color: #633;">/* </span><span style="color: #633;">tempfile(/usr/temp) return "/usr/tmp" "/%s" </span><span style="color: #633;">*/</span>
+
+<span style="color: #800;">#define</span> <span style="color: #605; font-weight: bold;">cat</span>(<span style="color: #007;">x</span>, <span style="color: #007;">y</span>) x ## y 
+<span style="color: #633;">/* </span><span style="color: #633;">cat(var, 123) return var123 </span><span style="color: #633;">*/</span>
+
+cat(1, 2)3 
+<span style="color: #633;">/* </span><span style="color: #633;">invalid </span><span style="color: #633;">*/</span>
+
+<span style="color: #800;">#define</span> <span style="color: #605; font-weight: bold;">xcat</span>(<span style="color: #007;">x</span>, <span style="color: #007;">y</span>) cat(x, y) 
+xcat(xcat(1, 2), 3)
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline3" class="outline-2">
+<h2 id="orgheadline3">参考资料</h2>
+<div class="outline-text-2" id="text-orgheadline3">
+<ol class="org-ol">
+<li>The C Programming language(2nd edition) by K&amp;R Appendix A.12.3</li>
+</ol>
+</div>
+</div>

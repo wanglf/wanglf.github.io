@@ -1,0 +1,109 @@
+---
+title:  "vim-snipmate插件"
+tags: vim
+layout: post
+categories: editor
+---
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline1">安装方法</a></li>
+<li><a href="#orgheadline2">使用方法</a></li>
+<li><a href="#orgheadline3">自定义snippet内容</a></li>
+</ul>
+</div>
+</div>
+<!--abstract-begin-->
+<p>
+vim-snipmate插件的安装及使用
+</p>
+<!--abstract-end-->
+
+<div id="outline-container-orgheadline1" class="outline-2">
+<h2 id="orgheadline1">安装方法</h2>
+<div class="outline-text-2" id="text-orgheadline1">
+<p>
+如vim插件通过Vundle进行管理，则在vimrc中添加如下内容：
+</p>
+
+<pre class="example">
+" snipMate plugin
+Plugin 'MarcWeber/vim-addon-mw-utils'
+Plugin 'tomtom/tlib_vim'
+Plugin 'garbas/vim-snipmate'
+Plugin 'honza/vim-snippets'
+let g:snips_author='wanglifeng'
+</pre>
+</div>
+</div>
+
+
+<div id="outline-container-orgheadline2" class="outline-2">
+<h2 id="orgheadline2">使用方法</h2>
+<div class="outline-text-2" id="text-orgheadline2">
+<p>
+以C语言为例，默认的snippet文件为c.snippets，已预定义了部分snippet内容
+</p>
+
+<p>
+例: 输入include按tab键，内容补全为如下内容：
+</p>
+
+
+<div class="org-src-container">
+
+<pre class="src src-c"><span style="color: #800;">#include</span> <span style="color: #800;">&lt;stdio.h&gt;</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline3" class="outline-2">
+<h2 id="orgheadline3">自定义snippet内容</h2>
+<div class="outline-text-2" id="text-orgheadline3">
+<div class="org-src-container">
+
+<pre class="src src-c">## self defined snippets
+snippet basic
+    <span style="color: #633;">/*</span>
+<span style="color: #633;">     * author: `g:snips_author`</span>
+<span style="color: #633;">     * filename: `vim_snippets#Filename("$1.c")`</span>
+<span style="color: #633;">     * date: `strftime("%Y-%m-%d")`</span>
+<span style="color: #633;">     *</span>
+<span style="color: #633;">     </span><span style="color: #633;">*/</span>
+
+<span style="color: #800;">    #include</span> <span style="color: #800;">&lt;stdio.h&gt;</span>
+<span style="color: #800;">    #include</span> <span style="color: #800;">&lt;stdlib.h&gt;</span>
+    <span style="color: #058; font-weight: bold;">int</span>
+    main() {
+        ${0}
+        <span style="color: #800; font-weight: bold;">return</span> EXIT_SUCCESS;
+    }
+#+END_EXAMPLE
+
+- ${0}&#34920;&#31034;&#20809;&#26631;&#20301;&#32622;
+- g:snips_author&#34920;&#31034;vimrc&#20013;&#30340;&#21464;&#37327;
+- Filename&#20026;&#25554;&#20214;&#33258;&#24102;&#30340;&#20989;&#25968;
+- strftime&#20026;vim&#20989;&#25968;
+
+&#22312;C&#28304;&#25991;&#20214;abc.c&#36755;&#20837;basic&#24182;&#21152;tab&#34917;&#20840;&#21518;&#65292;&#36716;&#25442;&#20026;&#22914;&#19979;&#20869;&#23481;&#65306;
+
+#+BEGIN_SRC c
+<span style="color: #633;">/*</span>
+<span style="color: #633;"> * author: wanglifeng</span>
+<span style="color: #633;"> * filename: abc.c</span>
+<span style="color: #633;"> * date: 2015-07-22</span>
+<span style="color: #633;"> *</span>
+<span style="color: #633;"> </span><span style="color: #633;">*/</span>
+
+<span style="color: #800;">#include</span> <span style="color: #800;">&lt;stdio.h&gt;</span>
+<span style="color: #800;">#include</span> <span style="color: #800;">&lt;stdlib.h&gt;</span>
+<span style="color: #058; font-weight: bold;">int</span>
+main() {
+    <span style="color: #800; font-weight: bold;">return</span> EXIT_SUCCESS;
+}
+</pre>
+</div>
+</div>
+</div>

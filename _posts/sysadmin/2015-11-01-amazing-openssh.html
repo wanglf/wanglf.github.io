@@ -1,0 +1,98 @@
+---
+title:  "神奇的openssh"
+tags: ssh
+layout: post
+categories: sysadmin
+---
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline1">SSH作socks代理</a></li>
+<li><a href="#orgheadline2">SSH作DNAT</a></li>
+<li><a href="#orgheadline3">SSH X forward</a></li>
+<li><a href="#orgheadline4">SSH作为文件传输协议</a></li>
+<li><a href="#orgheadline5">参考链接</a></li>
+</ul>
+</div>
+</div>
+<!--abstract-begin-->
+<p>
+openssh是管理服务器的一种通讯协议，本身包含加密功能。此外，openssh还有如下用途:
+</p>
+<ul class="org-ul">
+<li>socks代理</li>
+<li>目的端口转发</li>
+<li>x forward</li>
+<li>文件传输协议</li>
+</ul>
+<!--abstract-end-->
+
+<div id="outline-container-orgheadline1" class="outline-2">
+<h2 id="orgheadline1">SSH作socks代理</h2>
+<div class="outline-text-2" id="text-orgheadline1">
+<div class="org-src-container">
+
+<pre class="src src-sh">ssh -p 22 -qTfnN -D 0.0.0.0:1919 root@hostname
+</pre>
+</div>
+
+<p>
+如此时连接hostname成功，则本机侦听1919，并可为其它机器提供socks代理服务。openssh同时支持socksv4与socksv5。
+</p>
+</div>
+</div>
+
+
+<div id="outline-container-orgheadline2" class="outline-2">
+<h2 id="orgheadline2">SSH作DNAT</h2>
+<div class="outline-text-2" id="text-orgheadline2">
+<p>
+假如A可以连接B，B可连接C，但A不能直连C。此时我们可以在B上开启端口转发，当A连接B的某端口时，实际连接的是机器C。
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">ssh -p 22 -qTfnN -g -L 33089:ip_of_c:3389 root@localhost
+</pre>
+</div>
+
+<p>
+上述示例，我们在A上连接B的33089端口，实际连接的是机器C的3389端口。
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline3" class="outline-2">
+<h2 id="orgheadline3">SSH X forward</h2>
+<div class="outline-text-2" id="text-orgheadline3">
+<div class="org-src-container">
+
+<pre class="src src-sh">ssh -X &lt;server&gt;
+</pre>
+</div>
+
+<p>
+此时我们可以在本地运行server上的X程序，例如通过服务器上的wireshark gui抓包。
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline4" class="outline-2">
+<h2 id="orgheadline4">SSH作为文件传输协议</h2>
+<div class="outline-text-2" id="text-orgheadline4">
+<div class="org-src-container">
+
+<pre class="src src-sh">/usr/bin/rsync --delete -avz -e <span style="color: #800;">'ssh -p 22222'</span> root@nginx01:/etc/nginx/ /etc/nginx/
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline5" class="outline-2">
+<h2 id="orgheadline5">参考链接</h2>
+<div class="outline-text-2" id="text-orgheadline5">
+<p>
+<a href="https://www.ibm.com/developerworks/cn/linux/l-cn-sshforward/">实战SSH端口转发</a>
+</p>
+</div>
+</div>

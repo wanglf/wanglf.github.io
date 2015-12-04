@@ -1,0 +1,229 @@
+---
+title:  "C语言函数指针与指针函数"
+tags: c
+layout: post
+categories: language
+---
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline3">函数指针</a>
+<ul>
+<li><a href="#orgheadline1">函数指针示例一</a></li>
+<li><a href="#orgheadline2">函数指针示例二</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<!--abstract-begin-->
+<p>
+本文讲述C语言函数指针与指针函数的用法
+</p>
+<!--abstract-end-->
+
+<div id="outline-container-orgheadline3" class="outline-2">
+<h2 id="orgheadline3">函数指针</h2>
+<div class="outline-text-2" id="text-orgheadline3">
+</div><div id="outline-container-orgheadline1" class="outline-3">
+<h3 id="orgheadline1">函数指针示例一</h3>
+<div class="outline-text-3" id="text-orgheadline1">
+<div class="org-src-container">
+
+<pre class="src src-c"><span style="color: #800;">#include</span><span style="color: #800;">&lt;stdio.h&gt;</span>
+
+<span style="color: #800; font-weight: bold;">typedef</span> <span style="color: #058; font-weight: bold;">int</span> (*<span style="color: #058; font-weight: bold;">FP_CALC</span>)(<span style="color: #058; font-weight: bold;">int</span>, <span style="color: #058; font-weight: bold;">int</span>);
+<span style="color: #633;">/* </span><span style="color: #633;">&#27880;&#24847;&#36825;&#37324;&#19981;&#26159;&#20989;&#25968;&#22768;&#26126;&#32780;&#26159;&#20989;&#25968;&#23450;&#20041;&#65292;&#23427;&#26159;&#19968;&#20010;&#22320;&#22336;&#65292;&#20320;&#21487;&#20197;&#30452;&#25509;&#36755;&#20986;add&#30475;&#30475;  </span><span style="color: #633;">*/</span>
+<span style="color: #058; font-weight: bold;">int</span> <span style="color: #605; font-weight: bold;">add</span>(<span style="color: #058; font-weight: bold;">int</span> <span style="color: #007;">a</span>, <span style="color: #058; font-weight: bold;">int</span> <span style="color: #007;">b</span>)
+{
+     <span style="color: #800; font-weight: bold;">return</span> a + b;
+}
+<span style="color: #058; font-weight: bold;">int</span> <span style="color: #605; font-weight: bold;">sub</span>(<span style="color: #058; font-weight: bold;">int</span> <span style="color: #007;">a</span>, <span style="color: #058; font-weight: bold;">int</span> <span style="color: #007;">b</span>)
+{
+     <span style="color: #800; font-weight: bold;">return</span> a - b;
+}
+<span style="color: #058; font-weight: bold;">int</span> <span style="color: #605; font-weight: bold;">mul</span>(<span style="color: #058; font-weight: bold;">int</span> <span style="color: #007;">a</span>, <span style="color: #058; font-weight: bold;">int</span> <span style="color: #007;">b</span>)
+{
+     <span style="color: #800; font-weight: bold;">return</span> a * b;
+}
+<span style="color: #058; font-weight: bold;">int</span> <span style="color: #605; font-weight: bold;">div</span>(<span style="color: #058; font-weight: bold;">int</span> <span style="color: #007;">a</span>, <span style="color: #058; font-weight: bold;">int</span> <span style="color: #007;">b</span>)
+{
+     <span style="color: #800; font-weight: bold;">return</span> b? a/b : -1;
+}
+
+<span style="color: #633;">/* </span><span style="color: #633;">&#23450;&#20041;&#19968;&#20010;&#20989;&#25968;&#65292;&#21442;&#25968;&#20026;op&#65292;&#36820;&#22238;&#19968;&#20010;&#25351;&#38024;&#12290;&#35813;&#25351;&#38024;&#31867;&#22411;&#20026; &#25317;&#26377;&#20004;&#20010;int&#21442;&#25968;&#12289;</span>
+<span style="color: #633;"> * &#36820;&#22238;&#31867;&#22411;&#20026;int &#30340;&#20989;&#25968;&#25351;&#38024;&#12290;&#23427;&#30340;&#20316;&#29992;&#26159;&#26681;&#25454;&#25805;&#20316;&#31526;&#36820;&#22238;&#30456;&#24212;&#20989;&#25968;&#30340;&#22320;&#22336;</span>
+<span style="color: #633;"> </span><span style="color: #633;">*/</span>
+
+<span style="color: #058; font-weight: bold;">FP_CALC</span> <span style="color: #605; font-weight: bold;">calc_func</span>(<span style="color: #058; font-weight: bold;">char</span> <span style="color: #007;">op</span>)
+{
+     <span style="color: #800; font-weight: bold;">switch</span> (op)
+     {
+     <span style="color: #800; font-weight: bold;">case</span> <span style="color: #800;">'+'</span>: <span style="color: #800; font-weight: bold;">return</span> add; <span style="color: #633;">/* </span><span style="color: #633;">&#36820;&#22238;&#20989;&#25968;&#30340;&#22320;&#22336;   </span><span style="color: #633;">*/</span>
+     <span style="color: #800; font-weight: bold;">case</span> <span style="color: #800;">'-'</span>: <span style="color: #800; font-weight: bold;">return</span> sub;
+     <span style="color: #800; font-weight: bold;">case</span> <span style="color: #800;">'*'</span>: <span style="color: #800; font-weight: bold;">return</span> mul;
+     <span style="color: #800; font-weight: bold;">case</span> <span style="color: #800;">'/'</span>: <span style="color: #800; font-weight: bold;">return</span> div;
+     <span style="color: #800; font-weight: bold;">default</span>:
+         <span style="color: #800; font-weight: bold;">return</span> <span style="color: #046; font-weight: bold;">NULL</span>;
+     }
+     <span style="color: #800; font-weight: bold;">return</span> <span style="color: #046; font-weight: bold;">NULL</span>;
+}
+
+<span style="color: #633;">/* </span><span style="color: #633;">s_calc_func&#20026;&#20989;&#25968;&#65292;&#23427;&#30340;&#21442;&#25968;&#26159; op&#65292;</span>
+<span style="color: #633;"> * &#36820;&#22238;&#20540;&#20026;&#19968;&#20010;&#25317;&#26377; &#20004;&#20010;int&#21442;&#25968;&#12289;&#36820;&#22238;&#31867;&#22411;&#20026;int &#30340;&#20989;&#25968;&#25351;&#38024;</span>
+<span style="color: #633;"> </span><span style="color: #633;">*/</span>
+
+<span style="color: #058; font-weight: bold;">int</span> (*<span style="color: #605; font-weight: bold;">s_calc_func</span>(<span style="color: #058; font-weight: bold;">char</span> <span style="color: #007;">op</span>)) (<span style="color: #058; font-weight: bold;">int</span>, <span style="color: #058; font-weight: bold;">int</span>)
+{
+     <span style="color: #800; font-weight: bold;">return</span> calc_func(op);
+}
+
+<span style="color: #633;">/* </span><span style="color: #633;">&#26368;&#32456;&#29992;&#25143;&#30452;&#25509;&#35843;&#29992;&#30340;&#20989;&#25968;&#65292;&#35813;&#20989;&#25968;&#25509;&#25910;&#20004;&#20010;int&#25972;&#25968;&#65292;&#21644;&#19968;&#20010;&#31639;&#26415;&#36816;&#31639;&#31526;&#65292;&#36820;&#22238;&#20004;&#25968;&#30340;&#36816;&#31639;&#32467;&#26524;   </span><span style="color: #633;">*/</span>
+
+<span style="color: #058; font-weight: bold;">int</span> <span style="color: #605; font-weight: bold;">calc</span>(<span style="color: #058; font-weight: bold;">int</span> <span style="color: #007;">a</span>, <span style="color: #058; font-weight: bold;">int</span> <span style="color: #007;">b</span>, <span style="color: #058; font-weight: bold;">char</span> <span style="color: #007;">op</span>)
+{
+     <span style="color: #058; font-weight: bold;">FP_CALC</span> <span style="color: #007;">fp</span> = calc_func(op); <span style="color: #633;">/* </span><span style="color: #633;">&#26681;&#25454;&#39044;&#31639;&#31526;&#24471;&#21040;&#21508;&#31181;&#36816;&#31639;&#30340;&#20989;&#25968;&#30340;&#22320;&#22336;   </span><span style="color: #633;">*/</span>
+         <span style="color: #058; font-weight: bold;">int</span> (*<span style="color: #007;">s_fp</span>)(<span style="color: #058; font-weight: bold;">int</span>, <span style="color: #058; font-weight: bold;">int</span>) = s_calc_func(op); <span style="color: #633;">/*</span><span style="color: #633;">&#29992;&#20110;&#27979;&#35797;   </span><span style="color: #633;">*/</span>
+         <span style="color: #633;">// </span><span style="color: #633;">ASSERT(fp == s_fp);   /* &#21487;&#20197;&#26029;&#35328;&#36825;&#20457;&#26159;&#30456;&#31561;&#30340;   */</span>
+     <span style="color: #800; font-weight: bold;">if</span> (fp) <span style="color: #800; font-weight: bold;">return</span> fp(a, b); <span style="color: #633;">/* </span><span style="color: #633;">&#26681;&#25454;&#19978;&#19968;&#27493;&#24471;&#21040;&#30340;&#20989;&#25968;&#30340;&#22320;&#22336;&#35843;&#29992;&#30456;&#24212;&#20989;&#25968;&#65292;&#24182;&#36820;&#22238;&#32467;&#26524; </span><span style="color: #633;">*/</span>
+     <span style="color: #800; font-weight: bold;">else</span> <span style="color: #800; font-weight: bold;">return</span> -1;
+}
+
+<span style="color: #058; font-weight: bold;">void</span> <span style="color: #605; font-weight: bold;">main</span>()
+{
+    <span style="color: #058; font-weight: bold;">int</span> <span style="color: #007;">a</span> = 100, <span style="color: #007;">b</span> = 20;
+
+     printf(<span style="color: #800;">"calc(%d, %d, %c) = %d\n"</span>, a, b, <span style="color: #800;">'+'</span>, calc(a, b, <span style="color: #800;">'+'</span>));
+     printf(<span style="color: #800;">"calc(%d, %d, %c) = %d\n"</span>, a, b, <span style="color: #800;">'-'</span>, calc(a, b, <span style="color: #800;">'-'</span>));
+     printf(<span style="color: #800;">"calc(%d, %d, %c) = %d\n"</span>, a, b, <span style="color: #800;">'*'</span>, calc(a, b, <span style="color: #800;">'*'</span>));
+     printf(<span style="color: #800;">"calc(%d, %d, %c) = %d\n"</span>, a, b, <span style="color: #800;">'/'</span>, calc(a, b, <span style="color: #800;">'/'</span>));
+}
+</pre>
+</div>
+</div>
+</div>
+
+
+<div id="outline-container-orgheadline2" class="outline-3">
+<h3 id="orgheadline2">函数指针示例二</h3>
+<div class="outline-text-3" id="text-orgheadline2">
+<div class="org-src-container">
+
+<pre class="src src-c"><span style="color: #800;">#include</span> <span style="color: #800;">&lt;stdio.h&gt;</span>
+<span style="color: #800;">#include</span> <span style="color: #800;">&lt;stdlib.h&gt;</span>
+<span style="color: #800;">#include</span> <span style="color: #800;">&lt;errno.h&gt;</span>
+<span style="color: #800;">#include</span> <span style="color: #800;">&lt;string.h&gt;</span>
+
+<span style="color: #633;">/** </span><span style="color: #633;">Our old friend die from ex17. </span><span style="color: #633;">*/</span>
+
+<span style="color: #058; font-weight: bold;">void</span> <span style="color: #605; font-weight: bold;">die</span>(<span style="color: #800; font-weight: bold;">const</span> <span style="color: #058; font-weight: bold;">char</span> *<span style="color: #007;">message</span>)
+{
+    <span style="color: #800; font-weight: bold;">if</span>(errno) {
+        perror(message);
+    } <span style="color: #800; font-weight: bold;">else</span> {
+        printf(<span style="color: #800;">"ERROR: %s\n"</span>, message);
+    }
+
+    exit(1);
+}
+
+<span style="color: #633;">/* </span><span style="color: #633;">a typedef creates a fake type, in this case for a function pointer </span><span style="color: #633;">*/</span>
+<span style="color: #800; font-weight: bold;">typedef</span> <span style="color: #058; font-weight: bold;">int</span> (*<span style="color: #058; font-weight: bold;">compare_cb</span>)(<span style="color: #058; font-weight: bold;">int</span> <span style="color: #007;">a</span>, <span style="color: #058; font-weight: bold;">int</span> <span style="color: #007;">b</span>);
+
+<span style="color: #800;">/**</span>
+<span style="color: #800;"> * A classic bubble sort function that uses the </span>
+<span style="color: #800;"> * compare_cb to do the sorting. </span>
+<span style="color: #800;"> */</span>
+<span style="color: #058; font-weight: bold;">int</span> *<span style="color: #605; font-weight: bold;">bubble_sort</span>(<span style="color: #058; font-weight: bold;">int</span> *<span style="color: #007;">numbers</span>, <span style="color: #058; font-weight: bold;">int</span> <span style="color: #007;">count</span>, <span style="color: #058; font-weight: bold;">compare_cb</span> <span style="color: #007;">cmp</span>)
+{
+    <span style="color: #058; font-weight: bold;">int</span> <span style="color: #007;">temp</span> = 0;
+    <span style="color: #058; font-weight: bold;">int</span> <span style="color: #007;">i</span> = 0;
+    <span style="color: #058; font-weight: bold;">int</span> <span style="color: #007;">j</span> = 0;
+    <span style="color: #058; font-weight: bold;">int</span> *<span style="color: #007;">target</span> = malloc(<span style="color: #058; font-weight: bold;">count</span> * <span style="color: #800; font-weight: bold;">sizeof</span>(<span style="color: #058; font-weight: bold;">int</span>));
+
+    <span style="color: #800; font-weight: bold;">if</span>(<span style="color: #C00;">!</span>target) die(<span style="color: #800;">"Memory error."</span>);
+
+    memcpy(target, numbers, <span style="color: #058; font-weight: bold;">count</span> * <span style="color: #800; font-weight: bold;">sizeof</span>(<span style="color: #058; font-weight: bold;">int</span>));
+
+    <span style="color: #800; font-weight: bold;">for</span>(i = 0; i &lt; count; i++) {
+        <span style="color: #800; font-weight: bold;">for</span>(j = 0; j &lt; count - 1; j++) {
+            <span style="color: #800; font-weight: bold;">if</span>(cmp(target[j], target[j+1]) &gt; 0) {
+                temp = target[j+1];
+                target[j+1] = target[j];
+                target[j] = temp;
+            }
+        }
+    }
+
+    <span style="color: #800; font-weight: bold;">return</span> target;
+}
+
+<span style="color: #058; font-weight: bold;">int</span> <span style="color: #605; font-weight: bold;">sorted_order</span>(<span style="color: #058; font-weight: bold;">int</span> <span style="color: #007;">a</span>, <span style="color: #058; font-weight: bold;">int</span> <span style="color: #007;">b</span>)
+{
+    <span style="color: #800; font-weight: bold;">return</span> a - b;
+}
+
+<span style="color: #058; font-weight: bold;">int</span> <span style="color: #605; font-weight: bold;">reverse_order</span>(<span style="color: #058; font-weight: bold;">int</span> <span style="color: #007;">a</span>, <span style="color: #058; font-weight: bold;">int</span> <span style="color: #007;">b</span>)
+{
+    <span style="color: #800; font-weight: bold;">return</span> b - a;
+}
+
+<span style="color: #058; font-weight: bold;">int</span> <span style="color: #605; font-weight: bold;">strange_order</span>(<span style="color: #058; font-weight: bold;">int</span> <span style="color: #007;">a</span>, <span style="color: #058; font-weight: bold;">int</span> <span style="color: #007;">b</span>)
+{
+    <span style="color: #800; font-weight: bold;">if</span>(a == 0 || b == 0) {
+        <span style="color: #800; font-weight: bold;">return</span> 0;
+    } <span style="color: #800; font-weight: bold;">else</span> {
+        <span style="color: #800; font-weight: bold;">return</span> a % b;
+    }
+}
+
+<span style="color: #633;">/** </span>
+<span style="color: #633;"> * Used to test that we are sorting things correctly</span>
+<span style="color: #633;"> * by doing the sort and printing it out.</span>
+<span style="color: #633;"> </span><span style="color: #633;">*/</span>
+
+<span style="color: #058; font-weight: bold;">void</span> <span style="color: #605; font-weight: bold;">test_sorting</span>(<span style="color: #058; font-weight: bold;">int</span> *<span style="color: #007;">numbers</span>, <span style="color: #058; font-weight: bold;">int</span> <span style="color: #007;">count</span>, <span style="color: #058; font-weight: bold;">compare_cb</span> <span style="color: #007;">cmp</span>)
+{
+    <span style="color: #058; font-weight: bold;">int</span> <span style="color: #007;">i</span> = 0;
+    <span style="color: #058; font-weight: bold;">int</span> *<span style="color: #007;">sorted</span> = bubble_sort(numbers, count, cmp);
+
+    <span style="color: #800; font-weight: bold;">if</span>(<span style="color: #C00;">!</span>sorted) die(<span style="color: #800;">"Failed to sort as requested."</span>);
+
+    <span style="color: #800; font-weight: bold;">for</span>(i = 0; i &lt; count; i++) {
+        printf(<span style="color: #800;">"%d "</span>, sorted[i]);
+    }
+    printf(<span style="color: #800;">"\n"</span>);
+
+    free(sorted);
+}
+
+
+<span style="color: #058; font-weight: bold;">int</span> <span style="color: #605; font-weight: bold;">main</span>(<span style="color: #058; font-weight: bold;">int</span> <span style="color: #007;">argc</span>, <span style="color: #058; font-weight: bold;">char</span> *<span style="color: #007;">argv</span>[])
+{
+    <span style="color: #800; font-weight: bold;">if</span>(argc &lt; 2) die(<span style="color: #800;">"USAGE: ex18 4 3 1 5 6"</span>);
+
+    <span style="color: #058; font-weight: bold;">int</span> <span style="color: #007;">count</span> = argc - 1;
+    <span style="color: #058; font-weight: bold;">int</span> <span style="color: #007;">i</span> = 0;
+    <span style="color: #058; font-weight: bold;">char</span> **<span style="color: #007;">inputs</span> = argv + 1;
+
+    <span style="color: #058; font-weight: bold;">int</span> *<span style="color: #007;">numbers</span> = malloc(<span style="color: #058; font-weight: bold;">count</span> * <span style="color: #800; font-weight: bold;">sizeof</span>(<span style="color: #058; font-weight: bold;">int</span>));
+    <span style="color: #800; font-weight: bold;">if</span>(<span style="color: #C00;">!</span>numbers) die(<span style="color: #800;">"Memory error."</span>);
+
+    <span style="color: #800; font-weight: bold;">for</span>(i = 0; i &lt; count; i++) {
+        numbers[i] = atoi(inputs[i]);
+    }
+
+    test_sorting(numbers, count, sorted_order);
+    test_sorting(numbers, count, reverse_order);
+    test_sorting(numbers, count, strange_order);
+
+    free(numbers);
+
+    <span style="color: #800; font-weight: bold;">return</span> 0;
+}
+</pre>
+</div>
+</div>
+</div>
+</div>

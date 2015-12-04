@@ -1,0 +1,96 @@
+---
+title: "Openssh SFTP chroot设置方法"
+tags: sftp
+layout: post
+categories: sysadmin
+---
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline1">修改sshd_config</a></li>
+<li><a href="#orgheadline2">增加用户与组</a></li>
+<li><a href="#orgheadline3">修改目录权限</a></li>
+<li><a href="#orgheadline4">删除Home目录无关文件</a></li>
+<li><a href="#orgheadline5">测试</a></li>
+</ul>
+</div>
+</div>
+<!--abstract-begin-->
+<p>
+SFTP是一种基于openssh，采用加密方式传输文件的协议。本文主要讲述如何在linux平台上对sftp进行安全加固，确保指定用户只能用于文件交换，无法登录系统shell。
+</p>
+<!--abstract-end-->
+
+<div id="outline-container-orgheadline1" class="outline-2">
+<h2 id="orgheadline1">修改sshd_config</h2>
+<div class="outline-text-2" id="text-orgheadline1">
+<pre class="example">
+# Subsystem sftp /usr/libexec/openssh/sftp-server
+Subsystem sftp internal-sftp
+Match Group sftpuser
+  ChrootDirectory %h
+  AllowTCPForwarding no
+  X11Forwarding no
+  ForceCommand internal-sftp
+</pre>
+
+<p>
+<code>service sshd restart</code>
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline2" class="outline-2">
+<h2 id="orgheadline2">增加用户与组</h2>
+<div class="outline-text-2" id="text-orgheadline2">
+<div class="org-src-container">
+
+<pre class="src src-sh">groupadd --system sftpuser
+useradd sftpuser -g sftpuser -s /sbin/nologin
+</pre>
+</div>
+
+<p>
+<code>nologin阻止操作系统用户sftpuser作其它用途，仅允许sftp文件传输</code>
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline3" class="outline-2">
+<h2 id="orgheadline3">修改目录权限</h2>
+<div class="outline-text-2" id="text-orgheadline3">
+<div class="org-src-container">
+
+<pre class="src src-sh">chown -R root:root /home/sftpuser
+chmod 755 -R /home/sftpuser
+mkdir -p /home/sftpuser/outgoing/
+chown -R sftpuser:sftpuser /home/sftpuser/outgoing/
+mkdir -p /home/sftpuser/incoming/
+chown -R sftpuser:sftpuser /home/sftpuser/incoming/
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline4" class="outline-2">
+<h2 id="orgheadline4">删除Home目录无关文件</h2>
+<div class="outline-text-2" id="text-orgheadline4">
+<div class="org-src-container">
+
+<pre class="src src-sh">rm -rf .bash*
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline5" class="outline-2">
+<h2 id="orgheadline5">测试</h2>
+<div class="outline-text-2" id="text-orgheadline5">
+<div class="org-src-container">
+
+<pre class="src src-sh">sftp sftpuser@localhost
+</pre>
+</div>
+</div>
+</div>

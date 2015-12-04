@@ -1,0 +1,205 @@
+---
+title: Setup yum repository for centos 7
+tags: yum
+layout: post
+categories: sysadmin
+---
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline5">服务器端设置</a>
+<ul>
+<li><a href="#orgheadline1">rsync脚本</a></li>
+<li><a href="#orgheadline2">查看磁盘空间</a></li>
+<li><a href="#orgheadline3">nginx配置</a></li>
+<li><a href="#orgheadline4">定期同步</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline6">客户端设置</a></li>
+</ul>
+</div>
+</div>
+<!--abstract-begin-->
+<p>
+搭建本地yum repository，重要意义如下:
+</p>
+
+<ul class="org-ul">
+<li>如企业内部服务器没有互联网连接，则可以通过本地repo服务器安装软件包，无需代理</li>
+<li>服务器通过yum安装软件包的速度将大大提高，这是因为下载方式将由互联网变更为局域网</li>
+</ul>
+
+<!--abstract-end-->
+
+
+<div id="outline-container-orgheadline5" class="outline-2">
+<h2 id="orgheadline5">服务器端设置</h2>
+<div class="outline-text-2" id="text-orgheadline5">
+</div><div id="outline-container-orgheadline1" class="outline-3">
+<h3 id="orgheadline1">rsync脚本</h3>
+<div class="outline-text-3" id="text-orgheadline1">
+<div class="org-src-container">
+
+<pre class="src src-sh"><span style="color: #633;">#</span><span style="color: #633;">!/bin/</span><span style="color: #800; font-weight: bold;">bash</span>
+<span style="color: #633;">#</span><span style="color: #633;">script name:rsync_yumrepo.sh</span>
+
+<span style="color: #007;">RsyncBin</span>=<span style="color: #800;">"/usr/bin/rsync"</span>
+<span style="color: #007;">RsyncPerm</span>=<span style="color: #800;">'-avrt --delete --no-iconv --bwlimit=800'</span>
+<span style="color: #007;">Centos_7_base</span>=<span style="color: #800;">'/var/www/html/repos/centos/base/'</span>
+<span style="color: #007;">Centos_7_extras</span>=<span style="color: #800;">'/var/www/html/repos/centos/extras/'</span>
+<span style="color: #007;">Centos_7_updates</span>=<span style="color: #800;">'/var/www/html/repos/centos/updates/'</span>
+<span style="color: #007;">Centos_7_epel</span>=<span style="color: #800;">'/var/www/html/repos/centos/epel/'</span>
+<span style="color: #007;">Centos_7_mariadb</span>=<span style="color: #800;">'/var/www/html/repos/mariadb/10/0/'</span>
+
+<span style="color: #007;">LogFile</span>=<span style="color: #800;">'/var/log/rsyncyumrepo'</span>
+<span style="color: #007;">Date</span>=<span style="font-weight: bold;">`date +%Y-%m-%d`</span>
+
+<span style="color: #633;">#</span><span style="color: #633;">check function</span>
+
+<span style="color: #800; font-weight: bold;">function</span> <span style="color: #605; font-weight: bold;">check</span> {
+<span style="color: #800; font-weight: bold;">if</span> [ $<span style="color: #007;">?</span> -eq 0 ];<span style="color: #800; font-weight: bold;">then</span>
+<span style="color: #058; font-weight: bold;">echo</span> -e <span style="color: #800;">"33[1;32mRsync is success!33[0m"</span> &gt;&gt;$<span style="color: #007;">LogFile</span>/$<span style="color: #007;">Date</span>.log
+<span style="color: #800; font-weight: bold;">else</span>
+<span style="color: #058; font-weight: bold;">echo</span> -e <span style="color: #800;">"33[1;31mRsync is fail!33[0m"</span> &gt;&gt;$<span style="color: #007;">LogFile</span>/$<span style="color: #007;">Date</span>.log
+<span style="color: #800; font-weight: bold;">fi</span>
+
+<span style="color: #800; font-weight: bold;">if</span> [ <span style="color: #C00;">!</span> -d <span style="color: #800;">"$Centos_7_base"</span> ];<span style="color: #800; font-weight: bold;">then</span>
+mkdir -pv $<span style="color: #007;">Centos_7_base</span>
+<span style="color: #800; font-weight: bold;">fi</span>
+
+<span style="color: #800; font-weight: bold;">if</span> [ <span style="color: #C00;">!</span> -d <span style="color: #800;">"$Centos_7_extras"</span> ];<span style="color: #800; font-weight: bold;">then</span>
+mkdir -pv $<span style="color: #007;">Centos_7_extras</span>
+<span style="color: #800; font-weight: bold;">fi</span>
+
+<span style="color: #800; font-weight: bold;">if</span> [ <span style="color: #C00;">!</span> -d <span style="color: #800;">"$Centos_7_updates"</span> ];<span style="color: #800; font-weight: bold;">then</span>
+mkdir -pv $<span style="color: #007;">Centos_7_updates</span>
+<span style="color: #800; font-weight: bold;">fi</span>
+
+<span style="color: #800; font-weight: bold;">if</span> [ <span style="color: #C00;">!</span> -d <span style="color: #800;">"$Centos_7_epel"</span> ];<span style="color: #800; font-weight: bold;">then</span>
+mkdir -pv $<span style="color: #007;">Centos_7_epel</span>
+<span style="color: #800; font-weight: bold;">fi</span>
+
+<span style="color: #800; font-weight: bold;">if</span> [ <span style="color: #C00;">!</span> -d <span style="color: #800;">"$Centos_7_mariadb"</span> ];<span style="color: #800; font-weight: bold;">then</span>
+mkdir -pv $<span style="color: #007;">Centos_7_mariadb</span>
+<span style="color: #800; font-weight: bold;">fi</span>
+
+<span style="color: #800; font-weight: bold;">if</span> [ <span style="color: #C00;">!</span> -d <span style="color: #800;">"$LogFile"</span> ];<span style="color: #800; font-weight: bold;">then</span>
+mkdir -pv $<span style="color: #007;">LogFile</span>
+<span style="color: #800; font-weight: bold;">fi</span>
+
+<span style="color: #633;">#</span><span style="color: #633;">rsync centos 7 base</span>
+<span style="color: #058; font-weight: bold;">echo</span> <span style="color: #800;">'Now start to rsync centos 7 base!'</span> &gt;&gt;$<span style="color: #007;">LogFile</span>/$<span style="color: #007;">Date</span>.log
+$<span style="color: #007;">RsyncBin</span> $<span style="color: #007;">RsyncPerm</span> rsync://mirrors.yun-idc.com/centos/7/os/ $<span style="color: #007;">Centos_7_base</span> &gt;&gt;$<span style="color: #007;">LogFile</span>/$<span style="color: #007;">Date</span>.log
+check
+
+<span style="color: #633;">#</span><span style="color: #633;">rsync centos 7 extras</span>
+<span style="color: #058; font-weight: bold;">echo</span> <span style="color: #800;">'Now start to rsync centos 7 extras!'</span> &gt;&gt;$<span style="color: #007;">LogFile</span>/$<span style="color: #007;">Date</span>.log
+$<span style="color: #007;">RsyncBin</span> $<span style="color: #007;">RsyncPerm</span> rsync://mirrors.yun-idc.com/centos/7/extras/ $<span style="color: #007;">Centos_7_extras</span> &gt;&gt;$<span style="color: #007;">LogFile</span>/$<span style="color: #007;">Date</span>.log
+check
+
+<span style="color: #633;">#</span><span style="color: #633;">rsync centos 7 updates</span>
+<span style="color: #058; font-weight: bold;">echo</span> <span style="color: #800;">'Now start to rsync centos 7 updates!'</span> &gt;&gt;$<span style="color: #007;">LogFile</span>/$<span style="color: #007;">Date</span>.log
+$<span style="color: #007;">RsyncBin</span> $<span style="color: #007;">RsyncPerm</span> rsync://mirrors.yun-idc.com/centos/7/updates/ $<span style="color: #007;">Centos_7_updates</span> &gt;&gt;$<span style="color: #007;">LogFile</span>/$<span style="color: #007;">Date</span>.log
+check
+
+<span style="color: #633;">#</span><span style="color: #633;">rsync centos 7 epel</span>
+<span style="color: #058; font-weight: bold;">echo</span> <span style="color: #800;">'Now start to rsync centos 7 epel!'</span> &gt;&gt;$<span style="color: #007;">LogFile</span>/$<span style="color: #007;">Date</span>.log
+$<span style="color: #007;">RsyncBin</span> $<span style="color: #007;">RsyncPerm</span> --exclude=SRPMS/ --exclude=ppc64/ rsync://mirrors.yun-idc.com/epel/7/ $<span style="color: #007;">Centos_7_epel</span> &gt;&gt;$<span style="color: #007;">LogFile</span>/$<span style="color: #007;">Date</span>.log
+check
+
+<span style="color: #633;">#</span><span style="color: #633;">rsync centos 7 mariadb</span>
+<span style="color: #058; font-weight: bold;">echo</span> <span style="color: #800;">'Now start to rsync centos 7 mariadb!'</span> &gt;&gt;$<span style="color: #007;">LogFile</span>/$<span style="color: #007;">Date</span>.log
+$<span style="color: #007;">RsyncBin</span>  -vai4CH --safe-links --delay-updates --delete rsync://rsync.osuosl.org/mariadb/mariadb-10.0.22/yum/centos7-amd64/ $<span style="color: #007;">Centos_7_mariadb</span> &gt;&gt;$<span style="color: #007;">LogFile</span>/$<span style="color: #007;">Date</span>.log
+check
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline2" class="outline-3">
+<h3 id="orgheadline2">查看磁盘空间</h3>
+<div class="outline-text-3" id="text-orgheadline2">
+<div class="org-src-container">
+
+<pre class="src src-sh">du -sch /var/www/html/repos/
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline3" class="outline-3">
+<h3 id="orgheadline3">nginx配置</h3>
+<div class="outline-text-3" id="text-orgheadline3">
+<pre class="example">
+location /repos {
+  root   /var/www/html;
+  autoindex on;
+}
+</pre>
+
+<p>
+open browser, try <a href="http://hostname/repos">http://hostname/repos</a>
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline4" class="outline-3">
+<h3 id="orgheadline4">定期同步</h3>
+<div class="outline-text-3" id="text-orgheadline4">
+<pre class="example">
+30 02 * * * /bin/sh /root/sh/rsyncyumrepo.sh &gt; /dev/null 2&gt;&amp;1
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline6" class="outline-2">
+<h2 id="orgheadline6">客户端设置</h2>
+<div class="outline-text-2" id="text-orgheadline6">
+<div class="org-src-container">
+
+<pre class="src src-sh">rm -rf /etc/yum.repos.d/*.repo
+vi /etc/yum.repos.d/CentOS-Base.repo
+</pre>
+</div>
+
+<p>
+repo文件内容如下:
+</p>
+
+<pre class="example">
+# filename: CentOS-Base.repo
+#
+[base]
+name=CentOS-$releasever - Base
+baseurl=http://reposrv/repos/centos/base/$basearch
+gpgcheck=0
+
+
+#released updates
+[updates]
+name=CentOS-$releasever - Updates
+baseurl=http://reposrv/repos/centos/updates/$basearch
+gpgcheck=0
+
+#additional packages that may be useful
+[extras]
+name=CentOS-$releasever - Extras
+baseurl=http://reposrv/repos/centos/extras/$basearch
+gpgcheck=0
+
+#additional packages From Epel Release
+[epel]
+name=CentOS-$releasever - Epel Release
+baseurl=http://reposrv/repos/centos/epel/$basearch
+gpgcheck=0
+
+#Officail mariadb repo
+[mariadb]
+name=CentOS-$releasever - MariaDB
+baseurl=http://reposrv/repos/mariadb/10/0/
+gpgcheck=0
+</pre>
+</div>
+</div>

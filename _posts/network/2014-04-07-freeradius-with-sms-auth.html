@@ -1,0 +1,355 @@
+---
+title: "Freeradius with sms auth"
+tags: freeradius
+layout: post
+categories: network
+---
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline1">需求分析</a></li>
+<li><a href="#orgheadline5">freeradius安装与配置</a>
+<ul>
+<li><a href="#orgheadline2">安装步骤</a></li>
+<li><a href="#orgheadline3">配置sql接口</a></li>
+<li><a href="#orgheadline4">NAS配置</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline8">WEB服务器配置mod_perl支持</a>
+<ul>
+<li><a href="#orgheadline6">安装mod_perl</a></li>
+<li><a href="#orgheadline7">配置httpd.conf</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline11">动态口令页面</a>
+<ul>
+<li><a href="#orgheadline9">编写表单</a></li>
+<li><a href="#orgheadline10">编写cgi脚本</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline15">优化</a>
+<ul>
+<li><a href="#orgheadline12">凌晨让密码失效</a></li>
+<li><a href="#orgheadline13">单个用户只能开启一个会话</a></li>
+<li><a href="#orgheadline14">用户获得固定IP</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline17">总结</a>
+<ul>
+<li><a href="#orgheadline16">流程图</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<!--abstract-begin-->
+<p>
+Freeradius是一个开源的AAA认证服务器, 本文讲述Freeradius如何利用sql接口实现短信认证。
+</p>
+<!--abstract-end-->
+
+<div id="outline-container-orgheadline1" class="outline-2">
+<h2 id="orgheadline1">需求分析</h2>
+<div class="outline-text-2" id="text-orgheadline1">
+<p>
+某客户现已有一个VPDN接入平台，接入用户采用用户名+口令的认证方式，AAA认证服务器采用Cisco ACS认证系统，NAS为一台Cisco 2921路由器。现考虑到VPDN本身虽已提供私密性，但口令容易被窃取或不经意泄漏，即实际访问者与账户拥有者是不同身份。在安全领域，手机短信验证与动态口令卡都属于双因素认证，且企业本身如已有短信网关接口，则投入的成本基本只需要考虑短信发送费用即可。本文讲述freeradius如何结合sql接口，实现短信验证方式。
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline5" class="outline-2">
+<h2 id="orgheadline5">freeradius安装与配置</h2>
+<div class="outline-text-2" id="text-orgheadline5">
+</div><div id="outline-container-orgheadline2" class="outline-3">
+<h3 id="orgheadline2">安装步骤</h3>
+<div class="outline-text-3" id="text-orgheadline2">
+<p>
+参见：<a href="http://wiki.freeradius.org/building/Build">Building FreeRadius</a>
+</p>
+
+<p>
+安装视操作系统版本，推荐通过yum或者apt方式，包括freeradius-mysql接口。
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline3" class="outline-3">
+<h3 id="orgheadline3">配置sql接口</h3>
+<div class="outline-text-3" id="text-orgheadline3">
+<p>
+参见：<a href="http://wiki.freeradius.org/guide/SQL-HOWTO">SQL HOWTO</a>
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline4" class="outline-3">
+<h3 id="orgheadline4">NAS配置</h3>
+<div class="outline-text-3" id="text-orgheadline4">
+<pre class="example">
+aaa new-model
+!
+aaa authentication login default local
+aaa authentication ppp default group radius
+aaa authorization network default group radius 
+aaa accounting network default
+ action-type start-stop
+ group radius
+!
+!
+async-bootp dns-server 1.1.1.2
+async-bootp nbns-server 1.1.1.2
+vpdn enable
+!
+vpdn-group 1
+! Default PPTP VPDN group
+ accept-dialin
+  protocol pptp
+  virtual-template 1
+!
+interface Virtual-Template1
+ ip unnumbered FastEthernet0/0
+ no ip redirects
+ no ip unreachables
+ no peer default ip address
+ no keepalive
+ ppp encrypt mppe auto
+ ppp authentication ms-chap ms-chap-v2 pap chap
+!
+radius-server host 1.1.1.2 auth-port 1812 acct-port 1813 key radius_key
+!
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline8" class="outline-2">
+<h2 id="orgheadline8">WEB服务器配置mod_perl支持</h2>
+<div class="outline-text-2" id="text-orgheadline8">
+</div><div id="outline-container-orgheadline6" class="outline-3">
+<h3 id="orgheadline6">安装mod_perl</h3>
+<div class="outline-text-3" id="text-orgheadline6">
+<pre class="example">
+yum install mod_perl
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orgheadline7" class="outline-3">
+<h3 id="orgheadline7">配置httpd.conf</h3>
+<div class="outline-text-3" id="text-orgheadline7">
+<pre class="example">
+LoadModule perl_module modules/mod_perl.so
+ScriptAlias /cgi-bin/ "/var/www/cgi-bin/"
+&lt;Directory "/var/www/cgi-bin"&gt;
+    SetHandler perl-script
+    PerlResponseHandler ModPerl::Registry
+    PerlOptions +ParseHeaders
+    Options +ExecCGI
+&lt;/Directory&gt;
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline11" class="outline-2">
+<h2 id="orgheadline11">动态口令页面</h2>
+<div class="outline-text-2" id="text-orgheadline11">
+</div><div id="outline-container-orgheadline9" class="outline-3">
+<h3 id="orgheadline9">编写表单</h3>
+<div class="outline-text-3" id="text-orgheadline9">
+<div class="org-src-container">
+
+<pre class="src src-html">&lt;<span style="color: #605; font-weight: bold;">html</span>&gt;
+&lt;<span style="color: #605; font-weight: bold;">title</span>&gt;<span style="font-weight: bold; text-decoration: underline;">vpn&#23494;&#30721;&#30003;&#35831;&#31995;&#32479;</span>&lt;/<span style="color: #605; font-weight: bold;">title</span>&gt;
+&lt;<span style="color: #605; font-weight: bold;">body</span>&gt;
+&lt;<span style="color: #605; font-weight: bold;">form</span> <span style="color: #007;">method</span>=<span style="color: #800;">"post"</span> <span style="color: #007;">action</span>=<span style="color: #800;">"/cgi-bin/test.cgi"</span>&gt; 
+&lt;<span style="color: #605; font-weight: bold;">p</span>&gt;&#25163;&#26426;&#21495;&lt;<span style="color: #605; font-weight: bold;">input</span> <span style="color: #007;">name</span>=<span style="color: #800;">"mobileno"</span>&gt;&lt;/<span style="color: #605; font-weight: bold;">p</span>&gt;
+&lt;<span style="color: #605; font-weight: bold;">p</span>&gt;
+&lt;<span style="color: #605; font-weight: bold;">input</span> <span style="color: #007;">type</span>=<span style="color: #800;">"submit"</span> <span style="color: #007;">value</span>=<span style="color: #800;">"&#25552;&#20132;&#34920;&#21333;"</span>&gt;
+&lt;<span style="color: #605; font-weight: bold;">input</span> <span style="color: #007;">type</span>=<span style="color: #800;">"reset"</span> <span style="color: #007;">value</span>=<span style="color: #800;">"&#28165;&#38500;"</span>&gt;
+&lt;/<span style="color: #605; font-weight: bold;">p</span>&gt;
+&lt;/<span style="color: #605; font-weight: bold;">form</span>&gt; 
+&lt;/<span style="color: #605; font-weight: bold;">body</span>&gt;
+&lt;/<span style="color: #605; font-weight: bold;">html</span>&gt;
+</pre>
+</div>
+</div>
+</div>
+
+
+<div id="outline-container-orgheadline10" class="outline-3">
+<h3 id="orgheadline10">编写cgi脚本</h3>
+<div class="outline-text-3" id="text-orgheadline10">
+<div class="org-src-container">
+
+<pre class="src src-perl"><span style="color: #633;">#</span><span style="color: #633;">!/usr/bin/perl</span>
+<span style="color: #800; font-weight: bold;">use</span> <span style="color: #046; font-weight: bold;">DBI</span>;
+
+<span style="color: #058; font-weight: bold;">my</span> ($<span style="color: #007;">data</span>, $<span style="color: #007;">i</span>, @<span style="color: #007; text-decoration: underline;">data</span>, $<span style="color: #007;">key</span>, $<span style="color: #007;">val</span>, %<span style="color: #007; text-decoration: underline;">FORM</span>);
+
+<span style="color: #800; font-weight: bold;">if</span> ($<span style="color: #007;">ENV</span>{<span style="color: #800;">'REQUEST_METHOD'</span>} eq <span style="color: #800;">"GET"</span>) {
+        $<span style="color: #007;">data</span> = $<span style="color: #007;">ENV</span>{<span style="color: #800;">'QUERY_STRING'</span>};
+} <span style="color: #800; font-weight: bold;">elsif</span> ($<span style="color: #007;">ENV</span>{<span style="color: #800;">'REQUEST_METHOD'</span>} eq <span style="color: #800;">"POST"</span>) {
+        read(STDIN,$<span style="color: #007;">data</span>,$<span style="color: #007;">ENV</span>{<span style="color: #800;">'CONTENT_LENGTH'</span>});
+}
+
+@<span style="color: #007; text-decoration: underline;">data</span> = split(<span style="color: #800;">/&amp;/</span>,$<span style="color: #007;">data</span>);
+<span style="color: #800; font-weight: bold;">foreach</span> $<span style="color: #007;">i</span> (0 ..$#<span style="color: #007; text-decoration: underline;">data</span>) {
+        $<span style="color: #007;">data</span>[$<span style="color: #007;">i</span>] =~ s<span style="color: #800;">/\+/ /</span>g;
+        ($<span style="color: #007;">key</span>, $<span style="color: #007;">val</span>) = split(<span style="color: #800;">/=/</span>,$<span style="color: #007;">data</span>[$<span style="color: #007;">i</span>],2);
+         $<span style="color: #007;">key</span> =~ s<span style="color: #800;">/%(..)/pack("c",hex($1))/</span>ge;
+         $<span style="color: #007;">val</span> =~ s<span style="color: #800;">/%(..)/pack("c",hex($1))/</span>ge;
+         $<span style="color: #007;">val</span> =~ s<span style="color: #800;">///</span>g;
+         $<span style="color: #007;">FORM</span>{$<span style="color: #007;">key</span>} .= <span style="color: #800;">"\0"</span> <span style="color: #800; font-weight: bold;">if</span> (defined($<span style="color: #007;">FORM</span>{$<span style="color: #007;">key</span>}));
+         $<span style="color: #007;">FORM</span>{$<span style="color: #007;">key</span>} .= $<span style="color: #007;">val</span>;
+}
+
+$<span style="color: #007;">mobileno</span>=$<span style="color: #007;">FORM</span>{<span style="color: #800;">'mobileno'</span>};
+
+<span style="color: #058; font-weight: bold;">my</span> (@<span style="color: #007; text-decoration: underline;">token</span>, $<span style="color: #007;">token</span>);
+<span style="color: #800; font-weight: bold;">for</span> (<span style="color: #058; font-weight: bold;">my</span> $<span style="color: #007;">i</span> = 0; $<span style="color: #007;">i</span> &lt; 6; $<span style="color: #007;">i</span>++) {
+ $<span style="color: #007;">token</span>[$<span style="color: #007;">i</span>] = int (rand(10));
+ $<span style="color: #007;">token</span> .= $<span style="color: #007;">token</span>[$<span style="color: #007;">i</span>];
+}
+<span style="color: #058; font-weight: bold;">my</span> $<span style="color: #007;">dbname</span> = <span style="color: #800;">'radius'</span>;
+<span style="color: #058; font-weight: bold;">my</span> $<span style="color: #007;">dbuser</span> = <span style="color: #800;">'radius'</span>;
+<span style="color: #058; font-weight: bold;">my</span> $<span style="color: #007;">dbpass</span> = <span style="color: #800;">'radpass'</span>;
+<span style="color: #058; font-weight: bold;">my</span> $<span style="color: #007;">dbtable</span> = <span style="color: #800;">'radcheck'</span>;
+
+<span style="color: #058; font-weight: bold;">my</span> $<span style="color: #007;">dbh</span> = DBI-&gt;connect(<span style="color: #800;">"DBI:mysql:$dbname:host=localhost"</span>, $<span style="color: #007;">dbuser</span>, $<span style="color: #007;">dbpass</span>, {RaiseError =&gt; 0, ShowErrorStatement =&gt; 1});
+<span style="color: #058; font-weight: bold;">my</span> $<span style="color: #007;">sth</span> = $<span style="color: #007;">dbh</span>-&gt;prepare(<span style="color: #800;">'set names utf8'</span>);
+$<span style="color: #007;">sth</span>-&gt;execute();
+
+$<span style="color: #007;">sth</span> = $<span style="color: #007;">dbh</span>-&gt;prepare(qq<span style="color: #800;">{</span>
+<span style="color: #800;">        select username, value from $dbtable where attribute='Cleartext-Password'</span>
+<span style="color: #800;">}</span>);
+<span style="color: #058; font-weight: bold;">my</span> (@<span style="color: #007; text-decoration: underline;">username</span>,@<span style="color: #007; text-decoration: underline;">value</span>);
+
+$<span style="color: #007;">sth</span>-&gt;execute();
+
+
+<span style="color: #800; font-weight: bold;">while</span>(<span style="color: #058; font-weight: bold;">my</span> @<span style="color: #007; text-decoration: underline;">row</span> = $<span style="color: #007;">sth</span>-&gt;fetchrow_array()){
+        push @<span style="color: #007; text-decoration: underline;">username</span>, $<span style="color: #007;">row</span>[0];
+        push @<span style="color: #007; text-decoration: underline;">value</span>, $<span style="color: #007;">row</span>[1];
+}
+
+print <span style="color: #800;">"Content-type: text/html\n\n"</span>;
+
+<span style="color: #800; font-weight: bold;">if</span>(grep {$<span style="color: #007;">_</span> eq $<span style="color: #007;">mobileno</span>} @<span style="color: #007; text-decoration: underline;">username</span>) {
+        &amp;<span style="color: #605; font-weight: bold;">printheader</span>;
+        &amp;<span style="color: #605; font-weight: bold;">updaterecord</span>;
+        &amp;<span style="color: #605; font-weight: bold;">userpassprompt</span>;
+        &amp;<span style="color: #605; font-weight: bold;">sendsms</span>;       
+        &amp;<span style="color: #605; font-weight: bold;">printfooter</span>;
+} <span style="color: #800; font-weight: bold;">else</span> {
+        &amp;<span style="color: #605; font-weight: bold;">printheader</span>;
+        &amp;<span style="color: #605; font-weight: bold;">userforbidprompt</span>;
+        &amp;<span style="color: #605; font-weight: bold;">printfooter</span>;
+}
+
+
+<span style="color: #800; font-weight: bold;">sub</span> <span style="color: #605; font-weight: bold;">sendsms</span> {
+}
+
+<span style="color: #800; font-weight: bold;">sub</span> <span style="color: #605; font-weight: bold;">updaterecord</span> {
+        $<span style="color: #007;">sth</span> = $<span style="color: #007;">dbh</span>-&gt;prepare(qq<span style="color: #800;">{</span>
+<span style="color: #800;">                update `radcheck` set</span>
+<span style="color: #800;">                        `value` = '$token'</span>
+<span style="color: #800;">                where</span>
+<span style="color: #800;">                        `username` = '$mobileno' and `attribute` = 'Cleartext-Password';</span>
+<span style="color: #800;">        }</span>);
+        $<span style="color: #007;">sth</span>-&gt;execute();
+}
+<span style="color: #800; font-weight: bold;">sub</span> <span style="color: #605; font-weight: bold;">userforbidprompt</span> {
+        print <span style="color: #800;">"&lt;p&gt;&#35813;&#25163;&#26426;&#21495;&#26410;&#24320;&#36890;VPN&#26381;&#21153;&#12290;&lt;/p&gt;\n"</span>;
+        print <span style="color: #800;">'&lt;a href="../test.html"&gt;&#36820;&#22238;&lt;/a&gt;'</span>;
+}
+
+<span style="color: #800; font-weight: bold;">sub</span> <span style="color: #605; font-weight: bold;">userpassprompt</span> {
+        print <span style="color: #800;">"&lt;p&gt;VPN&#29992;&#25143;&#21517;&#19982;&#23494;&#30721;&#24050;&#32463;&#21457;&#36865;&#33267;&#25163;&#26426;&#65292;&#35831;&#26597;&#25910;&#12290;&lt;/p&gt;\n"</span>;
+        print <span style="color: #800;">"&lt;p&gt;&#27880;&#24847;&#65306;&#23494;&#30721;&#30340;&#26377;&#25928;&#26399;&#25130;&#27490;&#20110;&#25509;&#25910;&#21040;&#30701;&#20449;&#24403;&#22825;23&#65306;59&#65306;59&#65292;&#27425;&#26085;&#22833;&#25928;, &#20294;&#19981;&#24433;&#21709;&#24050;&#25320;&#21495;&#29992;&#25143;&#20351;&#29992;&lt;/p&gt;\n"</span>;
+        print <span style="color: #800;">'&lt;a href="../test.html"&gt;&#36820;&#22238;&lt;/a&gt;'</span>;
+}
+
+<span style="color: #800; font-weight: bold;">sub</span> <span style="color: #605; font-weight: bold;">printheader</span> {
+        print <span style="color: #800;">"&lt;html&gt;</span>
+<span style="color: #800;">                                        &lt;head&gt;</span>
+<span style="color: #800;">                                                &lt;title&gt;VPN&#23494;&#30721;&#30003;&#35831;&#32467;&#26524;&lt;/title&gt;</span>
+<span style="color: #800;">                                        &lt;/head&gt;</span>
+<span style="color: #800;">                                                &lt;body&gt;</span>
+<span style="color: #800;">                                "</span>;
+}
+
+<span style="color: #800; font-weight: bold;">sub</span> <span style="color: #605; font-weight: bold;">printfooter</span> {
+        print <span style="color: #800;">"         &lt;/body&gt;</span>
+<span style="color: #800;">                                &lt;/html&gt;</span>
+<span style="color: #800;">                                "</span>;
+}
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline15" class="outline-2">
+<h2 id="orgheadline15">优化</h2>
+<div class="outline-text-2" id="text-orgheadline15">
+</div><div id="outline-container-orgheadline12" class="outline-3">
+<h3 id="orgheadline12">凌晨让密码失效</h3>
+<div class="outline-text-3" id="text-orgheadline12">
+<p>
+编写一个perl脚本，更新数据库，让用户的密码随机化,放在crontab中执行。
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline13" class="outline-3">
+<h3 id="orgheadline13">单个用户只能开启一个会话</h3>
+<div class="outline-text-3" id="text-orgheadline13">
+<pre class="example">
+mysql&gt; select * from radcheck;
++----+-------------+--------------------+----+--------+
+| id | username    | attribute          | op | value  |
++----+-------------+--------------------+----+--------+
+|  1 | 18900001111 | Cleartext-Password | := | 881230 |
+|  5 | 18900001111 | Simultaneous-Use   | := | 1      |
++----+-------------+--------------------+----+--------+
+</pre>
+</div>
+</div>
+
+
+
+<div id="outline-container-orgheadline14" class="outline-3">
+<h3 id="orgheadline14">用户获得固定IP</h3>
+<div class="outline-text-3" id="text-orgheadline14">
+<pre class="example">
+mysql&gt; select * from radreply;
++----+-------------+-------------------+----+-------------+
+| id | username    | attribute         | op | value       |
++----+-------------+-------------------+----+-------------+
+|  1 | 18900001111 | Framed-IP-Address | =  | 1.1.10.1    |
++----+-------------+-------------------+----+-------------+
+1 row in set (0.00 sec)
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline17" class="outline-2">
+<h2 id="orgheadline17">总结</h2>
+<div class="outline-text-2" id="text-orgheadline17">
+</div><div id="outline-container-orgheadline16" class="outline-3">
+<h3 id="orgheadline16">流程图</h3>
+<div class="outline-text-3" id="text-orgheadline16">
+<div class="org-center">
+
+<div class="figure">
+<p><img src="/resource/network/fig/FreeRadiusWithSMSAuth.png" alt="FreeRadiusWithSMSAuth.png" />
+</p>
+</div>
+</div>
+</div>
+</div>
+</div>

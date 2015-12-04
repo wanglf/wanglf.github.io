@@ -1,0 +1,229 @@
+---
+title: "Howto enlarge lvm space"
+tags: lvm
+layout: post
+categories: sysadmin
+---
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline1">虚拟机增加硬盘</a></li>
+<li><a href="#orgheadline10">Guest OS操作</a>
+<ul>
+<li><a href="#orgheadline2">fdisk</a></li>
+<li><a href="#orgheadline3">pvcreate</a></li>
+<li><a href="#orgheadline4">vgextend</a></li>
+<li><a href="#orgheadline5">lvextent</a></li>
+<li><a href="#orgheadline6">resize2fs</a></li>
+<li><a href="#orgheadline7">df -h</a></li>
+<li><a href="#orgheadline8">vgdisplay</a></li>
+<li><a href="#orgheadline9">lvdisplay</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<!--abstract-begin-->
+<p>
+目前linux操作系统安装时基本会采用lvm的方式来管理磁盘，这是由于lvm具有灵活可扩展的特点。本文记录虚拟机增加磁盘后，如何在客户机系统将新增磁盘空间并入现有lvm。
+</p>
+<!--abstract-end-->
+
+<div id="outline-container-orgheadline1" class="outline-2">
+<h2 id="orgheadline1">虚拟机增加硬盘</h2>
+</div>
+
+<div id="outline-container-orgheadline10" class="outline-2">
+<h2 id="orgheadline10">Guest OS操作</h2>
+<div class="outline-text-2" id="text-orgheadline10">
+</div><div id="outline-container-orgheadline2" class="outline-3">
+<h3 id="orgheadline2">fdisk</h3>
+<div class="outline-text-3" id="text-orgheadline2">
+<p>
+<code>fdisk /dev/sdb</code>
+</p>
+
+<pre class="example">
+Command (m for help): new
+Command action
+e   extended
+p   primary partition (1-4) p
+Partition number (1-4): 1
+First cylinder (1-512, default 1):
+Last cylinder or +size or +sizeM or +sizeK (1--65270, default 65270):
+Command (m for help): t
+Partition's system id: 8e
+Command(m for help): w
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orgheadline3" class="outline-3">
+<h3 id="orgheadline3">pvcreate</h3>
+<div class="outline-text-3" id="text-orgheadline3">
+<p>
+<code>pvcreate /dev/sdb1</code>
+</p>
+
+<pre class="example">
+Physical volume "/dev/sdb1" successfully created
+</pre>
+
+<p>
+<code>vgdisplay</code>
+</p>
+
+<pre class="example">
+  --- Volume group ---
+  VG Name               vg_bigdatavm116
+  System ID
+  Format                lvm2
+  Metadata Areas        1
+  Metadata Sequence No  3
+  VG Access             read/write
+  VG Status             resizable
+  MAX LV                0
+  Cur LV                2
+  Open LV               2
+  Max PV                0
+  Cur PV                1
+  Act PV                1
+  VG Size               199.80 GiB
+  PE Size               4.00 MiB
+  Total PE              51149
+  Alloc PE / Size       51149 / 199.80 GiB
+  Free  PE / Size       0 / 0   
+  VG UUID               zFfi0K-jfi8-3TXg-wjUC-XD2w-GZkm-SSUtyJ
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orgheadline4" class="outline-3">
+<h3 id="orgheadline4">vgextend</h3>
+<div class="outline-text-3" id="text-orgheadline4">
+<p>
+<code>vgextend vg_bigdatavm116 /dev/sdb1</code>
+</p>
+
+<pre class="example">
+  Volume group "vg_bigdatavm116" successfully extended
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orgheadline5" class="outline-3">
+<h3 id="orgheadline5">lvextent</h3>
+<div class="outline-text-3" id="text-orgheadline5">
+<p>
+<code>lvextend -l +100%FREE  /dev/vg_bigdatavm116/LogVol00</code>
+</p>
+</div>
+</div>
+
+
+<div id="outline-container-orgheadline6" class="outline-3">
+<h3 id="orgheadline6">resize2fs</h3>
+<div class="outline-text-3" id="text-orgheadline6">
+<p>
+<code>resize2fs -p /dev/vg_bigdatavm116/LogVol00</code>
+</p>
+
+
+<pre class="example">
+resize2fs 1.41.12 (17-May-2010)
+Filesystem at /dev/vg_bigdatavm116/LogVol00 is mounted on /; on-line resizing required
+old desc_blocks = 12, new_desc_blocks = 43
+Performing an on-line resize of /dev/vg_bigdatavm116/LogVol00 to 177090560 (4k) blocks.
+The filesystem on /dev/vg_bigdatavm116/LogVol00 is now 177090560 blocks long.
+</pre>
+</div>
+</div>
+
+
+<div id="outline-container-orgheadline7" class="outline-3">
+<h3 id="orgheadline7">df -h</h3>
+<div class="outline-text-3" id="text-orgheadline7">
+<p>
+<code>df -h</code>
+</p>
+
+<pre class="example">
+Filesystem                            Size  Used Avail Use% Mounted on
+/dev/mapper/vg_bigdatavm116-LogVol00  665G  934M  631G   1% /
+tmpfs                                 7.8G     0  7.8G   0% /dev/shm
+/dev/sda1                             194M   28M  156M  16% /boot
+</pre>
+</div>
+</div>
+
+
+<div id="outline-container-orgheadline8" class="outline-3">
+<h3 id="orgheadline8">vgdisplay</h3>
+<div class="outline-text-3" id="text-orgheadline8">
+<pre class="example">
+  --- Volume group ---
+  VG Name               vg_bigdatavm116
+  System ID             
+  Format                lvm2
+  Metadata Areas        2
+  Metadata Sequence No  5
+  VG Access             read/write
+  VG Status             resizable
+  MAX LV                0
+  Cur LV                2
+  Open LV               2
+  Max PV                0
+  Cur PV                2
+  Act PV                2
+  VG Size               699.79 GiB
+  PE Size               4.00 MiB
+  Total PE              179147
+  Alloc PE / Size       176589 / 689.80 GiB
+  Free  PE / Size       2558 / 9.99 GiB
+  VG UUID               zFfi0K-jfi8-3TXg-wjUC-XD2w-GZkm-SSUtyJ
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orgheadline9" class="outline-3">
+<h3 id="orgheadline9">lvdisplay</h3>
+<div class="outline-text-3" id="text-orgheadline9">
+<pre class="example">
+  --- Logical volume ---
+  LV Path                /dev/vg_bigdatavm116/LogVol01
+  LV Name                LogVol01
+  VG Name                vg_bigdatavm116
+  LV UUID                NpuQLx-ZtYl-XeCY-SqFa-BT1c-6VIw-LfqXMI
+  LV Write Access        read/write
+  LV Creation host, time bigdata-vm116, 2014-12-13 21:04:05 +0800
+  LV Status              available
+  # open                 1
+  LV Size                14.25 GiB
+  Current LE             3649
+  Segments               1
+  Allocation             inherit
+  Read ahead sectors     auto
+  - currently set to     256
+  Block device           253:0
+   
+  --- Logical volume ---
+  LV Path                /dev/vg_bigdatavm116/LogVol00
+  LV Name                LogVol00
+  VG Name                vg_bigdatavm116
+  LV UUID                pSKS9q-RRZ4-wcxK-Al9U-Qwo0-UkrK-JKdAX1
+  LV Write Access        read/write
+  LV Creation host, time bigdata-vm116, 2014-12-13 21:04:05 +0800
+  LV Status              available
+  # open                 1
+  LV Size                675.55 GiB
+  Current LE             172940
+  Segments               2
+  Allocation             inherit
+  Read ahead sectors     auto
+  - currently set to     256
+  Block device           253:1
+</pre>
+</div>
+</div>
+</div>

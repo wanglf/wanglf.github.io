@@ -1,0 +1,52 @@
+---
+title:  "C语言NULL指针FAQ"
+tags: c
+layout: post
+categories: language
+---
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline1">Q: What is NULL and how is it defined?</a></li>
+<li><a href="#orgheadline2">Q:How do I get a null pointer in my programs?</a></li>
+</ul>
+</div>
+</div>
+<!--abstract-begin-->
+<p>
+C NULL Pointer FAQ
+</p>
+<!--abstract-end-->
+
+
+<div id="outline-container-orgheadline1" class="outline-2">
+<h2 id="orgheadline1">Q: What is NULL and how is it defined?</h2>
+<div class="outline-text-2" id="text-orgheadline1">
+<pre class="example">
+As a matter of style, many programmers prefer not to have unadorned 0's scattered through their programs, some representing numbers and some representing pointers. Therefore, the preprocessor macro NULL is defined (by several headers, including &lt;stdio.h&gt; and &lt;stddef.h&gt;) as a null pointer constant, typically 0 or ((void *)0). A programmer who wishes to make explicit the distinction between 0 the integer and 0 the null pointer constant can then use NULL whenever a null pointer is required.
+
+Using NULL is a stylistic convention only; the preprocessor turns NULL back into 0 which is then recognized by the compiler, in pointer contexts, as before. In particular, a cast may still be necessary before NULL (as before 0) in a function call argument. The table under question 5.2 above applies for NULL as well as 0 (an unadorned NULL is equivalent to an unadorned 0).
+NULL should be used only as a pointer constant;
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orgheadline2" class="outline-2">
+<h2 id="orgheadline2">Q:How do I get a null pointer in my programs?</h2>
+<div class="outline-text-2" id="text-orgheadline2">
+<pre class="example">
+With a null pointer constant.
+
+According to the language definition, an "integral constant expression with the value 0" in a pointer context is converted into a null pointer at compile time. That is, in an initialization, assignment, or comparison when one side is a variable or expression of pointer type, the compiler can tell that a constant 0 on the other side requests a null pointer, and generate the correctly-typed null pointer value. Therefore, the following fragments are perfectly legal:
+	char *p = 0;
+	if(p != 0)
+
+However, an argument being passed to a function is not necessarily recognizable as a pointer context, and the compiler may not be able to tell that an unadorned 0 "means" a null pointer. To generate a null pointer in a function call context, an explicit cast may be required, to force the 0 to be recognized as a pointer. For example, the Unix system call execl takes a variable-length, null-pointer-terminated list of character pointer arguments, and is correctly called like this:
+	execl("/bin/sh", "sh", "-c", "date", (char *)0);
+If the (char *) cast on the last argument were omitted, the compiler would not know to pass a null pointer, and would pass an integer 0 instead.
+
+When function prototypes are in scope, argument passing becomes an "assignment context," and most casts may safely be omitted, since the prototype tells the compiler that a pointer is required, and of which type, enabling it to correctly convert an unadorned 0. Function prototypes cannot provide the types for variable arguments in variable-length argument lists however, so explicit casts are still required for those arguments.  It is probably safest to properly cast all null pointer constants in function calls, to guard against varargs functions or those without prototypes.
+</pre>
+</div>
+</div>

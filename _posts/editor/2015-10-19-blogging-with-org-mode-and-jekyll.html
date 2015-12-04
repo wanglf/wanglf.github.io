@@ -1,0 +1,86 @@
+---
+title: "Bloging with org-mode and Jekyll"
+tags: emacs
+layout: post
+categories: editor
+---
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline1">环境设置</a></li>
+<li><a href="#orgheadline2">Emacs设置</a></li>
+<li><a href="#orgheadline3">目录结构</a></li>
+<li><a href="#orgheadline4">jekyll相关</a></li>
+</ul>
+</div>
+</div>
+<!--abstract-begin-->
+<p>
+Emacs org-mode是Emacs非常强大的一个插件, 可用于记事，并直接导出为html, latex, pdf, asciidoc等格式。本文主要讲述如何利用Emacs org-mode编写文章，并直接导出为blog post。
+</p>
+<!--abstract-end-->
+
+<div id="outline-container-orgheadline1" class="outline-2">
+<h2 id="orgheadline1">环境设置</h2>
+</div>
+<div id="outline-container-orgheadline2" class="outline-2">
+<h2 id="orgheadline2">Emacs设置</h2>
+<div class="outline-text-2" id="text-orgheadline2">
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp" id="orgsrcblock1">(setq org-publish-project-alist
+ '(
+         (<span style="color: #800;">"org-jekyll"</span>
+          <span style="color: #633;">;; </span><span style="color: #633;">Path to your org files.</span>
+          <span style="color: #058; font-weight: bold;">:base-directory</span> <span style="color: #800;">"/opt/git/org-jekyll.git/"</span>
+          <span style="color: #058; font-weight: bold;">:base-extension</span> <span style="color: #800;">"org"</span>
+
+          <span style="color: #633;">;; </span><span style="color: #633;">Path to your Jekyll project.</span>
+          <span style="color: #058; font-weight: bold;">:publishing-directory</span> <span style="color: #800;">"/var/www/org-jekyll/"</span>
+          <span style="color: #058; font-weight: bold;">:recursive</span> t
+          <span style="color: #058; font-weight: bold;">:publishing-function</span> org-html-publish-to-html
+          <span style="color: #058; font-weight: bold;">:headline-levels</span> 4
+          <span style="color: #058; font-weight: bold;">:html-extension</span> <span style="color: #800;">"html"</span>
+          <span style="color: #058; font-weight: bold;">:body-only</span> t <span style="color: #633;">;; </span><span style="color: #633;">Only export section between &lt;body&gt; &lt;/body&gt;</span>
+         )
+
+
+         (<span style="color: #800;">"org-jekyll-static"</span>
+          <span style="color: #058; font-weight: bold;">:base-directory</span> <span style="color: #800;">"/opt/git/org-jekyll.git/"</span>
+          <span style="color: #058; font-weight: bold;">:base-extension</span> <span style="color: #800;">"css</span><span style="color: #E9C;">\\</span><span style="color: #E9C;">|</span><span style="color: #800;">js</span><span style="color: #E9C;">\\</span><span style="color: #E9C;">|</span><span style="color: #800;">png</span><span style="color: #E9C;">\\</span><span style="color: #E9C;">|</span><span style="color: #800;">jpg</span><span style="color: #E9C;">\\</span><span style="color: #E9C;">|</span><span style="color: #800;">gif</span><span style="color: #E9C;">\\</span><span style="color: #E9C;">|</span><span style="color: #800;">pdf</span><span style="color: #E9C;">\\</span><span style="color: #E9C;">|</span><span style="color: #800;">mp3</span><span style="color: #E9C;">\\</span><span style="color: #E9C;">|</span><span style="color: #800;">ogg</span><span style="color: #E9C;">\\</span><span style="color: #E9C;">|</span><span style="color: #800;">swf</span><span style="color: #E9C;">\\</span><span style="color: #E9C;">|</span><span style="color: #800;">php"</span>
+          <span style="color: #058; font-weight: bold;">:publishing-directory</span> <span style="color: #800;">"/var/www/org-jekyll/"</span>
+          <span style="color: #058; font-weight: bold;">:recursive</span> t
+          <span style="color: #058; font-weight: bold;">:publishing-function</span> org-publish-attachment)
+
+         (<span style="color: #800;">"jekyll"</span> <span style="color: #058; font-weight: bold;">:components</span> (<span style="color: #800;">"org-jekyll"</span> <span style="color: #800;">"org-jekyll-static"</span>))
+         ))
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline3" class="outline-2">
+<h2 id="orgheadline3">目录结构</h2>
+<div class="outline-text-2" id="text-orgheadline3">
+<div class="org-src-container">
+
+<pre class="src src-sh" id="orgsrcblock2">mkdir -p /opt/git/org-jekyll.git/_posts
+<span style="color: #058; font-weight: bold;">cd</span> /opt/git/org-jekyll.git/_posts
+emacs 2015-10-19-blogging-with-org-mode-and-jekyll.org
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline4" class="outline-2">
+<h2 id="orgheadline4">jekyll相关</h2>
+<div class="outline-text-2" id="text-orgheadline4">
+<div class="org-src-container">
+
+<pre class="src src-sh"><span style="color: #058; font-weight: bold;">cd</span> /var/www/org-jekyll/
+jekyll build
+</pre>
+</div>
+</div>
+</div>

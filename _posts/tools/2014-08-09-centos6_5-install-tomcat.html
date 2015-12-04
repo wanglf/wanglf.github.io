@@ -1,0 +1,132 @@
+---
+title:  "CentOS 6.5环境tomcat安装方法"
+tags: tomcat
+layout: post
+categories: tools
+---
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline5">安装jdk</a>
+<ul>
+<li><a href="#orgheadline1">确认系统是否已安装jdk</a></li>
+<li><a href="#orgheadline2">下载jdk</a></li>
+<li><a href="#orgheadline3">安装jdk</a></li>
+<li><a href="#orgheadline4">设置环境变量</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline8">安装tomcat</a>
+<ul>
+<li><a href="#orgheadline6">下载tomcat</a></li>
+<li><a href="#orgheadline7">安装tomcat</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<!--abstract-begin-->
+<p>
+Centos 6.5环境安装设置tomcat以备忘。
+</p>
+<!--abstract-end-->
+
+<div id="outline-container-orgheadline5" class="outline-2">
+<h2 id="orgheadline5">安装jdk</h2>
+<div class="outline-text-2" id="text-orgheadline5">
+</div><div id="outline-container-orgheadline1" class="outline-3">
+<h3 id="orgheadline1">确认系统是否已安装jdk</h3>
+<div class="outline-text-3" id="text-orgheadline1">
+<div class="org-src-container">
+
+<pre class="src src-sh">rpm -qa | grep java
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline2" class="outline-3">
+<h3 id="orgheadline2">下载jdk</h3>
+<div class="outline-text-3" id="text-orgheadline2">
+<p>
+下载链接: [<a href="http://www.oracle.com/technetwork/java/javase/downloads">http://www.oracle.com/technetwork/java/javase/downloads</a>]
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline3" class="outline-3">
+<h3 id="orgheadline3">安装jdk</h3>
+<div class="outline-text-3" id="text-orgheadline3">
+<div class="org-src-container">
+
+<pre class="src src-sh">rpm -ivh jdk-7u67-linux-x64.rpm
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline4" class="outline-3">
+<h3 id="orgheadline4">设置环境变量</h3>
+<div class="outline-text-3" id="text-orgheadline4">
+<p>
+<code>vi /etc/profile</code>
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-sh"><span style="color: #007;">JAVA_HOME</span>=/usr/java/jdk1.7.0_67
+<span style="color: #007;">JRE_HOME</span>=/usr/java/jdk1.7.0_67/jre
+<span style="color: #007;">PATH</span>=$<span style="color: #007;">PATH</span>:$<span style="color: #007;">JAVA_HOME</span>/bin:$<span style="color: #007;">JRE_HOME</span>/bin
+<span style="color: #007;">CLASSPATH</span>=.:$<span style="color: #007;">JAVA_HOME</span>/lib/dt.jar:$<span style="color: #007;">JAVA_HOME</span>/lib/tools.jar:$<span style="color: #007;">JRE_HOME</span>/lib
+<span style="color: #058; font-weight: bold;">export</span> JAVA_HOME JRE_HOME PATH CLASSPATH
+</pre>
+</div>
+
+<p>
+<code>source /etc/profile</code>
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline8" class="outline-2">
+<h2 id="orgheadline8">安装tomcat</h2>
+<div class="outline-text-2" id="text-orgheadline8">
+</div><div id="outline-container-orgheadline6" class="outline-3">
+<h3 id="orgheadline6">下载tomcat</h3>
+<div class="outline-text-3" id="text-orgheadline6">
+<p>
+下载链接: [<a href="http://tomcat.apache.org/download-80.cgi">http://tomcat.apache.org/download-80.cgi</a>]
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline7" class="outline-3">
+<h3 id="orgheadline7">安装tomcat</h3>
+<div class="outline-text-3" id="text-orgheadline7">
+<div class="org-src-container">
+
+<pre class="src src-sh"><span style="color: #058; font-weight: bold;">cd</span> /opt
+tar -xvf  apache-tomcat-8.0.9.tar.gz
+rm -rf apache-tomcat-8.0.9.tar.gz
+mv apache-tomcat-8.0.9 tomcat
+<span style="color: #058; font-weight: bold;">cd</span> bin
+./startup.sh
+</pre>
+</div>
+
+<pre class="example">
+Using CATALINA_BASE:   /opt/tomcat
+Using CATALINA_HOME:   /opt/tomcat
+Using CATALINA_TMPDIR: /opt/tomcat/temp
+Using JRE_HOME:        /usr/java/jdk1.7.0_67/jre
+Using CLASSPATH:       /opt/tomcat/bin/bootstrap.jar:/opt/tomcat/bin/tomcat-juli.jar
+Tomcat started.
+</pre>
+
+<p>
+<code>考虑系统安全，建议不要以root用户运行tomcat进程</code>
+</p>
+</div>
+</div>
+</div>
