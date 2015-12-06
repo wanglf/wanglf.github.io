@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width initial-scale=1" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>持续集成工具之jenkins</title>
+    <meta name="description" content="Wonder is the beginning of wisdom">
+
+    <link rel="stylesheet" href="/theme/css/main.css">
+    <link rel="icon" href="/theme/icon/leaf.png">
+    <link rel="shortcut icon" href="/theme/icon/leaf.png">
+    <link rel="canonical" href="/tools/jenkins-ci-setup.html">
+
+    <script src="/theme/js/jquery-2.1.1.min.js"></script>
+    <script src="/theme/js/default.js"></script>
+
+
+</head>
+
+<header>
+  <div class="sidebar">
+    <div align="center">
+      <div class="site-img">
+        <a href="/"><image src="/theme/icon/leaf.png"></a>
+      </div>
+      <a class="side-nav" href="/menu/posts.html">文章</a>
+      <a class="side-nav" href="/menu/categories.html">分类</a>
+      <a class="side-nav" href="/menu/tags.html">标签</a>
+    </div>
+    <div align="center">
+      <a class="side-nav" href="/menu/douban.html">豆瓣</a>
+      <a class="side-nav" href="/menu/favorite.html">收藏</a>
+      <a class="side-nav" href="/menu/about.html">关于</a>
+    </div>
+
+    <div class="side-toc">
+      <hr>
+      <div id="sidebar-toc">
+        <div align="center">
+          <br>
+          三千年读史<br>
+          不外功名利禄<br>
+          九万里悟道<br>
+          终归诗酒田园<br>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sidebar-toggler">
+    <div id="sidebar-status">
+
+    </div>
+  </div>
+</header>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+    <div class="site-title">
+      <a class="site-title" href="/">田园牧歌</a>
+    </div>
+  </div>
+
+  <div class="wrapper">
+  <div class="site-subtitle">
+    一花一世界，一叶一菩提。
+  </div>
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <div class="post">
+<!--
+  <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+-->
+  <script src="/theme/js/post.js"></script>
+
+  <header class="post-header">
+    <h1 class="post-title">持续集成工具之jenkins</h1>
+    <p class="post-meta">2015年12月06日
+      <span class="author"> 田园牧歌 </span>
+    </p>
+    <p>
+    
+    <a class="post-tags" href="/resource/tags/jenkins.html">jenkins</a>
+    
+    </p>
+    <hr><br>
+  </header>
+
+  <article class="post-content">
+    <div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline1">jenkins安装</a></li>
+<li><a href="#orgheadline2">插件安装</a></li>
+<li><a href="#orgheadline3">配置环境</a></li>
+<li><a href="#orgheadline4">新建Job</a>
+<ul>
+<li><a href="#orgheadline5">SCM</a></li>
+<li><a href="#orgheadline6">Build Triggers</a></li>
+<li><a href="#orgheadline7">Configure Maven</a></li>
+<li><a href="#orgheadline8">Post Steps</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline11">备机安装与数据同步</a>
+<ul>
+<li><a href="#orgheadline9">同步脚本</a></li>
+<li><a href="#orgheadline10">定期执行</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline12">附录: Maven通过nexus下载构建的配置文件</a></li>
+</ul>
+</div>
+</div>
+<!--abstract-begin-->
+<p>
+本文介绍使用jenkins实现持续集成。
+</p>
+<!--abstract-end-->
+
+<div id="outline-container-orgheadline1" class="outline-2">
+<h2 id="orgheadline1">jenkins安装</h2>
+<div class="outline-text-2" id="text-orgheadline1">
+<p>
+官方提供的是一个war包，可以直接放在tomcat容器中运行。jenkins不需要任何后台数据库支持，所有的变更纪录均放置在JENKINS_HOME，默认为~/.jenkins。
+</p>
+
+<p>
+单独运行jenkins的命令如下:
+</p>
+<pre class="example">
+java -jar jenkins.war --httpPort=8081
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orgheadline2" class="outline-2">
+<h2 id="orgheadline2">插件安装</h2>
+<div class="outline-text-2" id="text-orgheadline2">
+<p>
+选择Manage Jenkins -&gt; Manage Plugins进行插件的安装。如果CI服务器本身需要代理才能连接互联网，可以在Advanced中进行设置。常用的插件有Github Plugins，安装此插件同时会安装所依赖插件。
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline3" class="outline-2">
+<h2 id="orgheadline3">配置环境</h2>
+<div class="outline-text-2" id="text-orgheadline3">
+<p>
+Manage Jenkins -&gt; Configure System 此处设置JDK的HOME目录，Maven的目录, git可执行文件路径等。
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline4" class="outline-2">
+<h2 id="orgheadline4">新建Job</h2>
+<div class="outline-text-2" id="text-orgheadline4">
+<p>
+输入Job的名称，此处以从git仓库clone Maven项目作为示例。
+</p>
+</div>
+
+<div id="outline-container-orgheadline5" class="outline-3">
+<h3 id="orgheadline5">SCM</h3>
+<div class="outline-text-3" id="text-orgheadline5">
+<ol class="org-ol">
+<li>Source Code Management 选择git</li>
+<li>Repository URL: ssh://admin@gerrit:29418/reponame</li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-orgheadline6" class="outline-3">
+<h3 id="orgheadline6">Build Triggers</h3>
+<div class="outline-text-3" id="text-orgheadline6">
+<ol class="org-ol">
+<li>Build when a change is pushed to GitHub (代码更新时build)</li>
+<li>Poll SCM (周期性从repo中checkout)</li>
+</ol>
+<pre class="example">
+*/10 * * * *
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orgheadline7" class="outline-3">
+<h3 id="orgheadline7">Configure Maven</h3>
+<div class="outline-text-3" id="text-orgheadline7">
+<ol class="org-ol">
+<li>Root POM : pom.xml</li>
+<li>Goals and options: clean install</li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-orgheadline8" class="outline-3">
+<h3 id="orgheadline8">Post Steps</h3>
+<div class="outline-text-3" id="text-orgheadline8">
+<p>
+Execute shell
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-sh"><span style="color: #633;">#</span><span style="color: #633;">!/bin/</span><span style="color: #800; font-weight: bold;">sh</span>
+<span style="color: #633;"># </span><span style="color: #633;">copy built file to remote http server</span>
+<span style="color: #007;">project</span>=easy-springmvc-maven
+<span style="color: #007;">war_name</span>=${<span style="color: #007;">project</span>}.war
+<span style="color: #007;">file_path</span>=/root/.jenkins/jobs/${<span style="color: #007;">project</span>}/workspace/target
+<span style="color: #007;">now</span>=$(date +<span style="color: #800;">"%Y%m%d%H%M%S"</span>)
+
+<span style="color: #058; font-weight: bold;">cd</span> $<span style="color: #007;">file_path</span>
+<span style="color: #800; font-weight: bold;">if</span> [ -f ${<span style="color: #007;">war_name</span>} ]; <span style="color: #800; font-weight: bold;">then</span>
+scp ${<span style="color: #007;">war_name</span>} root@filesrv01:/usr/share/nginx/html/files/dist/${<span style="color: #007;">project</span>}-${<span style="color: #007;">now</span>}.war
+cp ${<span style="color: #007;">war_name</span>} /opt/tomcat/webapps/${<span style="color: #007;">project</span>}-${<span style="color: #007;">now</span>}.war
+<span style="color: #800; font-weight: bold;">else</span>
+<span style="color: #058; font-weight: bold;">echo</span> <span style="color: #800;">"${war_name} unexists"</span>
+<span style="color: #800; font-weight: bold;">fi</span>
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+
+<div id="outline-container-orgheadline11" class="outline-2">
+<h2 id="orgheadline11">备机安装与数据同步</h2>
+<div class="outline-text-2" id="text-orgheadline11">
+</div><div id="outline-container-orgheadline9" class="outline-3">
+<h3 id="orgheadline9">同步脚本</h3>
+<div class="outline-text-3" id="text-orgheadline9">
+<p>
+备机的安装方法与主机相同，数据通过如下脚本同步:
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-sh"><span style="color: #633;">#</span><span style="color: #633;">!/bin/</span><span style="color: #800; font-weight: bold;">sh</span>
+<span style="color: #633;">#</span><span style="color: #633;">script name:rsyncjenkins.sh</span>
+
+<span style="color: #007;">RsyncBin</span>=<span style="color: #800;">"/usr/bin/rsync"</span>
+<span style="color: #007;">RsyncPerm</span>=<span style="color: #800;">'-avz -e ssh --delete --bwlimit=8000'</span>
+<span style="color: #007;">jenkins_dir</span>=<span style="color: #800;">'/root/.jenkins'</span>
+
+<span style="color: #007;">LogFileDir</span>=<span style="color: #800;">'/var/log/rsyncjenkins'</span>
+<span style="color: #007;">Date</span>=<span style="font-weight: bold;">`date +%Y-%m-%d`</span>
+
+<span style="color: #633;">#</span><span style="color: #633;">check function</span>
+
+<span style="color: #800; font-weight: bold;">function</span> <span style="color: #605; font-weight: bold;">check</span> {
+<span style="color: #800; font-weight: bold;">if</span> [ $<span style="color: #007;">?</span> -eq 0 ];<span style="color: #800; font-weight: bold;">then</span>
+<span style="color: #058; font-weight: bold;">echo</span> -e <span style="color: #800;">"33[1;32mRsync is success!33[0m"</span> &gt;&gt;$<span style="color: #007;">LogFileDir</span>/$<span style="color: #007;">Date</span>.log
+<span style="color: #800; font-weight: bold;">else</span>
+<span style="color: #058; font-weight: bold;">echo</span> -e <span style="color: #800;">"33[1;31mRsync is fail!33[0m"</span> &gt;&gt;$<span style="color: #007;">LogFileDir</span>/$<span style="color: #007;">Date</span>.log
+<span style="color: #800; font-weight: bold;">fi</span>
+}
+
+<span style="color: #800; font-weight: bold;">if</span> [ <span style="color: #C00;">!</span> -d <span style="color: #800;">"$jenkins_dir"</span> ];<span style="color: #800; font-weight: bold;">then</span>
+mkdir -pv $<span style="color: #007;">jenkins_dir</span>
+<span style="color: #800; font-weight: bold;">fi</span>
+
+<span style="color: #800; font-weight: bold;">if</span> [ <span style="color: #C00;">!</span> -d <span style="color: #800;">"$LogFileDir"</span> ];<span style="color: #800; font-weight: bold;">then</span>
+mkdir -pv $<span style="color: #007;">LogFileDir</span>
+<span style="color: #800; font-weight: bold;">fi</span>
+
+<span style="color: #058; font-weight: bold;">echo</span> <span style="color: #800;">'Now start to rsync jenkins home directory!'</span> &gt;&gt;$<span style="color: #007;">LogFileDir</span>/$<span style="color: #007;">Date</span>.log
+$<span style="color: #007;">RsyncBin</span> $<span style="color: #007;">RsyncPerm</span> root@tomcat01:$<span style="color: #007;">jenkins_dir</span>/jobs/ $<span style="color: #007;">jenkins_dir</span>/jobs/ &gt;&gt;$<span style="color: #007;">LogFileDir</span>/$<span style="color: #007;">Date</span>.log
+$<span style="color: #007;">RsyncBin</span> $<span style="color: #007;">RsyncPerm</span> root@tomcat01:$<span style="color: #007;">jenkins_dir</span>/plugins/ $<span style="color: #007;">jenkins_dir</span>/plugins/ &gt;&gt;$<span style="color: #007;">LogFileDir</span>/$<span style="color: #007;">Date</span>.log
+$<span style="color: #007;">RsyncBin</span> $<span style="color: #007;">RsyncPerm</span> root@tomcat01:$<span style="color: #007;">jenkins_dir</span>/*.xml $<span style="color: #007;">jenkins_dir</span>/ &gt;&gt;$<span style="color: #007;">LogFileDir</span>/$<span style="color: #007;">Date</span>.log
+check<span style="color: #800;">"]]"</span>}
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline10" class="outline-3">
+<h3 id="orgheadline10">定期执行</h3>
+<div class="outline-text-3" id="text-orgheadline10">
+<pre class="example">
+00 00 * * * /bin/sh /root/sh/rsyncjenkins.sh &gt; /dev/null 2&gt;&amp;1
+</pre>
+
+<p>
+<code>备机需要重启容器才能加载新的配置。</code>
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline12" class="outline-2">
+<h2 id="orgheadline12">附录: Maven通过nexus下载构建的配置文件</h2>
+<div class="outline-text-2" id="text-orgheadline12">
+<p>
+cat ~/.m2/settings.xml
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-xml">  &lt;?<span style="color: #800; font-weight: bold;">xml</span> <span style="color: #800;">version="1.0" encoding="UTF-8"</span>?&gt;
+  &lt;<span style="color: #605; font-weight: bold;">settings</span> <span style="color: #058; font-weight: bold;">xmlns</span>=<span style="color: #800;">"</span><span style="color: #800;">http://maven.apache.org/SETTINGS/1.0.0</span><span style="color: #800;">"</span>
+            <span style="color: #058; font-weight: bold;">xmlns</span>:<span style="color: #007;">xsi</span>=<span style="color: #800;">"</span><span style="color: #800;">http://www.w3.org/2001/XMLSchema-instance</span><span style="color: #800;">"</span>
+            <span style="color: #058; font-weight: bold;">xsi</span>:<span style="color: #007;">schemaLocation</span>=<span style="color: #800;">"</span><span style="color: #800;">http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd</span><span style="color: #800;">"</span>&gt;
+    &lt;<span style="color: #605; font-weight: bold;">mirrors</span>&gt;
+      &lt;<span style="color: #605; font-weight: bold;">mirror</span>&gt;
+        &lt;<span style="color: #605; font-weight: bold;">id</span>&gt;nexus&lt;/<span style="color: #605; font-weight: bold;">id</span>&gt;
+        &lt;<span style="color: #605; font-weight: bold;">mirrorOf</span>&gt;*&lt;/<span style="color: #605; font-weight: bold;">mirrorOf</span>&gt;
+        &lt;<span style="color: #605; font-weight: bold;">name</span>&gt;Nexus Public Mirror&lt;/<span style="color: #605; font-weight: bold;">name</span>&gt;
+        &lt;<span style="color: #605; font-weight: bold;">url</span>&gt;http://nexusip:8081/nexus/content/groups/public&lt;/<span style="color: #605; font-weight: bold;">url</span>&gt;
+      &lt;/<span style="color: #605; font-weight: bold;">mirror</span>&gt;
+    &lt;/<span style="color: #605; font-weight: bold;">mirrors</span>&gt;
+    &lt;<span style="color: #605; font-weight: bold;">profiles</span>&gt;
+      &lt;<span style="color: #605; font-weight: bold;">profile</span>&gt;
+        &lt;<span style="color: #605; font-weight: bold;">id</span>&gt;nexus&lt;/<span style="color: #605; font-weight: bold;">id</span>&gt;
+        &lt;<span style="color: #605; font-weight: bold;">repositories</span>&gt;
+          &lt;<span style="color: #605; font-weight: bold;">repository</span>&gt;
+            &lt;<span style="color: #605; font-weight: bold;">id</span>&gt;central&lt;/<span style="color: #605; font-weight: bold;">id</span>&gt;
+            &lt;<span style="color: #605; font-weight: bold;">url</span>&gt;http://central&lt;/<span style="color: #605; font-weight: bold;">url</span>&gt;
+            &lt;<span style="color: #605; font-weight: bold;">releases</span>&gt;&lt;<span style="color: #605; font-weight: bold;">enabled</span>&gt;true&lt;/<span style="color: #605; font-weight: bold;">enabled</span>&gt;&lt;/<span style="color: #605; font-weight: bold;">releases</span>&gt;
+            &lt;<span style="color: #605; font-weight: bold;">snapshots</span>&gt;&lt;<span style="color: #605; font-weight: bold;">enabled</span>&gt;true&lt;/<span style="color: #605; font-weight: bold;">enabled</span>&gt;&lt;/<span style="color: #605; font-weight: bold;">snapshots</span>&gt;
+          &lt;/<span style="color: #605; font-weight: bold;">repository</span>&gt;
+        &lt;/<span style="color: #605; font-weight: bold;">repositories</span>&gt;
+        &lt;<span style="color: #605; font-weight: bold;">pluginRepositories</span>&gt;
+          &lt;<span style="color: #605; font-weight: bold;">pluginRepository</span>&gt;
+            &lt;<span style="color: #605; font-weight: bold;">id</span>&gt;central&lt;/<span style="color: #605; font-weight: bold;">id</span>&gt;
+            &lt;<span style="color: #605; font-weight: bold;">url</span>&gt;http://central&lt;/<span style="color: #605; font-weight: bold;">url</span>&gt;
+            &lt;<span style="color: #605; font-weight: bold;">releases</span>&gt;&lt;<span style="color: #605; font-weight: bold;">enabled</span>&gt;true&lt;/<span style="color: #605; font-weight: bold;">enabled</span>&gt;&lt;/<span style="color: #605; font-weight: bold;">releases</span>&gt;
+            &lt;<span style="color: #605; font-weight: bold;">snapshots</span>&gt;&lt;<span style="color: #605; font-weight: bold;">enabled</span>&gt;true&lt;/<span style="color: #605; font-weight: bold;">enabled</span>&gt;&lt;/<span style="color: #605; font-weight: bold;">snapshots</span>&gt;
+          &lt;/<span style="color: #605; font-weight: bold;">pluginRepository</span>&gt;
+        &lt;/<span style="color: #605; font-weight: bold;">pluginRepositories</span>&gt;
+      &lt;/<span style="color: #605; font-weight: bold;">profile</span>&gt;
+    &lt;/<span style="color: #605; font-weight: bold;">profiles</span>&gt;
+    &lt;<span style="color: #605; font-weight: bold;">activeProfiles</span>&gt;
+      &lt;<span style="color: #605; font-weight: bold;">activeProfile</span>&gt;nexus&lt;/<span style="color: #605; font-weight: bold;">activeProfile</span>&gt;
+    &lt;/<span style="color: #605; font-weight: bold;">activeProfiles</span>&gt;
+  &lt;/<span style="color: #605; font-weight: bold;">settings</span>&gt;
+</pre>
+</div>
+
+<p>
+主要配置mirror，因为*可通配所有路径，此时profile中的url已经没意义，所有的构建将全部通过mirror指定的链接，即nexus中的public repository group去下载。
+</p>
+</div>
+</div>
+
+
+    <hr><br>
+    <div class="post-prev">
+      <a class="post-nav" href="/sysadmin/setup-local-yum-repo-for-centos7.html">上一篇</a>
+    </div>
+    <div class="post-next">
+      <a class="post-nav" href="">下一篇</a>
+    </div>
+  </article>
+
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col-1">
+        <ul class="contact-list">
+          <li><a class="username" href="mailto:wlfqware@gmail.com">wlfqware@gmail.com</a></li>
+
+          
+        </ul>
+      </div>
+
+      <div class="footer-col-2">
+        <p class="text">Wonder is the beginning of wisdom</p>
+      </div>
+
+    </div>
+    <div class="footer-col-wrapper">
+      <div align="center">
+        &copy; 2014-2015 |
+          
+            <a class="username" href="https://github.com/wanglf">
+              <span class="icon  icon--github">
+                <svg viewBox="0 0 16 16">
+                  <path fill="#828282" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761 c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32 c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472 c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037 C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65 c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261 c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082 c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129 c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/>
+                </svg>
+              </span>
+              <span class="username">wanglf</span>
+            </a>
+          
+      </div>
+    </div>
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>
