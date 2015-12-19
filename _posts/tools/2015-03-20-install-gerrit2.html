@@ -16,16 +16,18 @@ categories: tools
 </ul>
 </li>
 <li><a href="#orgheadline5">gerrit2初始化</a></li>
-<li><a href="#orgheadline6">gerrit2 启动</a></li>
-<li><a href="#orgheadline7">nginx设置</a></li>
-<li><a href="#orgheadline8">ssh 配置</a></li>
-<li><a href="#orgheadline14">第一个project的workflow</a>
+<li><a href="#orgheadline6">安装delete-project</a></li>
+<li><a href="#orgheadline7">gerrit2 启动</a></li>
+<li><a href="#orgheadline8">nginx设置</a></li>
+<li><a href="#orgheadline9">ssh 配置</a></li>
+<li><a href="#orgheadline10">客户端alias cpmsgid</a></li>
+<li><a href="#orgheadline16">第一个project的workflow</a>
 <ul>
-<li><a href="#orgheadline9">new project</a></li>
-<li><a href="#orgheadline10">git clone</a></li>
-<li><a href="#orgheadline11">git push</a></li>
-<li><a href="#orgheadline12">review</a></li>
-<li><a href="#orgheadline13">accept</a></li>
+<li><a href="#orgheadline11">new project</a></li>
+<li><a href="#orgheadline12">git clone</a></li>
+<li><a href="#orgheadline13">git push</a></li>
+<li><a href="#orgheadline14">review</a></li>
+<li><a href="#orgheadline15">accept</a></li>
 </ul>
 </li>
 </ul>
@@ -76,6 +78,8 @@ FLUSH PRIVILEGES;
 <pre class="src src-sh">adduser gerrit2
 mkdir -p /opt/gerrit2
 chown -R gerrit2.gerrit2 /opt/gerrit2
+cp gerrit.war /home/gerrit2/
+chown -R gerrit2:gerrit2 /home/gerrit2/gerrit.war
 su - gerrit2
 java -jar gerrit.war init -d /opt/gerrit2
 </pre>
@@ -84,8 +88,19 @@ java -jar gerrit.war init -d /opt/gerrit2
 </div>
 
 <div id="outline-container-orgheadline6" class="outline-2">
-<h2 id="orgheadline6">gerrit2 启动</h2>
+<h2 id="orgheadline6">安装delete-project</h2>
 <div class="outline-text-2" id="text-orgheadline6">
+<div class="org-src-container">
+
+<pre class="src src-sh">cp delete-project.jar /opt/gerrit2/plugins/
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline7" class="outline-2">
+<h2 id="orgheadline7">gerrit2 启动</h2>
+<div class="outline-text-2" id="text-orgheadline7">
 <div class="org-src-container">
 
 <pre class="src src-sh"><span style="color: #058; font-weight: bold;">cd</span> /opt/gerrit2/bin
@@ -95,17 +110,17 @@ java -jar gerrit.war init -d /opt/gerrit2
 </div>
 </div>
 
-<div id="outline-container-orgheadline7" class="outline-2">
-<h2 id="orgheadline7">nginx设置</h2>
-<div class="outline-text-2" id="text-orgheadline7">
+<div id="outline-container-orgheadline8" class="outline-2">
+<h2 id="orgheadline8">nginx设置</h2>
+<div class="outline-text-2" id="text-orgheadline8">
 <div class="org-src-container">
 
 <pre class="src src-sh">git config --file /opt/gerrit2/etc/gerrit.config auth.type HTTP
 git config --file /opt/gerrit2/etc/gerrit.config --unset auth.httpHeader
-git config --file /opt/gerrit2/etc/gerrit.config auth.emailFormat <span style="color: #800;">'{0}@citicbank.com'</span>
+git config --file /opt/gerrit2/etc/gerrit.config auth.emailFormat <span style="color: #800;">'{0}@gmail.com'</span>
 
 git config --global user.name <span style="color: #800;">"wanglf"</span>
-git config --global user.email <span style="color: #800;">"wanglifeng_hz@citicbank.com"</span>
+git config --global user.email <span style="color: #800;">"wlfqware@gmail.com"</span>
 </pre>
 </div>
 
@@ -126,9 +141,9 @@ location /gerrit2/ {
 </div>
 </div>
 
-<div id="outline-container-orgheadline8" class="outline-2">
-<h2 id="orgheadline8">ssh 配置</h2>
-<div class="outline-text-2" id="text-orgheadline8">
+<div id="outline-container-orgheadline9" class="outline-2">
+<h2 id="orgheadline9">ssh 配置</h2>
+<div class="outline-text-2" id="text-orgheadline9">
 <pre class="example">
 ssh-keygen -t rsa
 </pre>
@@ -155,21 +170,32 @@ ssh gerrit2
 </div>
 </div>
 
-<div id="outline-container-orgheadline14" class="outline-2">
-<h2 id="orgheadline14">第一个project的workflow</h2>
-<div class="outline-text-2" id="text-orgheadline14">
-</div><div id="outline-container-orgheadline9" class="outline-3">
-<h3 id="orgheadline9">new project</h3>
-<div class="outline-text-3" id="text-orgheadline9">
+<div id="outline-container-orgheadline10" class="outline-2">
+<h2 id="orgheadline10">客户端alias cpmsgid</h2>
+<div class="outline-text-2" id="text-orgheadline10">
+<div class="org-src-container">
+
+<pre class="src src-sh"><span style="color: #058; font-weight: bold;">alias</span> <span style="color: #007;">cpmsgid</span>=<span style="color: #800;">'gitdir=$(git rev-parse --git-dir); scp -p -P 29418 admin@gerrit2:hooks/commit-msg ${gitdir}/hooks/'</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline16" class="outline-2">
+<h2 id="orgheadline16">第一个project的workflow</h2>
+<div class="outline-text-2" id="text-orgheadline16">
+</div><div id="outline-container-orgheadline11" class="outline-3">
+<h3 id="orgheadline11">new project</h3>
+<div class="outline-text-3" id="text-orgheadline11">
 <p>
 方式一: 通过web界面或gerrit命令行新建project
 </p>
 </div>
 </div>
 
-<div id="outline-container-orgheadline10" class="outline-3">
-<h3 id="orgheadline10">git clone</h3>
-<div class="outline-text-3" id="text-orgheadline10">
+<div id="outline-container-orgheadline12" class="outline-3">
+<h3 id="orgheadline12">git clone</h3>
+<div class="outline-text-3" id="text-orgheadline12">
 <p>
 方式二: clone现有的project
 </p>
@@ -181,21 +207,23 @@ chown -R gerrit2.gerrit2 /opt/git/
 su - gerrit2
 <span style="color: #058; font-weight: bold;">cd</span> /opt/git/
 git clone ssh://admin@hostip:29418/test
+cpmsgid
 </pre>
 </div>
 </div>
 </div>
 
-<div id="outline-container-orgheadline11" class="outline-3">
-<h3 id="orgheadline11">git push</h3>
-<div class="outline-text-3" id="text-orgheadline11">
+<div id="outline-container-orgheadline13" class="outline-3">
+<h3 id="orgheadline13">git push</h3>
+<div class="outline-text-3" id="text-orgheadline13">
 <p>
 日常git操作，commit之后，利用如下命令推送至changes
 </p>
 
 <div class="org-src-container">
 
-<pre class="src src-sh">git add readme.MD
+<pre class="src src-sh">cpmsgid
+git add readme.MD
 git commit -m <span style="color: #800;">"initial commit"</span>
 git push origin HEAD:refs/for/master
 </pre>
@@ -203,18 +231,18 @@ git push origin HEAD:refs/for/master
 </div>
 </div>
 
-<div id="outline-container-orgheadline12" class="outline-3">
-<h3 id="orgheadline12">review</h3>
-<div class="outline-text-3" id="text-orgheadline12">
+<div id="outline-container-orgheadline14" class="outline-3">
+<h3 id="orgheadline14">review</h3>
+<div class="outline-text-3" id="text-orgheadline14">
 <p>
 gerrit web上进行review
 </p>
 </div>
 </div>
 
-<div id="outline-container-orgheadline13" class="outline-3">
-<h3 id="orgheadline13">accept</h3>
-<div class="outline-text-3" id="text-orgheadline13">
+<div id="outline-container-orgheadline15" class="outline-3">
+<h3 id="orgheadline15">accept</h3>
+<div class="outline-text-3" id="text-orgheadline15">
 <p>
 gerrit web上进行accept，正式进入master目录
 </p>

@@ -5,8 +5,8 @@
     <description>Wonder is the beginning of wisdom</description>
     <link>/</link>
     <atom:link href="/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Sun, 06 Dec 2015 20:56:21 +0800</pubDate>
-    <lastBuildDate>Sun, 06 Dec 2015 20:56:21 +0800</lastBuildDate>
+    <pubDate>Sat, 19 Dec 2015 17:18:22 +0800</pubDate>
+    <lastBuildDate>Sat, 19 Dec 2015 17:18:22 +0800</lastBuildDate>
     <generator>Jekyll v2.5.3</generator>
     
       <item>
@@ -573,6 +573,14 @@ openssh是管理服务器的一种通讯协议，本身包含加密功能。此�
 &lt;pre class=&quot;src src-sh&quot;&gt;/usr/bin/rsync --delete -avz -e &lt;span style=&quot;color: #800;&quot;&gt;&#39;ssh -p 22222&#39;&lt;/span&gt; root@nginx01:/etc/nginx/ /etc/nginx/
 &lt;/pre&gt;
 &lt;/div&gt;
+
+&lt;p&gt;
+&lt;code&gt;关于openssh sftp设置的方法，可参考下文&lt;/code&gt;
+&lt;/p&gt;
+
+&lt;p&gt;
+&lt;a href=&quot;../sysadmin/openssh-sftp-setting.html&quot;&gt;OpenSSH SFTP chroot设置方法&lt;/a&gt;
+&lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 
@@ -1396,16 +1404,18 @@ When function prototypes are in scope, argument passing becomes an &quot;assignm
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;li&gt;&lt;a href=&quot;#orgheadline5&quot;&gt;gerrit2初始化&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#orgheadline6&quot;&gt;gerrit2 启动&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#orgheadline7&quot;&gt;nginx设置&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#orgheadline8&quot;&gt;ssh 配置&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#orgheadline14&quot;&gt;第一个project的workflow&lt;/a&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline6&quot;&gt;安装delete-project&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline7&quot;&gt;gerrit2 启动&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline8&quot;&gt;nginx设置&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline9&quot;&gt;ssh 配置&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline10&quot;&gt;客户端alias cpmsgid&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline16&quot;&gt;第一个project的workflow&lt;/a&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href=&quot;#orgheadline9&quot;&gt;new project&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#orgheadline10&quot;&gt;git clone&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#orgheadline11&quot;&gt;git push&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#orgheadline12&quot;&gt;review&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#orgheadline13&quot;&gt;accept&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline11&quot;&gt;new project&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline12&quot;&gt;git clone&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline13&quot;&gt;git push&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline14&quot;&gt;review&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline15&quot;&gt;accept&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
@@ -1456,6 +1466,8 @@ FLUSH PRIVILEGES;
 &lt;pre class=&quot;src src-sh&quot;&gt;adduser gerrit2
 mkdir -p /opt/gerrit2
 chown -R gerrit2.gerrit2 /opt/gerrit2
+cp gerrit.war /home/gerrit2/
+chown -R gerrit2:gerrit2 /home/gerrit2/gerrit.war
 su - gerrit2
 java -jar gerrit.war init -d /opt/gerrit2
 &lt;/pre&gt;
@@ -1464,8 +1476,19 @@ java -jar gerrit.war init -d /opt/gerrit2
 &lt;/div&gt;
 
 &lt;div id=&quot;outline-container-orgheadline6&quot; class=&quot;outline-2&quot;&gt;
-&lt;h2 id=&quot;orgheadline6&quot;&gt;gerrit2 启动&lt;/h2&gt;
+&lt;h2 id=&quot;orgheadline6&quot;&gt;安装delete-project&lt;/h2&gt;
 &lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline6&quot;&gt;
+&lt;div class=&quot;org-src-container&quot;&gt;
+
+&lt;pre class=&quot;src src-sh&quot;&gt;cp delete-project.jar /opt/gerrit2/plugins/
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline7&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline7&quot;&gt;gerrit2 启动&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline7&quot;&gt;
 &lt;div class=&quot;org-src-container&quot;&gt;
 
 &lt;pre class=&quot;src src-sh&quot;&gt;&lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;cd&lt;/span&gt; /opt/gerrit2/bin
@@ -1475,17 +1498,17 @@ java -jar gerrit.war init -d /opt/gerrit2
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id=&quot;outline-container-orgheadline7&quot; class=&quot;outline-2&quot;&gt;
-&lt;h2 id=&quot;orgheadline7&quot;&gt;nginx设置&lt;/h2&gt;
-&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline7&quot;&gt;
+&lt;div id=&quot;outline-container-orgheadline8&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline8&quot;&gt;nginx设置&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline8&quot;&gt;
 &lt;div class=&quot;org-src-container&quot;&gt;
 
 &lt;pre class=&quot;src src-sh&quot;&gt;git config --file /opt/gerrit2/etc/gerrit.config auth.type HTTP
 git config --file /opt/gerrit2/etc/gerrit.config --unset auth.httpHeader
-git config --file /opt/gerrit2/etc/gerrit.config auth.emailFormat &lt;span style=&quot;color: #800;&quot;&gt;&#39;{0}@citicbank.com&#39;&lt;/span&gt;
+git config --file /opt/gerrit2/etc/gerrit.config auth.emailFormat &lt;span style=&quot;color: #800;&quot;&gt;&#39;{0}@gmail.com&#39;&lt;/span&gt;
 
 git config --global user.name &lt;span style=&quot;color: #800;&quot;&gt;&quot;wanglf&quot;&lt;/span&gt;
-git config --global user.email &lt;span style=&quot;color: #800;&quot;&gt;&quot;wanglifeng_hz@citicbank.com&quot;&lt;/span&gt;
+git config --global user.email &lt;span style=&quot;color: #800;&quot;&gt;&quot;wlfqware@gmail.com&quot;&lt;/span&gt;
 &lt;/pre&gt;
 &lt;/div&gt;
 
@@ -1506,9 +1529,9 @@ location /gerrit2/ {
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id=&quot;outline-container-orgheadline8&quot; class=&quot;outline-2&quot;&gt;
-&lt;h2 id=&quot;orgheadline8&quot;&gt;ssh 配置&lt;/h2&gt;
-&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline8&quot;&gt;
+&lt;div id=&quot;outline-container-orgheadline9&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline9&quot;&gt;ssh 配置&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline9&quot;&gt;
 &lt;pre class=&quot;example&quot;&gt;
 ssh-keygen -t rsa
 &lt;/pre&gt;
@@ -1535,21 +1558,32 @@ ssh gerrit2
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id=&quot;outline-container-orgheadline14&quot; class=&quot;outline-2&quot;&gt;
-&lt;h2 id=&quot;orgheadline14&quot;&gt;第一个project的workflow&lt;/h2&gt;
-&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline14&quot;&gt;
-&lt;/div&gt;&lt;div id=&quot;outline-container-orgheadline9&quot; class=&quot;outline-3&quot;&gt;
-&lt;h3 id=&quot;orgheadline9&quot;&gt;new project&lt;/h3&gt;
-&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline9&quot;&gt;
+&lt;div id=&quot;outline-container-orgheadline10&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline10&quot;&gt;客户端alias cpmsgid&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline10&quot;&gt;
+&lt;div class=&quot;org-src-container&quot;&gt;
+
+&lt;pre class=&quot;src src-sh&quot;&gt;&lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;alias&lt;/span&gt; &lt;span style=&quot;color: #007;&quot;&gt;cpmsgid&lt;/span&gt;=&lt;span style=&quot;color: #800;&quot;&gt;&#39;gitdir=$(git rev-parse --git-dir); scp -p -P 29418 admin@gerrit2:hooks/commit-msg ${gitdir}/hooks/&#39;&lt;/span&gt;
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline16&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline16&quot;&gt;第一个project的workflow&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline16&quot;&gt;
+&lt;/div&gt;&lt;div id=&quot;outline-container-orgheadline11&quot; class=&quot;outline-3&quot;&gt;
+&lt;h3 id=&quot;orgheadline11&quot;&gt;new project&lt;/h3&gt;
+&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline11&quot;&gt;
 &lt;p&gt;
 方式一: 通过web界面或gerrit命令行新建project
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id=&quot;outline-container-orgheadline10&quot; class=&quot;outline-3&quot;&gt;
-&lt;h3 id=&quot;orgheadline10&quot;&gt;git clone&lt;/h3&gt;
-&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline10&quot;&gt;
+&lt;div id=&quot;outline-container-orgheadline12&quot; class=&quot;outline-3&quot;&gt;
+&lt;h3 id=&quot;orgheadline12&quot;&gt;git clone&lt;/h3&gt;
+&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline12&quot;&gt;
 &lt;p&gt;
 方式二: clone现有的project
 &lt;/p&gt;
@@ -1561,21 +1595,23 @@ chown -R gerrit2.gerrit2 /opt/git/
 su - gerrit2
 &lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;cd&lt;/span&gt; /opt/git/
 git clone ssh://admin@hostip:29418/test
+cpmsgid
 &lt;/pre&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id=&quot;outline-container-orgheadline11&quot; class=&quot;outline-3&quot;&gt;
-&lt;h3 id=&quot;orgheadline11&quot;&gt;git push&lt;/h3&gt;
-&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline11&quot;&gt;
+&lt;div id=&quot;outline-container-orgheadline13&quot; class=&quot;outline-3&quot;&gt;
+&lt;h3 id=&quot;orgheadline13&quot;&gt;git push&lt;/h3&gt;
+&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline13&quot;&gt;
 &lt;p&gt;
 日常git操作，commit之后，利用如下命令推送至changes
 &lt;/p&gt;
 
 &lt;div class=&quot;org-src-container&quot;&gt;
 
-&lt;pre class=&quot;src src-sh&quot;&gt;git add readme.MD
+&lt;pre class=&quot;src src-sh&quot;&gt;cpmsgid
+git add readme.MD
 git commit -m &lt;span style=&quot;color: #800;&quot;&gt;&quot;initial commit&quot;&lt;/span&gt;
 git push origin HEAD:refs/for/master
 &lt;/pre&gt;
@@ -1583,18 +1619,18 @@ git push origin HEAD:refs/for/master
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id=&quot;outline-container-orgheadline12&quot; class=&quot;outline-3&quot;&gt;
-&lt;h3 id=&quot;orgheadline12&quot;&gt;review&lt;/h3&gt;
-&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline12&quot;&gt;
+&lt;div id=&quot;outline-container-orgheadline14&quot; class=&quot;outline-3&quot;&gt;
+&lt;h3 id=&quot;orgheadline14&quot;&gt;review&lt;/h3&gt;
+&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline14&quot;&gt;
 &lt;p&gt;
 gerrit web上进行review
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id=&quot;outline-container-orgheadline13&quot; class=&quot;outline-3&quot;&gt;
-&lt;h3 id=&quot;orgheadline13&quot;&gt;accept&lt;/h3&gt;
-&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline13&quot;&gt;
+&lt;div id=&quot;outline-container-orgheadline15&quot; class=&quot;outline-3&quot;&gt;
+&lt;h3 id=&quot;orgheadline15&quot;&gt;accept&lt;/h3&gt;
+&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline15&quot;&gt;
 &lt;p&gt;
 gerrit web上进行accept，正式进入master目录
 &lt;/p&gt;
