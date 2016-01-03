@@ -1,0 +1,105 @@
+---
+title: "ubuntu14.04安装Atheros QCA61x4无线网卡驱动"
+tags: driver
+layout: post
+categories: linux
+---
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline4">安装backports</a>
+<ul>
+<li><a href="#orgheadline1">下载并编译backports包</a></li>
+<li><a href="#orgheadline2">patch源代码</a></li>
+<li><a href="#orgheadline3">编译</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline5">安装配置ath10k firmware</a></li>
+<li><a href="#orgheadline6">测试</a></li>
+</ul>
+</div>
+</div>
+<!--abstract-begin-->
+<p>
+本文联想K20-80安装完ubuntu，发现无法自动识别无线网卡驱动。经查这是ubuntu的bug，影响到联想多款笔记本电脑，链接: <a href="https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1436940">Atheros wifi 168c:0041(QCA6164) is not supported</a> 。本文纪录按#34楼建议解决问题的步骤，供以后查阅。
+</p>
+<!--abstract-end-->
+
+<div id="outline-container-orgheadline4" class="outline-2">
+<h2 id="orgheadline4">安装backports</h2>
+<div class="outline-text-2" id="text-orgheadline4">
+</div><div id="outline-container-orgheadline1" class="outline-3">
+<h3 id="orgheadline1">下载并编译backports包</h3>
+<div class="outline-text-3" id="text-orgheadline1">
+<div class="org-src-container">
+
+<pre class="src src-sh">wget https://www.kernel.org/pub/linux/kernel/projects/backports/2015/07/31/backports-20150731.tar.gz
+tar xvf backports-20150731.tar.gz
+<span style="color: #058; font-weight: bold;">cd</span> backports-20150731
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline2" class="outline-3">
+<h3 id="orgheadline2">patch源代码</h3>
+<div class="outline-text-3" id="text-orgheadline2">
+<p>
+Patch the code with <a href="https://github.com/atondwal/linux/commit/22f8a4083883eca3e8a3175315d67d2a04392466">https://github.com/atondwal/linux/commit/22f8a4083883eca3e8a3175315d67d2a04392466</a>
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline3" class="outline-3">
+<h3 id="orgheadline3">编译</h3>
+<div class="outline-text-3" id="text-orgheadline3">
+<div class="org-src-container">
+
+<pre class="src src-sh">make defconfig-ath10k
+make
+sudo make install
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline5" class="outline-2">
+<h2 id="orgheadline5">安装配置ath10k firmware</h2>
+<div class="outline-text-2" id="text-orgheadline5">
+<p>
+get the latest firmware from <a href="https://github.com/kvalo/ath10k-firmware/archive/master.zip">https://github.com/kvalo/ath10k-firmware/archive/master.zip</a>
+Unzip and copy ath10k folder to /lib/firmware/ath10k
+</p>
+
+<p>
+Copy these two files (overwrite what you got before) in /lib/firmware/ath10k/QCA6164/hw2.1:
+<a href="https://github.com/atondwal/ath10k-firmware/tree/master/ath10k/QCA6164/hw2.1">https://github.com/atondwal/ath10k-firmware/tree/master/ath10k/QCA6164/hw2.1</a>
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-sh">rm -rf /lib/firmware/ath10k/QCA6174/hw3.0/
+</pre>
+</div>
+
+<p>
+Create a file named /etc/modprobe.d/ath10k.conf with the following line:
+</p>
+
+<pre class="example">
+options ath10k_core skip_otp=y
+</pre>
+</div>
+</div>
+
+
+<div id="outline-container-orgheadline6" class="outline-2">
+<h2 id="orgheadline6">测试</h2>
+<div class="outline-text-2" id="text-orgheadline6">
+<p>
+Reboot and modprobe ath10k_pci. Do "lshw -C network"; "ip link show" or "rfkill list" to see if you got your card working.
+</p>
+</div>
+</div>

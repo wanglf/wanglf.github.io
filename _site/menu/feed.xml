@@ -5,9 +5,122 @@
     <description>Wonder is the beginning of wisdom</description>
     <link>/</link>
     <atom:link href="/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Sat, 19 Dec 2015 17:18:22 +0800</pubDate>
-    <lastBuildDate>Sat, 19 Dec 2015 17:18:22 +0800</lastBuildDate>
+    <pubDate>Sun, 03 Jan 2016 13:02:18 +0800</pubDate>
+    <lastBuildDate>Sun, 03 Jan 2016 13:02:18 +0800</lastBuildDate>
     <generator>Jekyll v2.5.3</generator>
+    
+      <item>
+        <title>ubuntu14.04安装Atheros QCA61x4无线网卡驱动</title>
+        <description>&lt;div id=&quot;table-of-contents&quot;&gt;
+&lt;h2&gt;Table of Contents&lt;/h2&gt;
+&lt;div id=&quot;text-table-of-contents&quot;&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline4&quot;&gt;安装backports&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline1&quot;&gt;下载并编译backports包&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline2&quot;&gt;patch源代码&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline3&quot;&gt;编译&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline5&quot;&gt;安装配置ath10k firmware&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline6&quot;&gt;测试&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;!--abstract-begin--&gt;
+&lt;p&gt;
+本文联想K20-80安装完ubuntu，发现无法自动识别无线网卡驱动。经查这是ubuntu的bug，影响到联想多款笔记本电脑，链接: &lt;a href=&quot;https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1436940&quot;&gt;Atheros wifi 168c:0041(QCA6164) is not supported&lt;/a&gt; 。本文纪录按#34楼建议解决问题的步骤，供以后查阅。
+&lt;/p&gt;
+&lt;!--abstract-end--&gt;
+
+&lt;div id=&quot;outline-container-orgheadline4&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline4&quot;&gt;安装backports&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline4&quot;&gt;
+&lt;/div&gt;&lt;div id=&quot;outline-container-orgheadline1&quot; class=&quot;outline-3&quot;&gt;
+&lt;h3 id=&quot;orgheadline1&quot;&gt;下载并编译backports包&lt;/h3&gt;
+&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline1&quot;&gt;
+&lt;div class=&quot;org-src-container&quot;&gt;
+
+&lt;pre class=&quot;src src-sh&quot;&gt;wget https://www.kernel.org/pub/linux/kernel/projects/backports/2015/07/31/backports-20150731.tar.gz
+tar xvf backports-20150731.tar.gz
+&lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;cd&lt;/span&gt; backports-20150731
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline2&quot; class=&quot;outline-3&quot;&gt;
+&lt;h3 id=&quot;orgheadline2&quot;&gt;patch源代码&lt;/h3&gt;
+&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline2&quot;&gt;
+&lt;p&gt;
+Patch the code with &lt;a href=&quot;https://github.com/atondwal/linux/commit/22f8a4083883eca3e8a3175315d67d2a04392466&quot;&gt;https://github.com/atondwal/linux/commit/22f8a4083883eca3e8a3175315d67d2a04392466&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline3&quot; class=&quot;outline-3&quot;&gt;
+&lt;h3 id=&quot;orgheadline3&quot;&gt;编译&lt;/h3&gt;
+&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline3&quot;&gt;
+&lt;div class=&quot;org-src-container&quot;&gt;
+
+&lt;pre class=&quot;src src-sh&quot;&gt;make defconfig-ath10k
+make
+sudo make install
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline5&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline5&quot;&gt;安装配置ath10k firmware&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline5&quot;&gt;
+&lt;p&gt;
+get the latest firmware from &lt;a href=&quot;https://github.com/kvalo/ath10k-firmware/archive/master.zip&quot;&gt;https://github.com/kvalo/ath10k-firmware/archive/master.zip&lt;/a&gt;
+Unzip and copy ath10k folder to /lib/firmware/ath10k
+&lt;/p&gt;
+
+&lt;p&gt;
+Copy these two files (overwrite what you got before) in /lib/firmware/ath10k/QCA6164/hw2.1:
+&lt;a href=&quot;https://github.com/atondwal/ath10k-firmware/tree/master/ath10k/QCA6164/hw2.1&quot;&gt;https://github.com/atondwal/ath10k-firmware/tree/master/ath10k/QCA6164/hw2.1&lt;/a&gt;
+&lt;/p&gt;
+
+&lt;div class=&quot;org-src-container&quot;&gt;
+
+&lt;pre class=&quot;src src-sh&quot;&gt;rm -rf /lib/firmware/ath10k/QCA6174/hw3.0/
+&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;
+Create a file named /etc/modprobe.d/ath10k.conf with the following line:
+&lt;/p&gt;
+
+&lt;pre class=&quot;example&quot;&gt;
+options ath10k_core skip_otp=y
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+
+&lt;div id=&quot;outline-container-orgheadline6&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline6&quot;&gt;测试&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline6&quot;&gt;
+&lt;p&gt;
+Reboot and modprobe ath10k_pci. Do &quot;lshw -C network&quot;; &quot;ip link show&quot; or &quot;rfkill list&quot; to see if you got your card working.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+</description>
+        <pubDate>Sun, 03 Jan 2016 00:00:00 +0800</pubDate>
+        <link>/linux/install-ath10k-wireless-driver-on-ubuntu.html</link>
+        <guid isPermaLink="true">/linux/install-ath10k-wireless-driver-on-ubuntu.html</guid>
+        
+        <category>driver</category>
+        
+        
+        <category>linux</category>
+        
+      </item>
     
       <item>
         <title>持续集成工具之jenkins</title>
@@ -1387,265 +1500,6 @@ When function prototypes are in scope, argument passing becomes an &quot;assignm
         
         
         <category>language</category>
-        
-      </item>
-    
-      <item>
-        <title>Code Review工具Gerrit2安装方法</title>
-        <description>&lt;div id=&quot;table-of-contents&quot;&gt;
-&lt;h2&gt;Table of Contents&lt;/h2&gt;
-&lt;div id=&quot;text-table-of-contents&quot;&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&quot;#orgheadline1&quot;&gt;环境准备&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#orgheadline4&quot;&gt;数据库准备&lt;/a&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&quot;#orgheadline2&quot;&gt;mysql-server安装&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#orgheadline3&quot;&gt;数据库设置&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#orgheadline5&quot;&gt;gerrit2初始化&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#orgheadline6&quot;&gt;安装delete-project&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#orgheadline7&quot;&gt;gerrit2 启动&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#orgheadline8&quot;&gt;nginx设置&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#orgheadline9&quot;&gt;ssh 配置&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#orgheadline10&quot;&gt;客户端alias cpmsgid&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#orgheadline16&quot;&gt;第一个project的workflow&lt;/a&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&quot;#orgheadline11&quot;&gt;new project&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#orgheadline12&quot;&gt;git clone&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#orgheadline13&quot;&gt;git push&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#orgheadline14&quot;&gt;review&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#orgheadline15&quot;&gt;accept&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;!--abstract-begin--&gt;
-&lt;p&gt;
-代码审查是开发流程的重要一环，gerrit2是google开源用于代码审查的工具，其采用Java实现。本文讲述如何安装gerrit2，并示范如何开始第一个工程。
-&lt;/p&gt;
-&lt;!--abstract-end--&gt;
-
-&lt;div id=&quot;outline-container-orgheadline1&quot; class=&quot;outline-2&quot;&gt;
-&lt;h2 id=&quot;orgheadline1&quot;&gt;环境准备&lt;/h2&gt;
-&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline1&quot;&gt;
-&lt;ol class=&quot;org-ol&quot;&gt;
-&lt;li&gt;准备gerrit.war, 此处为Centos 6.5 64bit环境下v2.10-rc2版本安装&lt;/li&gt;
-&lt;li&gt;java 1.7.0以上版本，并设置好CLASSPATH&lt;/li&gt;
-&lt;li&gt;准备mysql-connector-java-5.1.21-bin.jar&lt;/li&gt;
-&lt;li&gt;提前安装git&lt;/li&gt;
-&lt;/ol&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id=&quot;outline-container-orgheadline4&quot; class=&quot;outline-2&quot;&gt;
-&lt;h2 id=&quot;orgheadline4&quot;&gt;数据库准备&lt;/h2&gt;
-&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline4&quot;&gt;
-&lt;/div&gt;&lt;div id=&quot;outline-container-orgheadline2&quot; class=&quot;outline-3&quot;&gt;
-&lt;h3 id=&quot;orgheadline2&quot;&gt;mysql-server安装&lt;/h3&gt;
-&lt;/div&gt;
-&lt;div id=&quot;outline-container-orgheadline3&quot; class=&quot;outline-3&quot;&gt;
-&lt;h3 id=&quot;orgheadline3&quot;&gt;数据库设置&lt;/h3&gt;
-&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline3&quot;&gt;
-&lt;pre class=&quot;example&quot;&gt;
-CREATE USER &#39;gerrit2&#39;@&#39;hostip&#39; IDENTIFIED BY &#39;secret&#39;;
-CREATE DATABASE reviewdb;
-GRANT ALL ON reviewdb.* TO &#39;gerrit2&#39;@&#39;hostip&#39;;
-FLUSH PRIVILEGES;
-&lt;/pre&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id=&quot;outline-container-orgheadline5&quot; class=&quot;outline-2&quot;&gt;
-&lt;h2 id=&quot;orgheadline5&quot;&gt;gerrit2初始化&lt;/h2&gt;
-&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline5&quot;&gt;
-&lt;div class=&quot;org-src-container&quot;&gt;
-
-&lt;pre class=&quot;src src-sh&quot;&gt;adduser gerrit2
-mkdir -p /opt/gerrit2
-chown -R gerrit2.gerrit2 /opt/gerrit2
-cp gerrit.war /home/gerrit2/
-chown -R gerrit2:gerrit2 /home/gerrit2/gerrit.war
-su - gerrit2
-java -jar gerrit.war init -d /opt/gerrit2
-&lt;/pre&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id=&quot;outline-container-orgheadline6&quot; class=&quot;outline-2&quot;&gt;
-&lt;h2 id=&quot;orgheadline6&quot;&gt;安装delete-project&lt;/h2&gt;
-&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline6&quot;&gt;
-&lt;div class=&quot;org-src-container&quot;&gt;
-
-&lt;pre class=&quot;src src-sh&quot;&gt;cp delete-project.jar /opt/gerrit2/plugins/
-&lt;/pre&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id=&quot;outline-container-orgheadline7&quot; class=&quot;outline-2&quot;&gt;
-&lt;h2 id=&quot;orgheadline7&quot;&gt;gerrit2 启动&lt;/h2&gt;
-&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline7&quot;&gt;
-&lt;div class=&quot;org-src-container&quot;&gt;
-
-&lt;pre class=&quot;src src-sh&quot;&gt;&lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;cd&lt;/span&gt; /opt/gerrit2/bin
-./gerrit.sh start
-&lt;/pre&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id=&quot;outline-container-orgheadline8&quot; class=&quot;outline-2&quot;&gt;
-&lt;h2 id=&quot;orgheadline8&quot;&gt;nginx设置&lt;/h2&gt;
-&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline8&quot;&gt;
-&lt;div class=&quot;org-src-container&quot;&gt;
-
-&lt;pre class=&quot;src src-sh&quot;&gt;git config --file /opt/gerrit2/etc/gerrit.config auth.type HTTP
-git config --file /opt/gerrit2/etc/gerrit.config --unset auth.httpHeader
-git config --file /opt/gerrit2/etc/gerrit.config auth.emailFormat &lt;span style=&quot;color: #800;&quot;&gt;&#39;{0}@gmail.com&#39;&lt;/span&gt;
-
-git config --global user.name &lt;span style=&quot;color: #800;&quot;&gt;&quot;wanglf&quot;&lt;/span&gt;
-git config --global user.email &lt;span style=&quot;color: #800;&quot;&gt;&quot;wlfqware@gmail.com&quot;&lt;/span&gt;
-&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;
-&lt;code&gt;htpasswd生成web服务器认证密码文件， 并修改nginx配置如下&lt;/code&gt;
-&lt;/p&gt;
-
-&lt;pre class=&quot;example&quot;&gt;
-location /gerrit2/ {
-      auth_basic &quot;Restricted&quot;;
-      auth_basic_user_file /etc/nginx/username.password;
-      proxy_pass http://gerrit2cluster;
-      proxy_set_header    Host    $host;
-      proxy_set_header    X-Real-IP   $remote_addr;
-      proxy_set_header    X-Forwarded-For $proxy_add_x_forwarded_for;
-}
-&lt;/pre&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id=&quot;outline-container-orgheadline9&quot; class=&quot;outline-2&quot;&gt;
-&lt;h2 id=&quot;orgheadline9&quot;&gt;ssh 配置&lt;/h2&gt;
-&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline9&quot;&gt;
-&lt;pre class=&quot;example&quot;&gt;
-ssh-keygen -t rsa
-&lt;/pre&gt;
-
-&lt;p&gt;
-&lt;code&gt;拷贝 id_rsa.pub至web界面的ssh公钥。 vi ~/.ssh/config, 增加如下内容:&lt;/code&gt;
-&lt;/p&gt;
-
-&lt;pre class=&quot;example&quot;&gt;
-Host gerrit2
-Hostname gerrit2
-User admin
-Port 29418
-IdentityFile ~/.ssh/id_rsa
-&lt;/pre&gt;
-
-&lt;p&gt;
-&lt;code&gt;测试&lt;/code&gt;
-&lt;/p&gt;
-
-&lt;pre class=&quot;example&quot;&gt;
-ssh gerrit2
-&lt;/pre&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id=&quot;outline-container-orgheadline10&quot; class=&quot;outline-2&quot;&gt;
-&lt;h2 id=&quot;orgheadline10&quot;&gt;客户端alias cpmsgid&lt;/h2&gt;
-&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline10&quot;&gt;
-&lt;div class=&quot;org-src-container&quot;&gt;
-
-&lt;pre class=&quot;src src-sh&quot;&gt;&lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;alias&lt;/span&gt; &lt;span style=&quot;color: #007;&quot;&gt;cpmsgid&lt;/span&gt;=&lt;span style=&quot;color: #800;&quot;&gt;&#39;gitdir=$(git rev-parse --git-dir); scp -p -P 29418 admin@gerrit2:hooks/commit-msg ${gitdir}/hooks/&#39;&lt;/span&gt;
-&lt;/pre&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id=&quot;outline-container-orgheadline16&quot; class=&quot;outline-2&quot;&gt;
-&lt;h2 id=&quot;orgheadline16&quot;&gt;第一个project的workflow&lt;/h2&gt;
-&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline16&quot;&gt;
-&lt;/div&gt;&lt;div id=&quot;outline-container-orgheadline11&quot; class=&quot;outline-3&quot;&gt;
-&lt;h3 id=&quot;orgheadline11&quot;&gt;new project&lt;/h3&gt;
-&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline11&quot;&gt;
-&lt;p&gt;
-方式一: 通过web界面或gerrit命令行新建project
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id=&quot;outline-container-orgheadline12&quot; class=&quot;outline-3&quot;&gt;
-&lt;h3 id=&quot;orgheadline12&quot;&gt;git clone&lt;/h3&gt;
-&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline12&quot;&gt;
-&lt;p&gt;
-方式二: clone现有的project
-&lt;/p&gt;
-
-&lt;div class=&quot;org-src-container&quot;&gt;
-
-&lt;pre class=&quot;src src-sh&quot;&gt;mkdir -p /opt/git/
-chown -R gerrit2.gerrit2 /opt/git/
-su - gerrit2
-&lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;cd&lt;/span&gt; /opt/git/
-git clone ssh://admin@hostip:29418/test
-cpmsgid
-&lt;/pre&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id=&quot;outline-container-orgheadline13&quot; class=&quot;outline-3&quot;&gt;
-&lt;h3 id=&quot;orgheadline13&quot;&gt;git push&lt;/h3&gt;
-&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline13&quot;&gt;
-&lt;p&gt;
-日常git操作，commit之后，利用如下命令推送至changes
-&lt;/p&gt;
-
-&lt;div class=&quot;org-src-container&quot;&gt;
-
-&lt;pre class=&quot;src src-sh&quot;&gt;cpmsgid
-git add readme.MD
-git commit -m &lt;span style=&quot;color: #800;&quot;&gt;&quot;initial commit&quot;&lt;/span&gt;
-git push origin HEAD:refs/for/master
-&lt;/pre&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id=&quot;outline-container-orgheadline14&quot; class=&quot;outline-3&quot;&gt;
-&lt;h3 id=&quot;orgheadline14&quot;&gt;review&lt;/h3&gt;
-&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline14&quot;&gt;
-&lt;p&gt;
-gerrit web上进行review
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id=&quot;outline-container-orgheadline15&quot; class=&quot;outline-3&quot;&gt;
-&lt;h3 id=&quot;orgheadline15&quot;&gt;accept&lt;/h3&gt;
-&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline15&quot;&gt;
-&lt;p&gt;
-gerrit web上进行accept，正式进入master目录
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-</description>
-        <pubDate>Fri, 20 Mar 2015 00:00:00 +0800</pubDate>
-        <link>/tools/install-gerrit2.html</link>
-        <guid isPermaLink="true">/tools/install-gerrit2.html</guid>
-        
-        <category>git</category>
-        
-        
-        <category>tools</category>
         
       </item>
     
