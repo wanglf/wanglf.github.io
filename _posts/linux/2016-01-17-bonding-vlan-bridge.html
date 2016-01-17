@@ -1,0 +1,186 @@
+---
+title: "Centos bonding基础上设置vlan与bridge"
+tags: bond networking
+layout: post
+categories: linux
+---
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline1">关闭NetworkManager</a></li>
+<li><a href="#orgheadline2">加载bonding模块</a></li>
+<li><a href="#orgheadline3">配置bond接口</a></li>
+<li><a href="#orgheadline6">物理接口</a>
+<ul>
+<li><a href="#orgheadline4">nic01</a></li>
+<li><a href="#orgheadline5">nic02</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline9">bond子接口</a>
+<ul>
+<li><a href="#orgheadline7">bond0.905</a></li>
+<li><a href="#orgheadline8">bond0.906</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline12">bridge接口</a>
+<ul>
+<li><a href="#orgheadline10">brnet06</a></li>
+<li><a href="#orgheadline11">brnet11</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<!--abstract-begin-->
+<p>
+为了提升系统可用性，一般会利用linux自带的bonding技术实现双网卡绑定。在虚拟机环境下，有时为了提高机器的使用效率，还需要在同一台机器配置不同的网段，这时可以通过vlan技术实现。
+</p>
+<!--abstract-end-->
+
+<div id="outline-container-orgheadline1" class="outline-2">
+<h2 id="orgheadline1">关闭NetworkManager</h2>
+<div class="outline-text-2" id="text-orgheadline1">
+<div class="org-src-container">
+
+<pre class="src src-sh">service NetworkManager stop
+chkconfig --level 2345 NetworkManager off
+chkconfig --level 2345 network on
+service network start
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline2" class="outline-2">
+<h2 id="orgheadline2">加载bonding模块</h2>
+<div class="outline-text-2" id="text-orgheadline2">
+<div class="org-src-container">
+
+<pre class="src src-sh">cat &gt; /etc/modprobe.d/bonding.conf &lt;&lt; EOF
+<span style="font-weight: bold;">alias bond0 bonding</span>
+<span style="font-weight: bold;">EOF</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline3" class="outline-2">
+<h2 id="orgheadline3">配置bond接口</h2>
+<div class="outline-text-2" id="text-orgheadline3">
+<div class="org-src-container">
+
+<pre class="src src-sh">cat &gt; /etc/sysconfig/network-scripts/ifcfg-bond0 &lt;&lt; EOF
+<span style="font-weight: bold;">DEVICE=bond0</span>
+<span style="font-weight: bold;">NAME=bond0</span>
+<span style="font-weight: bold;">TYPE=bond</span>
+<span style="font-weight: bold;">BONDING_MASTER=yes</span>
+<span style="font-weight: bold;">BONDING_OPTS="mode=1 miimon=100"</span>
+<span style="font-weight: bold;">IPV6INIT=no</span>
+<span style="font-weight: bold;">BOOTPROTO=none</span>
+<span style="font-weight: bold;">ONBOOT=yes</span>
+<span style="font-weight: bold;">MTU=9000</span>
+<span style="font-weight: bold;">EOF</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline6" class="outline-2">
+<h2 id="orgheadline6">物理接口</h2>
+<div class="outline-text-2" id="text-orgheadline6">
+</div><div id="outline-container-orgheadline4" class="outline-3">
+<h3 id="orgheadline4">nic01</h3>
+<div class="outline-text-3" id="text-orgheadline4">
+<pre class="example">
+DEVICE=ens2f0
+NAME=ens2f0
+TYPE=Ethernet
+BOOTPROTO=none
+ONBOOT=yes
+MASTER=bond0
+SLAVE=yes
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orgheadline5" class="outline-3">
+<h3 id="orgheadline5">nic02</h3>
+<div class="outline-text-3" id="text-orgheadline5">
+<pre class="example">
+DEVICE=ens2f1
+NAME=ens2f1
+TYPE=Ethernet
+BOOTPROTO=none
+ONBOOT=yes
+MASTER=bond0
+SLAVE=yes
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline9" class="outline-2">
+<h2 id="orgheadline9">bond子接口</h2>
+<div class="outline-text-2" id="text-orgheadline9">
+</div><div id="outline-container-orgheadline7" class="outline-3">
+<h3 id="orgheadline7">bond0.905</h3>
+<div class="outline-text-3" id="text-orgheadline7">
+<pre class="example">
+DEVICE=bond0.905
+VLAN=yes
+IPV6INIT=no
+BOOTPROTO=none
+ONBOOT=yes
+BRIDGE=brnet11
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orgheadline8" class="outline-3">
+<h3 id="orgheadline8">bond0.906</h3>
+<div class="outline-text-3" id="text-orgheadline8">
+<pre class="example">
+DEVICE=bond0.906
+VLAN=yes
+IPV6INIT=no
+BOOTPROTO=none
+ONBOOT=yes
+BRIDGE=brnet06
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline12" class="outline-2">
+<h2 id="orgheadline12">bridge接口</h2>
+<div class="outline-text-2" id="text-orgheadline12">
+</div><div id="outline-container-orgheadline10" class="outline-3">
+<h3 id="orgheadline10">brnet06</h3>
+<div class="outline-text-3" id="text-orgheadline10">
+<pre class="example">
+DEVICE=brnet06
+BOOTPROTO=none
+ONBOOT=yes
+TYPE=Bridge
+IPADDR=192.168.6.151
+NETMASK=255.255.255.0
+GATEWAY=192.168.6.254
+IPV6INIT=no
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orgheadline11" class="outline-3">
+<h3 id="orgheadline11">brnet11</h3>
+<div class="outline-text-3" id="text-orgheadline11">
+<pre class="example">
+DEVICE=brnet11
+BOOTPROTO=none
+ONBOOT=yes
+TYPE=Bridge
+IPV6INIT=no
+</pre>
+</div>
+</div>
+</div>

@@ -5,9 +5,205 @@
     <description>Wonder is the beginning of wisdom</description>
     <link>/</link>
     <atom:link href="/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Sun, 03 Jan 2016 13:02:18 +0800</pubDate>
-    <lastBuildDate>Sun, 03 Jan 2016 13:02:18 +0800</lastBuildDate>
+    <pubDate>Sun, 17 Jan 2016 17:22:55 +0800</pubDate>
+    <lastBuildDate>Sun, 17 Jan 2016 17:22:55 +0800</lastBuildDate>
     <generator>Jekyll v2.5.3</generator>
+    
+      <item>
+        <title>Centos bonding基础上设置vlan与bridge</title>
+        <description>&lt;div id=&quot;table-of-contents&quot;&gt;
+&lt;h2&gt;Table of Contents&lt;/h2&gt;
+&lt;div id=&quot;text-table-of-contents&quot;&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline1&quot;&gt;关闭NetworkManager&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline2&quot;&gt;加载bonding模块&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline3&quot;&gt;配置bond接口&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline6&quot;&gt;物理接口&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline4&quot;&gt;nic01&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline5&quot;&gt;nic02&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline9&quot;&gt;bond子接口&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline7&quot;&gt;bond0.905&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline8&quot;&gt;bond0.906&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline12&quot;&gt;bridge接口&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline10&quot;&gt;brnet06&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline11&quot;&gt;brnet11&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;!--abstract-begin--&gt;
+&lt;p&gt;
+为了提升系统可用性，一般会利用linux自带的bonding技术实现双网卡绑定。在虚拟机环境下，有时为了提高机器的使用效率，还需要在同一台机器配置不同的网段，这时可以通过vlan技术实现。
+&lt;/p&gt;
+&lt;!--abstract-end--&gt;
+
+&lt;div id=&quot;outline-container-orgheadline1&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline1&quot;&gt;关闭NetworkManager&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline1&quot;&gt;
+&lt;div class=&quot;org-src-container&quot;&gt;
+
+&lt;pre class=&quot;src src-sh&quot;&gt;service NetworkManager stop
+chkconfig --level 2345 NetworkManager off
+chkconfig --level 2345 network on
+service network start
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline2&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline2&quot;&gt;加载bonding模块&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline2&quot;&gt;
+&lt;div class=&quot;org-src-container&quot;&gt;
+
+&lt;pre class=&quot;src src-sh&quot;&gt;cat &amp;gt; /etc/modprobe.d/bonding.conf &amp;lt;&amp;lt; EOF
+&lt;span style=&quot;font-weight: bold;&quot;&gt;alias bond0 bonding&lt;/span&gt;
+&lt;span style=&quot;font-weight: bold;&quot;&gt;EOF&lt;/span&gt;
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline3&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline3&quot;&gt;配置bond接口&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline3&quot;&gt;
+&lt;div class=&quot;org-src-container&quot;&gt;
+
+&lt;pre class=&quot;src src-sh&quot;&gt;cat &amp;gt; /etc/sysconfig/network-scripts/ifcfg-bond0 &amp;lt;&amp;lt; EOF
+&lt;span style=&quot;font-weight: bold;&quot;&gt;DEVICE=bond0&lt;/span&gt;
+&lt;span style=&quot;font-weight: bold;&quot;&gt;NAME=bond0&lt;/span&gt;
+&lt;span style=&quot;font-weight: bold;&quot;&gt;TYPE=bond&lt;/span&gt;
+&lt;span style=&quot;font-weight: bold;&quot;&gt;BONDING_MASTER=yes&lt;/span&gt;
+&lt;span style=&quot;font-weight: bold;&quot;&gt;BONDING_OPTS=&quot;mode=1 miimon=100&quot;&lt;/span&gt;
+&lt;span style=&quot;font-weight: bold;&quot;&gt;IPV6INIT=no&lt;/span&gt;
+&lt;span style=&quot;font-weight: bold;&quot;&gt;BOOTPROTO=none&lt;/span&gt;
+&lt;span style=&quot;font-weight: bold;&quot;&gt;ONBOOT=yes&lt;/span&gt;
+&lt;span style=&quot;font-weight: bold;&quot;&gt;MTU=9000&lt;/span&gt;
+&lt;span style=&quot;font-weight: bold;&quot;&gt;EOF&lt;/span&gt;
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline6&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline6&quot;&gt;物理接口&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline6&quot;&gt;
+&lt;/div&gt;&lt;div id=&quot;outline-container-orgheadline4&quot; class=&quot;outline-3&quot;&gt;
+&lt;h3 id=&quot;orgheadline4&quot;&gt;nic01&lt;/h3&gt;
+&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline4&quot;&gt;
+&lt;pre class=&quot;example&quot;&gt;
+DEVICE=ens2f0
+NAME=ens2f0
+TYPE=Ethernet
+BOOTPROTO=none
+ONBOOT=yes
+MASTER=bond0
+SLAVE=yes
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline5&quot; class=&quot;outline-3&quot;&gt;
+&lt;h3 id=&quot;orgheadline5&quot;&gt;nic02&lt;/h3&gt;
+&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline5&quot;&gt;
+&lt;pre class=&quot;example&quot;&gt;
+DEVICE=ens2f1
+NAME=ens2f1
+TYPE=Ethernet
+BOOTPROTO=none
+ONBOOT=yes
+MASTER=bond0
+SLAVE=yes
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline9&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline9&quot;&gt;bond子接口&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline9&quot;&gt;
+&lt;/div&gt;&lt;div id=&quot;outline-container-orgheadline7&quot; class=&quot;outline-3&quot;&gt;
+&lt;h3 id=&quot;orgheadline7&quot;&gt;bond0.905&lt;/h3&gt;
+&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline7&quot;&gt;
+&lt;pre class=&quot;example&quot;&gt;
+DEVICE=bond0.905
+VLAN=yes
+IPV6INIT=no
+BOOTPROTO=none
+ONBOOT=yes
+BRIDGE=brnet11
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline8&quot; class=&quot;outline-3&quot;&gt;
+&lt;h3 id=&quot;orgheadline8&quot;&gt;bond0.906&lt;/h3&gt;
+&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline8&quot;&gt;
+&lt;pre class=&quot;example&quot;&gt;
+DEVICE=bond0.906
+VLAN=yes
+IPV6INIT=no
+BOOTPROTO=none
+ONBOOT=yes
+BRIDGE=brnet06
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline12&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline12&quot;&gt;bridge接口&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline12&quot;&gt;
+&lt;/div&gt;&lt;div id=&quot;outline-container-orgheadline10&quot; class=&quot;outline-3&quot;&gt;
+&lt;h3 id=&quot;orgheadline10&quot;&gt;brnet06&lt;/h3&gt;
+&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline10&quot;&gt;
+&lt;pre class=&quot;example&quot;&gt;
+DEVICE=brnet06
+BOOTPROTO=none
+ONBOOT=yes
+TYPE=Bridge
+IPADDR=192.168.6.151
+NETMASK=255.255.255.0
+GATEWAY=192.168.6.254
+IPV6INIT=no
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline11&quot; class=&quot;outline-3&quot;&gt;
+&lt;h3 id=&quot;orgheadline11&quot;&gt;brnet11&lt;/h3&gt;
+&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline11&quot;&gt;
+&lt;pre class=&quot;example&quot;&gt;
+DEVICE=brnet11
+BOOTPROTO=none
+ONBOOT=yes
+TYPE=Bridge
+IPV6INIT=no
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+</description>
+        <pubDate>Sun, 17 Jan 2016 00:00:00 +0800</pubDate>
+        <link>/linux/bonding-vlan-bridge.html</link>
+        <guid isPermaLink="true">/linux/bonding-vlan-bridge.html</guid>
+        
+        <category>bond</category>
+        
+        <category>networking</category>
+        
+        
+        <category>linux</category>
+        
+      </item>
     
       <item>
         <title>ubuntu14.04安装Atheros QCA61x4无线网卡驱动</title>
@@ -1440,66 +1636,6 @@ main() {
         
         
         <category>editor</category>
-        
-      </item>
-    
-      <item>
-        <title>C语言NULL指针FAQ</title>
-        <description>&lt;div id=&quot;table-of-contents&quot;&gt;
-&lt;h2&gt;Table of Contents&lt;/h2&gt;
-&lt;div id=&quot;text-table-of-contents&quot;&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&quot;#orgheadline1&quot;&gt;Q: What is NULL and how is it defined?&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#orgheadline2&quot;&gt;Q:How do I get a null pointer in my programs?&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;!--abstract-begin--&gt;
-&lt;p&gt;
-C NULL Pointer FAQ
-&lt;/p&gt;
-&lt;!--abstract-end--&gt;
-
-
-&lt;div id=&quot;outline-container-orgheadline1&quot; class=&quot;outline-2&quot;&gt;
-&lt;h2 id=&quot;orgheadline1&quot;&gt;Q: What is NULL and how is it defined?&lt;/h2&gt;
-&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline1&quot;&gt;
-&lt;pre class=&quot;example&quot;&gt;
-As a matter of style, many programmers prefer not to have unadorned 0&#39;s scattered through their programs, some representing numbers and some representing pointers. Therefore, the preprocessor macro NULL is defined (by several headers, including &amp;lt;stdio.h&amp;gt; and &amp;lt;stddef.h&amp;gt;) as a null pointer constant, typically 0 or ((void *)0). A programmer who wishes to make explicit the distinction between 0 the integer and 0 the null pointer constant can then use NULL whenever a null pointer is required.
-
-Using NULL is a stylistic convention only; the preprocessor turns NULL back into 0 which is then recognized by the compiler, in pointer contexts, as before. In particular, a cast may still be necessary before NULL (as before 0) in a function call argument. The table under question 5.2 above applies for NULL as well as 0 (an unadorned NULL is equivalent to an unadorned 0).
-NULL should be used only as a pointer constant;
-&lt;/pre&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id=&quot;outline-container-orgheadline2&quot; class=&quot;outline-2&quot;&gt;
-&lt;h2 id=&quot;orgheadline2&quot;&gt;Q:How do I get a null pointer in my programs?&lt;/h2&gt;
-&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline2&quot;&gt;
-&lt;pre class=&quot;example&quot;&gt;
-With a null pointer constant.
-
-According to the language definition, an &quot;integral constant expression with the value 0&quot; in a pointer context is converted into a null pointer at compile time. That is, in an initialization, assignment, or comparison when one side is a variable or expression of pointer type, the compiler can tell that a constant 0 on the other side requests a null pointer, and generate the correctly-typed null pointer value. Therefore, the following fragments are perfectly legal:
-	char *p = 0;
-	if(p != 0)
-
-However, an argument being passed to a function is not necessarily recognizable as a pointer context, and the compiler may not be able to tell that an unadorned 0 &quot;means&quot; a null pointer. To generate a null pointer in a function call context, an explicit cast may be required, to force the 0 to be recognized as a pointer. For example, the Unix system call execl takes a variable-length, null-pointer-terminated list of character pointer arguments, and is correctly called like this:
-	execl(&quot;/bin/sh&quot;, &quot;sh&quot;, &quot;-c&quot;, &quot;date&quot;, (char *)0);
-If the (char *) cast on the last argument were omitted, the compiler would not know to pass a null pointer, and would pass an integer 0 instead.
-
-When function prototypes are in scope, argument passing becomes an &quot;assignment context,&quot; and most casts may safely be omitted, since the prototype tells the compiler that a pointer is required, and of which type, enabling it to correctly convert an unadorned 0. Function prototypes cannot provide the types for variable arguments in variable-length argument lists however, so explicit casts are still required for those arguments.  It is probably safest to properly cast all null pointer constants in function calls, to guard against varargs functions or those without prototypes.
-&lt;/pre&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-</description>
-        <pubDate>Wed, 15 Jul 2015 00:00:00 +0800</pubDate>
-        <link>/language/c-null-pointer.html</link>
-        <guid isPermaLink="true">/language/c-null-pointer.html</guid>
-        
-        <category>c</category>
-        
-        
-        <category>language</category>
         
       </item>
     
