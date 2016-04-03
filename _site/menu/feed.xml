@@ -5,9 +5,195 @@
     <description>Wonder is the beginning of wisdom</description>
     <link>/</link>
     <atom:link href="/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Wed, 23 Mar 2016 21:43:54 +0800</pubDate>
-    <lastBuildDate>Wed, 23 Mar 2016 21:43:54 +0800</lastBuildDate>
+    <pubDate>Sun, 03 Apr 2016 15:02:45 +0800</pubDate>
+    <lastBuildDate>Sun, 03 Apr 2016 15:02:45 +0800</lastBuildDate>
     <generator>Jekyll v2.5.3</generator>
+    
+      <item>
+        <title>Freeradius ntlm_auth with microsoft active directory</title>
+        <description>&lt;div id=&quot;table-of-contents&quot;&gt;
+&lt;h2&gt;Table of Contents&lt;/h2&gt;
+&lt;div id=&quot;text-table-of-contents&quot;&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline1&quot;&gt;安装服务&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline5&quot;&gt;配置samba与winbind&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline2&quot;&gt;/etc/samba/smb.conf&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline3&quot;&gt;/etc/krb5.conf&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline4&quot;&gt;/etc/nsswitch.conf&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline6&quot;&gt;启用服务&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline7&quot;&gt;测试&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline10&quot;&gt;Freeradius配置&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline8&quot;&gt;/etc/raddb/mods-enabled/ntlm_auth&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline9&quot;&gt;测试&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;!--abstract-begin--&gt;
+&lt;p&gt;
+Freeradius是一款开源的AAA认证服务器, 本文总结Freeradius如何通过NTLM_AUTH接口将微软AD用户作为AAA认证用户数据库。本案例在CentOS 7环境下测试通过。
+&lt;/p&gt;
+&lt;!--abstract-end--&gt;
+
+&lt;div id=&quot;outline-container-orgheadline1&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline1&quot;&gt;安装服务&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline1&quot;&gt;
+&lt;p&gt;
+#+BEGIN_EXMAPLE
+yum -y install samba samba-client samba-winbind krb5-server
+#+END_EXAMPLE
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline5&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline5&quot;&gt;配置samba与winbind&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline5&quot;&gt;
+&lt;/div&gt;&lt;div id=&quot;outline-container-orgheadline2&quot; class=&quot;outline-3&quot;&gt;
+&lt;h3 id=&quot;orgheadline2&quot;&gt;/etc/samba/smb.conf&lt;/h3&gt;
+&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline2&quot;&gt;
+&lt;pre class=&quot;example&quot;&gt;
+[global]
+    workgroup = OA
+    security = ads
+    winbind use default domain = no
+    passdb backend = tdbsam
+    password server = 1.1.1.1
+    realm = OA.ABC.COM
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline3&quot; class=&quot;outline-3&quot;&gt;
+&lt;h3 id=&quot;orgheadline3&quot;&gt;/etc/krb5.conf&lt;/h3&gt;
+&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline3&quot;&gt;
+&lt;pre class=&quot;example&quot;&gt;
+[logging]
+  default = FILE:/var/log/krb5libs.log
+  kdc = FILE:/var/log/krb5kdc.log
+  admin_server = FILE:/var/log/kadmind.log
+
+[libdefaults]
+  dns_lookup_realm = false
+  ticket_lifetime = 24h
+  renew_lifetime = 7d
+  forwardable = true
+  rdns = false
+  default_realm = oa.abc.com
+  #default_ccache_name = KEYRING:persistent:%{uid}
+
+[realms]
+  oa.abc.com = {
+    kdc = 1.1.1.1:88
+    admin_server = 1.1.1.1:749
+  }
+
+[domain_realm]
+  .oa.abc.com = oa.abc.com
+  oa.abc.com = oa.abc.com
+
+[kdc]
+ profile = /var/kerberos/krb5kdc/kdc.conf
+[appdefaults]
+  pam = {
+    debug = false
+    ticket_lifetime = 36000
+    renew_lifetime = 36000
+    forwardable = true
+    krb4_convert = false
+  }
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline4&quot; class=&quot;outline-3&quot;&gt;
+&lt;h3 id=&quot;orgheadline4&quot;&gt;/etc/nsswitch.conf&lt;/h3&gt;
+&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline4&quot;&gt;
+&lt;pre class=&quot;example&quot;&gt;
+passwd:     files sss winbind
+shadow:     files sss winbind
+group:      files sss winbind
+protocols:  files winbind
+services:   files sss winbind
+netgroup:   files sss winbind
+automount:  files winbind
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline6&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline6&quot;&gt;启用服务&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline6&quot;&gt;
+&lt;p&gt;
+#+BEGIN_SRC sh
+systemctl enable smb
+systemctl enable winbind
+systemctl start smb
+systemctl start winbind
+#+END_SRC sh
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline7&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline7&quot;&gt;测试&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline7&quot;&gt;
+&lt;div class=&quot;org-src-container&quot;&gt;
+
+&lt;pre class=&quot;src src-sh&quot;&gt;ntlm_auth --request-nt-key --domain=OA --username=wesley
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;
+正常情况返回NT_STATUS_OK : Success (0x0)
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline10&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline10&quot;&gt;Freeradius配置&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline10&quot;&gt;
+&lt;/div&gt;&lt;div id=&quot;outline-container-orgheadline8&quot; class=&quot;outline-3&quot;&gt;
+&lt;h3 id=&quot;orgheadline8&quot;&gt;/etc/raddb/mods-enabled/ntlm_auth&lt;/h3&gt;
+&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline8&quot;&gt;
+&lt;p&gt;
+#+BEGIN_EXAMPLE
+exec ntlm_auth {
+    wait = yes
+    program = &quot;/usr/bin/ntlm_auth &amp;#x2013;request-nt-key &amp;#x2013;domain=OA.ABC.COM &amp;#x2013;username=%{mschap:User-Name} &amp;#x2013;password=%{User-Password}&quot;
+}
+#+END_SRC
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline9&quot; class=&quot;outline-3&quot;&gt;
+&lt;h3 id=&quot;orgheadline9&quot;&gt;测试&lt;/h3&gt;
+&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline9&quot;&gt;
+&lt;div class=&quot;org-src-container&quot;&gt;
+
+&lt;pre class=&quot;src src-sh&quot;&gt;radtest -t mschap -x -4 wesley 123456 localhost 10 testing123 0 127.0.0.1
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+</description>
+        <pubDate>Sun, 03 Apr 2016 00:00:00 +0800</pubDate>
+        <link>/network/freeradius-with-ad-ntlmauth.html</link>
+        <guid isPermaLink="true">/network/freeradius-with-ad-ntlmauth.html</guid>
+        
+        <category>freeradius</category>
+        
+        
+        <category>network</category>
+        
+      </item>
     
       <item>
         <title>Centos bonding基础上设置vlan与bridge</title>
@@ -1519,123 +1705,6 @@ wesley pptpd 123456 *
         
         
         <category>network</category>
-        
-      </item>
-    
-      <item>
-        <title>vim-snipmate插件</title>
-        <description>&lt;div id=&quot;table-of-contents&quot;&gt;
-&lt;h2&gt;Table of Contents&lt;/h2&gt;
-&lt;div id=&quot;text-table-of-contents&quot;&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&quot;#orgheadline1&quot;&gt;安装方法&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#orgheadline2&quot;&gt;使用方法&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#orgheadline3&quot;&gt;自定义snippet内容&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;!--abstract-begin--&gt;
-&lt;p&gt;
-vim-snipmate插件的安装及使用
-&lt;/p&gt;
-&lt;!--abstract-end--&gt;
-
-&lt;div id=&quot;outline-container-orgheadline1&quot; class=&quot;outline-2&quot;&gt;
-&lt;h2 id=&quot;orgheadline1&quot;&gt;安装方法&lt;/h2&gt;
-&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline1&quot;&gt;
-&lt;p&gt;
-如vim插件通过Vundle进行管理，则在vimrc中添加如下内容：
-&lt;/p&gt;
-
-&lt;pre class=&quot;example&quot;&gt;
-&quot; snipMate plugin
-Plugin &#39;MarcWeber/vim-addon-mw-utils&#39;
-Plugin &#39;tomtom/tlib_vim&#39;
-Plugin &#39;garbas/vim-snipmate&#39;
-Plugin &#39;honza/vim-snippets&#39;
-let g:snips_author=&#39;wanglifeng&#39;
-&lt;/pre&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-
-&lt;div id=&quot;outline-container-orgheadline2&quot; class=&quot;outline-2&quot;&gt;
-&lt;h2 id=&quot;orgheadline2&quot;&gt;使用方法&lt;/h2&gt;
-&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline2&quot;&gt;
-&lt;p&gt;
-以C语言为例，默认的snippet文件为c.snippets，已预定义了部分snippet内容
-&lt;/p&gt;
-
-&lt;p&gt;
-例: 输入include按tab键，内容补全为如下内容：
-&lt;/p&gt;
-
-
-&lt;div class=&quot;org-src-container&quot;&gt;
-
-&lt;pre class=&quot;src src-c&quot;&gt;&lt;span style=&quot;color: #800;&quot;&gt;#include&lt;/span&gt; &lt;span style=&quot;color: #800;&quot;&gt;&amp;lt;stdio.h&amp;gt;&lt;/span&gt;
-&lt;/pre&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id=&quot;outline-container-orgheadline3&quot; class=&quot;outline-2&quot;&gt;
-&lt;h2 id=&quot;orgheadline3&quot;&gt;自定义snippet内容&lt;/h2&gt;
-&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline3&quot;&gt;
-&lt;div class=&quot;org-src-container&quot;&gt;
-
-&lt;pre class=&quot;src src-c&quot;&gt;## self defined snippets
-snippet basic
-    &lt;span style=&quot;color: #633;&quot;&gt;/*&lt;/span&gt;
-&lt;span style=&quot;color: #633;&quot;&gt;     * author: `g:snips_author`&lt;/span&gt;
-&lt;span style=&quot;color: #633;&quot;&gt;     * filename: `vim_snippets#Filename(&quot;$1.c&quot;)`&lt;/span&gt;
-&lt;span style=&quot;color: #633;&quot;&gt;     * date: `strftime(&quot;%Y-%m-%d&quot;)`&lt;/span&gt;
-&lt;span style=&quot;color: #633;&quot;&gt;     *&lt;/span&gt;
-&lt;span style=&quot;color: #633;&quot;&gt;     &lt;/span&gt;&lt;span style=&quot;color: #633;&quot;&gt;*/&lt;/span&gt;
-
-&lt;span style=&quot;color: #800;&quot;&gt;    #include&lt;/span&gt; &lt;span style=&quot;color: #800;&quot;&gt;&amp;lt;stdio.h&amp;gt;&lt;/span&gt;
-&lt;span style=&quot;color: #800;&quot;&gt;    #include&lt;/span&gt; &lt;span style=&quot;color: #800;&quot;&gt;&amp;lt;stdlib.h&amp;gt;&lt;/span&gt;
-    &lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;int&lt;/span&gt;
-    main() {
-        ${0}
-        &lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;return&lt;/span&gt; EXIT_SUCCESS;
-    }
-#+END_EXAMPLE
-
-- ${0}&amp;#34920;&amp;#31034;&amp;#20809;&amp;#26631;&amp;#20301;&amp;#32622;
-- g:snips_author&amp;#34920;&amp;#31034;vimrc&amp;#20013;&amp;#30340;&amp;#21464;&amp;#37327;
-- Filename&amp;#20026;&amp;#25554;&amp;#20214;&amp;#33258;&amp;#24102;&amp;#30340;&amp;#20989;&amp;#25968;
-- strftime&amp;#20026;vim&amp;#20989;&amp;#25968;
-
-&amp;#22312;C&amp;#28304;&amp;#25991;&amp;#20214;abc.c&amp;#36755;&amp;#20837;basic&amp;#24182;&amp;#21152;tab&amp;#34917;&amp;#20840;&amp;#21518;&amp;#65292;&amp;#36716;&amp;#25442;&amp;#20026;&amp;#22914;&amp;#19979;&amp;#20869;&amp;#23481;&amp;#65306;
-
-#+BEGIN_SRC c
-&lt;span style=&quot;color: #633;&quot;&gt;/*&lt;/span&gt;
-&lt;span style=&quot;color: #633;&quot;&gt; * author: wanglifeng&lt;/span&gt;
-&lt;span style=&quot;color: #633;&quot;&gt; * filename: abc.c&lt;/span&gt;
-&lt;span style=&quot;color: #633;&quot;&gt; * date: 2015-07-22&lt;/span&gt;
-&lt;span style=&quot;color: #633;&quot;&gt; *&lt;/span&gt;
-&lt;span style=&quot;color: #633;&quot;&gt; &lt;/span&gt;&lt;span style=&quot;color: #633;&quot;&gt;*/&lt;/span&gt;
-
-&lt;span style=&quot;color: #800;&quot;&gt;#include&lt;/span&gt; &lt;span style=&quot;color: #800;&quot;&gt;&amp;lt;stdio.h&amp;gt;&lt;/span&gt;
-&lt;span style=&quot;color: #800;&quot;&gt;#include&lt;/span&gt; &lt;span style=&quot;color: #800;&quot;&gt;&amp;lt;stdlib.h&amp;gt;&lt;/span&gt;
-&lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;int&lt;/span&gt;
-main() {
-    &lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;return&lt;/span&gt; EXIT_SUCCESS;
-}
-&lt;/pre&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-</description>
-        <pubDate>Wed, 22 Jul 2015 00:00:00 +0800</pubDate>
-        <link>/editor/vim-snipmate-plugin.html</link>
-        <guid isPermaLink="true">/editor/vim-snipmate-plugin.html</guid>
-        
-        <category>vim</category>
-        
-        
-        <category>editor</category>
         
       </item>
     

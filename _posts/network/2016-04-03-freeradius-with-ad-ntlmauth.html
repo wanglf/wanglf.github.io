@@ -1,0 +1,178 @@
+---
+title: "Freeradius ntlm_auth with microsoft active directory"
+tags: freeradius
+layout: post
+categories: network
+---
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline1">安装服务</a></li>
+<li><a href="#orgheadline5">配置samba与winbind</a>
+<ul>
+<li><a href="#orgheadline2">/etc/samba/smb.conf</a></li>
+<li><a href="#orgheadline3">/etc/krb5.conf</a></li>
+<li><a href="#orgheadline4">/etc/nsswitch.conf</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline6">启用服务</a></li>
+<li><a href="#orgheadline7">测试</a></li>
+<li><a href="#orgheadline10">Freeradius配置</a>
+<ul>
+<li><a href="#orgheadline8">/etc/raddb/mods-enabled/ntlm_auth</a></li>
+<li><a href="#orgheadline9">测试</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<!--abstract-begin-->
+<p>
+Freeradius是一款开源的AAA认证服务器, 本文总结Freeradius如何通过NTLM_AUTH接口将微软AD用户作为AAA认证用户数据库。本案例在CentOS 7环境下测试通过。
+</p>
+<!--abstract-end-->
+
+<div id="outline-container-orgheadline1" class="outline-2">
+<h2 id="orgheadline1">安装服务</h2>
+<div class="outline-text-2" id="text-orgheadline1">
+<p>
+#+BEGIN_EXMAPLE
+yum -y install samba samba-client samba-winbind krb5-server
+#+END_EXAMPLE
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline5" class="outline-2">
+<h2 id="orgheadline5">配置samba与winbind</h2>
+<div class="outline-text-2" id="text-orgheadline5">
+</div><div id="outline-container-orgheadline2" class="outline-3">
+<h3 id="orgheadline2">/etc/samba/smb.conf</h3>
+<div class="outline-text-3" id="text-orgheadline2">
+<pre class="example">
+[global]
+    workgroup = OA
+    security = ads
+    winbind use default domain = no
+    passdb backend = tdbsam
+    password server = 1.1.1.1
+    realm = OA.ABC.COM
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orgheadline3" class="outline-3">
+<h3 id="orgheadline3">/etc/krb5.conf</h3>
+<div class="outline-text-3" id="text-orgheadline3">
+<pre class="example">
+[logging]
+  default = FILE:/var/log/krb5libs.log
+  kdc = FILE:/var/log/krb5kdc.log
+  admin_server = FILE:/var/log/kadmind.log
+
+[libdefaults]
+  dns_lookup_realm = false
+  ticket_lifetime = 24h
+  renew_lifetime = 7d
+  forwardable = true
+  rdns = false
+  default_realm = oa.abc.com
+  #default_ccache_name = KEYRING:persistent:%{uid}
+
+[realms]
+  oa.abc.com = {
+    kdc = 1.1.1.1:88
+    admin_server = 1.1.1.1:749
+  }
+
+[domain_realm]
+  .oa.abc.com = oa.abc.com
+  oa.abc.com = oa.abc.com
+
+[kdc]
+ profile = /var/kerberos/krb5kdc/kdc.conf
+[appdefaults]
+  pam = {
+    debug = false
+    ticket_lifetime = 36000
+    renew_lifetime = 36000
+    forwardable = true
+    krb4_convert = false
+  }
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orgheadline4" class="outline-3">
+<h3 id="orgheadline4">/etc/nsswitch.conf</h3>
+<div class="outline-text-3" id="text-orgheadline4">
+<pre class="example">
+passwd:     files sss winbind
+shadow:     files sss winbind
+group:      files sss winbind
+protocols:  files winbind
+services:   files sss winbind
+netgroup:   files sss winbind
+automount:  files winbind
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline6" class="outline-2">
+<h2 id="orgheadline6">启用服务</h2>
+<div class="outline-text-2" id="text-orgheadline6">
+<p>
+#+BEGIN_SRC sh
+systemctl enable smb
+systemctl enable winbind
+systemctl start smb
+systemctl start winbind
+#+END_SRC sh
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline7" class="outline-2">
+<h2 id="orgheadline7">测试</h2>
+<div class="outline-text-2" id="text-orgheadline7">
+<div class="org-src-container">
+
+<pre class="src src-sh">ntlm_auth --request-nt-key --domain=OA --username=wesley
+</pre>
+</div>
+<p>
+正常情况返回NT_STATUS_OK : Success (0x0)
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline10" class="outline-2">
+<h2 id="orgheadline10">Freeradius配置</h2>
+<div class="outline-text-2" id="text-orgheadline10">
+</div><div id="outline-container-orgheadline8" class="outline-3">
+<h3 id="orgheadline8">/etc/raddb/mods-enabled/ntlm_auth</h3>
+<div class="outline-text-3" id="text-orgheadline8">
+<p>
+#+BEGIN_EXAMPLE
+exec ntlm_auth {
+    wait = yes
+    program = "/usr/bin/ntlm_auth &#x2013;request-nt-key &#x2013;domain=OA.ABC.COM &#x2013;username=%{mschap:User-Name} &#x2013;password=%{User-Password}"
+}
+#+END_SRC
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline9" class="outline-3">
+<h3 id="orgheadline9">测试</h3>
+<div class="outline-text-3" id="text-orgheadline9">
+<div class="org-src-container">
+
+<pre class="src src-sh">radtest -t mschap -x -4 wesley 123456 localhost 10 testing123 0 127.0.0.1
+</pre>
+</div>
+</div>
+</div>
+</div>

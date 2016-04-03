@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width initial-scale=1" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>Freeradius ntlm_auth with microsoft active directory</title>
+    <meta name="description" content="Wonder is the beginning of wisdom">
+
+    <link rel="stylesheet" href="/theme/css/main.css">
+    <link rel="icon" href="/theme/icon/leaf.png">
+    <link rel="shortcut icon" href="/theme/icon/leaf.png">
+    <link rel="canonical" href="/network/freeradius-with-ad-ntlmauth.html">
+
+    <script src="/theme/js/jquery-2.1.1.min.js"></script>
+    <script src="/theme/js/default.js"></script>
+
+
+</head>
+
+<header>
+  <div class="sidebar">
+    <div align="center">
+      <div class="site-img">
+        <a href="/"><image src="/theme/icon/leaf.png"></a>
+      </div>
+      <a class="side-nav" href="/menu/posts.html">文章</a>
+      <a class="side-nav" href="/menu/categories.html">分类</a>
+      <a class="side-nav" href="/menu/tags.html">标签</a>
+    </div>
+    <div align="center">
+      <a class="side-nav" href="/menu/douban.html">豆瓣</a>
+      <a class="side-nav" href="/menu/favorite.html">收藏</a>
+      <a class="side-nav" href="/menu/about.html">关于</a>
+    </div>
+
+    <div class="side-toc">
+      <hr>
+      <div id="sidebar-toc">
+        <div align="center">
+          <br>
+          三千年读史<br>
+          不外功名利禄<br>
+          九万里悟道<br>
+          终归诗酒田园<br>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sidebar-toggler">
+    <div id="sidebar-status">
+
+    </div>
+  </div>
+</header>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+    <div class="site-title">
+      <a class="site-title" href="/">田园牧歌</a>
+    </div>
+  </div>
+
+  <div class="wrapper">
+  <div class="site-subtitle">
+    一花一世界，一叶一菩提。
+  </div>
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <div class="post">
+<!--
+  <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+-->
+  <script src="/theme/js/post.js"></script>
+
+  <header class="post-header">
+    <h1 class="post-title">Freeradius ntlm_auth with microsoft active directory</h1>
+    <p class="post-meta">2016年04月03日
+      <span class="author"> 田园牧歌 </span>
+    </p>
+    <p>
+    
+    <a class="post-tags" href="/resource/tags/freeradius.html">freeradius</a>
+    
+    </p>
+    <hr><br>
+  </header>
+
+  <article class="post-content">
+    <div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline1">安装服务</a></li>
+<li><a href="#orgheadline5">配置samba与winbind</a>
+<ul>
+<li><a href="#orgheadline2">/etc/samba/smb.conf</a></li>
+<li><a href="#orgheadline3">/etc/krb5.conf</a></li>
+<li><a href="#orgheadline4">/etc/nsswitch.conf</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline6">启用服务</a></li>
+<li><a href="#orgheadline7">测试</a></li>
+<li><a href="#orgheadline10">Freeradius配置</a>
+<ul>
+<li><a href="#orgheadline8">/etc/raddb/mods-enabled/ntlm_auth</a></li>
+<li><a href="#orgheadline9">测试</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<!--abstract-begin-->
+<p>
+Freeradius是一款开源的AAA认证服务器, 本文总结Freeradius如何通过NTLM_AUTH接口将微软AD用户作为AAA认证用户数据库。本案例在CentOS 7环境下测试通过。
+</p>
+<!--abstract-end-->
+
+<div id="outline-container-orgheadline1" class="outline-2">
+<h2 id="orgheadline1">安装服务</h2>
+<div class="outline-text-2" id="text-orgheadline1">
+<p>
+#+BEGIN_EXMAPLE
+yum -y install samba samba-client samba-winbind krb5-server
+#+END_EXAMPLE
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline5" class="outline-2">
+<h2 id="orgheadline5">配置samba与winbind</h2>
+<div class="outline-text-2" id="text-orgheadline5">
+</div><div id="outline-container-orgheadline2" class="outline-3">
+<h3 id="orgheadline2">/etc/samba/smb.conf</h3>
+<div class="outline-text-3" id="text-orgheadline2">
+<pre class="example">
+[global]
+    workgroup = OA
+    security = ads
+    winbind use default domain = no
+    passdb backend = tdbsam
+    password server = 1.1.1.1
+    realm = OA.ABC.COM
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orgheadline3" class="outline-3">
+<h3 id="orgheadline3">/etc/krb5.conf</h3>
+<div class="outline-text-3" id="text-orgheadline3">
+<pre class="example">
+[logging]
+  default = FILE:/var/log/krb5libs.log
+  kdc = FILE:/var/log/krb5kdc.log
+  admin_server = FILE:/var/log/kadmind.log
+
+[libdefaults]
+  dns_lookup_realm = false
+  ticket_lifetime = 24h
+  renew_lifetime = 7d
+  forwardable = true
+  rdns = false
+  default_realm = oa.abc.com
+  #default_ccache_name = KEYRING:persistent:%{uid}
+
+[realms]
+  oa.abc.com = {
+    kdc = 1.1.1.1:88
+    admin_server = 1.1.1.1:749
+  }
+
+[domain_realm]
+  .oa.abc.com = oa.abc.com
+  oa.abc.com = oa.abc.com
+
+[kdc]
+ profile = /var/kerberos/krb5kdc/kdc.conf
+[appdefaults]
+  pam = {
+    debug = false
+    ticket_lifetime = 36000
+    renew_lifetime = 36000
+    forwardable = true
+    krb4_convert = false
+  }
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orgheadline4" class="outline-3">
+<h3 id="orgheadline4">/etc/nsswitch.conf</h3>
+<div class="outline-text-3" id="text-orgheadline4">
+<pre class="example">
+passwd:     files sss winbind
+shadow:     files sss winbind
+group:      files sss winbind
+protocols:  files winbind
+services:   files sss winbind
+netgroup:   files sss winbind
+automount:  files winbind
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline6" class="outline-2">
+<h2 id="orgheadline6">启用服务</h2>
+<div class="outline-text-2" id="text-orgheadline6">
+<p>
+#+BEGIN_SRC sh
+systemctl enable smb
+systemctl enable winbind
+systemctl start smb
+systemctl start winbind
+#+END_SRC sh
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline7" class="outline-2">
+<h2 id="orgheadline7">测试</h2>
+<div class="outline-text-2" id="text-orgheadline7">
+<div class="org-src-container">
+
+<pre class="src src-sh">ntlm_auth --request-nt-key --domain=OA --username=wesley
+</pre>
+</div>
+<p>
+正常情况返回NT_STATUS_OK : Success (0x0)
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline10" class="outline-2">
+<h2 id="orgheadline10">Freeradius配置</h2>
+<div class="outline-text-2" id="text-orgheadline10">
+</div><div id="outline-container-orgheadline8" class="outline-3">
+<h3 id="orgheadline8">/etc/raddb/mods-enabled/ntlm_auth</h3>
+<div class="outline-text-3" id="text-orgheadline8">
+<p>
+#+BEGIN_EXAMPLE
+exec ntlm_auth {
+    wait = yes
+    program = "/usr/bin/ntlm_auth &#x2013;request-nt-key &#x2013;domain=OA.ABC.COM &#x2013;username=%{mschap:User-Name} &#x2013;password=%{User-Password}"
+}
+#+END_SRC
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline9" class="outline-3">
+<h3 id="orgheadline9">测试</h3>
+<div class="outline-text-3" id="text-orgheadline9">
+<div class="org-src-container">
+
+<pre class="src src-sh">radtest -t mschap -x -4 wesley 123456 localhost 10 testing123 0 127.0.0.1
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+
+    <hr><br>
+    <div class="post-prev">
+      <a class="post-nav" href="/linux/bonding-vlan-bridge.html">上一篇</a>
+    </div>
+    <div class="post-next">
+      <a class="post-nav" href="">下一篇</a>
+    </div>
+  </article>
+
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col-1">
+        <ul class="contact-list">
+          <li><a class="username" href="mailto:wlfqware#gmail.com">wlfqware#gmail.com</a></li>
+
+          
+        </ul>
+      </div>
+
+      <div class="footer-col-2">
+        <p class="text">Wonder is the beginning of wisdom</p>
+      </div>
+
+    </div>
+    <div class="footer-col-wrapper">
+      <div align="center">
+        &copy; 2014-2016 |
+          
+            <a class="username" href="https://github.com/wanglf">
+              <span class="icon  icon--github">
+                <svg viewBox="0 0 16 16">
+                  <path fill="#828282" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761 c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32 c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472 c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037 C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65 c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261 c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082 c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129 c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/>
+                </svg>
+              </span>
+              <span class="username">wanglf</span>
+            </a>
+          
+      </div>
+    </div>
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>
