@@ -5,8 +5,8 @@
     <description>Wonder is the beginning of wisdom</description>
     <link>/</link>
     <atom:link href="/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Sun, 03 Apr 2016 15:02:45 +0800</pubDate>
-    <lastBuildDate>Sun, 03 Apr 2016 15:02:45 +0800</lastBuildDate>
+    <pubDate>Sun, 03 Apr 2016 15:07:04 +0800</pubDate>
+    <lastBuildDate>Sun, 03 Apr 2016 15:07:04 +0800</lastBuildDate>
     <generator>Jekyll v2.5.3</generator>
     
       <item>
@@ -43,11 +43,9 @@ Freeradius是一款开源的AAA认证服务器, 本文总结Freeradius如何通�
 &lt;div id=&quot;outline-container-orgheadline1&quot; class=&quot;outline-2&quot;&gt;
 &lt;h2 id=&quot;orgheadline1&quot;&gt;安装服务&lt;/h2&gt;
 &lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline1&quot;&gt;
-&lt;p&gt;
-#+BEGIN_EXMAPLE
+&lt;pre class=&quot;example&quot;&gt;
 yum -y install samba samba-client samba-winbind krb5-server
-#+END_EXAMPLE
-&lt;/p&gt;
+&lt;/pre&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 
@@ -130,14 +128,14 @@ automount:  files winbind
 &lt;div id=&quot;outline-container-orgheadline6&quot; class=&quot;outline-2&quot;&gt;
 &lt;h2 id=&quot;orgheadline6&quot;&gt;启用服务&lt;/h2&gt;
 &lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline6&quot;&gt;
-&lt;p&gt;
-#+BEGIN_SRC sh
-systemctl enable smb
+&lt;div class=&quot;org-src-container&quot;&gt;
+
+&lt;pre class=&quot;src src-sh&quot;&gt;systemctl enable smb
 systemctl enable winbind
 systemctl start smb
 systemctl start winbind
-#+END_SRC sh
-&lt;/p&gt;
+&lt;/pre&gt;
+&lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 
@@ -161,14 +159,12 @@ systemctl start winbind
 &lt;/div&gt;&lt;div id=&quot;outline-container-orgheadline8&quot; class=&quot;outline-3&quot;&gt;
 &lt;h3 id=&quot;orgheadline8&quot;&gt;/etc/raddb/mods-enabled/ntlm_auth&lt;/h3&gt;
 &lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline8&quot;&gt;
-&lt;p&gt;
-#+BEGIN_EXAMPLE
+&lt;pre class=&quot;example&quot;&gt;
 exec ntlm_auth {
     wait = yes
-    program = &quot;/usr/bin/ntlm_auth &amp;#x2013;request-nt-key &amp;#x2013;domain=OA.ABC.COM &amp;#x2013;username=%{mschap:User-Name} &amp;#x2013;password=%{User-Password}&quot;
+    program = &quot;/usr/bin/ntlm_auth --request-nt-key --domain=OA.ABC.COM --username=%{mschap:User-Name} --password=%{User-Password}&quot;
 }
-#+END_SRC
-&lt;/p&gt;
+&lt;/pre&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 

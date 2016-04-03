@@ -36,11 +36,9 @@ Freeradius是一款开源的AAA认证服务器, 本文总结Freeradius如何通�
 <div id="outline-container-orgheadline1" class="outline-2">
 <h2 id="orgheadline1">安装服务</h2>
 <div class="outline-text-2" id="text-orgheadline1">
-<p>
-#+BEGIN_EXMAPLE
+<pre class="example">
 yum -y install samba samba-client samba-winbind krb5-server
-#+END_EXAMPLE
-</p>
+</pre>
 </div>
 </div>
 
@@ -123,14 +121,14 @@ automount:  files winbind
 <div id="outline-container-orgheadline6" class="outline-2">
 <h2 id="orgheadline6">启用服务</h2>
 <div class="outline-text-2" id="text-orgheadline6">
-<p>
-#+BEGIN_SRC sh
-systemctl enable smb
+<div class="org-src-container">
+
+<pre class="src src-sh">systemctl enable smb
 systemctl enable winbind
 systemctl start smb
 systemctl start winbind
-#+END_SRC sh
-</p>
+</pre>
+</div>
 </div>
 </div>
 
@@ -154,14 +152,12 @@ systemctl start winbind
 </div><div id="outline-container-orgheadline8" class="outline-3">
 <h3 id="orgheadline8">/etc/raddb/mods-enabled/ntlm_auth</h3>
 <div class="outline-text-3" id="text-orgheadline8">
-<p>
-#+BEGIN_EXAMPLE
+<pre class="example">
 exec ntlm_auth {
     wait = yes
-    program = "/usr/bin/ntlm_auth &#x2013;request-nt-key &#x2013;domain=OA.ABC.COM &#x2013;username=%{mschap:User-Name} &#x2013;password=%{User-Password}"
+    program = "/usr/bin/ntlm_auth --request-nt-key --domain=OA.ABC.COM --username=%{mschap:User-Name} --password=%{User-Password}"
 }
-#+END_SRC
-</p>
+</pre>
 </div>
 </div>
 
