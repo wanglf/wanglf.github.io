@@ -1,0 +1,146 @@
+---
+title: Solarized Color Scheme Setup
+tags: solarized
+layout: post
+categories: sysadmin
+---
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline1">iTerm2</a></li>
+<li><a href="#orgheadline2">Gnome-terminal</a></li>
+<li><a href="#orgheadline3">Guake</a></li>
+<li><a href="#orgheadline4">vim</a></li>
+<li><a href="#orgheadline7">dircolors-solarized</a>
+<ul>
+<li><a href="#orgheadline5">Linux</a></li>
+<li><a href="#orgheadline6">MAC</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline8">Terminal type</a></li>
+</ul>
+</div>
+</div>
+<!--abstract-begin-->
+<p>
+solarized是一种非常流行的配色方案，适用于常见的编辑器，如vim, emacs, 及常见仿真终端。本文纪录iterm2, gnome-terminal, guake, vim编辑器solarized的配置方法。
+</p>
+<!--abstract-end-->
+
+<div id="outline-container-orgheadline1" class="outline-2">
+<h2 id="orgheadline1">iTerm2</h2>
+<div class="outline-text-2" id="text-orgheadline1">
+<p>
+下载 <a href="https://github.com/altercation/solarized/tree/master/iterm2-colors-solarized">iterm2-colors-solarized</a> ，此处采用dark主题。
+</p>
+
+<p>
+Open iTerm2, open Preferences, click on the "Profiles" (formerly Addresses, formerly Bookmarks) icon in the preferences toolbar, then select the "colors" tab. Click on the "load presets" and select "import&#x2026;". Select the Solarized Light or Dark theme file.
+</p>
+
+<p>
+You have now loaded the Solarized color presets into iTerm 2, but haven't yet applied them. To apply them, simply select an existing profile from the profile list window on the left, or create a new profile. Then select the Solarized Dark or Solarized Light preset from the "Load Presets" drop down.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline2" class="outline-2">
+<h2 id="orgheadline2">Gnome-terminal</h2>
+<div class="outline-text-2" id="text-orgheadline2">
+<p>
+You need the dconf command (if you run a recent Gnome version).
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-sh">sudo apt-get install dconf-cli
+<span style="color: #058; font-weight: bold;">cd</span> /opt/git
+git clone git@github.com:Anthony25/gnome-terminal-colors-solarized.git
+<span style="color: #058; font-weight: bold;">cd</span> gnome-terminal-colors-solarized
+./install.sh
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline3" class="outline-2">
+<h2 id="orgheadline3">Guake</h2>
+<div class="outline-text-2" id="text-orgheadline3">
+<div class="org-src-container">
+
+<pre class="src src-sh"><span style="color: #058; font-weight: bold;">cd</span> /opt/git
+git clone git@github.com:coolwanglu/guake-colors-solarized.git
+<span style="color: #058; font-weight: bold;">cd</span> guake-colors-solarized
+./set_dark solarized
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline4" class="outline-2">
+<h2 id="orgheadline4">vim</h2>
+<div class="outline-text-2" id="text-orgheadline4">
+<p>
+in vimrc:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-vim">Plugin 'altercation/vim-colors-solarized'
+set background=dark
+colorscheme solarized
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline7" class="outline-2">
+<h2 id="orgheadline7">dircolors-solarized</h2>
+<div class="outline-text-2" id="text-orgheadline7">
+</div><div id="outline-container-orgheadline5" class="outline-3">
+<h3 id="orgheadline5">Linux</h3>
+<div class="outline-text-3" id="text-orgheadline5">
+<div class="org-src-container">
+
+<pre class="src src-sh"><span style="color: #058; font-weight: bold;">cd</span> /opt/git
+git clone git@github.com:seebi/dircolors-solarized.git
+cp /opt/git/dircolors-solarized/dircolors.256dark ~/.dircolors.256dark
+cat &gt;&gt; ~/.zshrc &lt;&lt; EOF
+<span style="font-weight: bold;">eval `dircolors ~/.dircolors.256dark`</span>
+<span style="font-weight: bold;">EOF</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline6" class="outline-3">
+<h3 id="orgheadline6">MAC</h3>
+<div class="outline-text-3" id="text-orgheadline6">
+<div class="org-src-container">
+
+<pre class="src src-sh"><span style="color: #058; font-weight: bold;">cd</span> /opt/git
+git clone git@github.com:seebi/dircolors-solarized.git
+cp /opt/git/dircolors-solarized/dircolors.256dark ~/.dircolors.256dark
+brew install coreutils
+cat &gt;&gt; ~/.zshrc &lt;&lt; EOF
+<span style="font-weight: bold;">eval `gdircolors ~/.dircolors.256dark`</span>
+<span style="font-weight: bold;">alias ls='gls --color=auto'</span>
+<span style="font-weight: bold;">EOF</span>
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline8" class="outline-2">
+<h2 id="orgheadline8">Terminal type</h2>
+<div class="outline-text-2" id="text-orgheadline8">
+<div class="org-src-container">
+
+<pre class="src src-sh"><span style="color: #058; font-weight: bold;">export</span> <span style="color: #007;">TERM</span>=xterm-256color        <span style="color: #633;"># </span><span style="color: #633;">for common 256 color terminals (e.g. gnome-terminal)</span>
+<span style="color: #058; font-weight: bold;">export</span> <span style="color: #007;">TERM</span>=screen-256color       <span style="color: #633;"># </span><span style="color: #633;">for a tmux -2 session (also for screen)</span>
+<span style="color: #058; font-weight: bold;">export</span> <span style="color: #007;">TERM</span>=rxvt-unicode-256color <span style="color: #633;"># </span><span style="color: #633;">for a colorful rxvt unicode session</span>
+</pre>
+</div>
+</div>
+</div>

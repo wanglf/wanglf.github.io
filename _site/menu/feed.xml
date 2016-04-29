@@ -5,9 +5,163 @@
     <description>Wonder is the beginning of wisdom</description>
     <link>/</link>
     <atom:link href="/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Sun, 03 Apr 2016 21:09:31 +0800</pubDate>
-    <lastBuildDate>Sun, 03 Apr 2016 21:09:31 +0800</lastBuildDate>
+    <pubDate>Fri, 29 Apr 2016 20:26:59 +0800</pubDate>
+    <lastBuildDate>Fri, 29 Apr 2016 20:26:59 +0800</lastBuildDate>
     <generator>Jekyll v2.5.3</generator>
+    
+      <item>
+        <title>Solarized Color Scheme Setup</title>
+        <description>&lt;div id=&quot;table-of-contents&quot;&gt;
+&lt;h2&gt;Table of Contents&lt;/h2&gt;
+&lt;div id=&quot;text-table-of-contents&quot;&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline1&quot;&gt;iTerm2&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline2&quot;&gt;Gnome-terminal&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline3&quot;&gt;Guake&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline4&quot;&gt;vim&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline7&quot;&gt;dircolors-solarized&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline5&quot;&gt;Linux&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline6&quot;&gt;MAC&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline8&quot;&gt;Terminal type&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;!--abstract-begin--&gt;
+&lt;p&gt;
+solarized是一种非常流行的配色方案，适用于常见的编辑器，如vim, emacs, 及常见仿真终端。本文纪录iterm2, gnome-terminal, guake, vim编辑器solarized的配置方法。
+&lt;/p&gt;
+&lt;!--abstract-end--&gt;
+
+&lt;div id=&quot;outline-container-orgheadline1&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline1&quot;&gt;iTerm2&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline1&quot;&gt;
+&lt;p&gt;
+下载 &lt;a href=&quot;https://github.com/altercation/solarized/tree/master/iterm2-colors-solarized&quot;&gt;iterm2-colors-solarized&lt;/a&gt; ，此处采用dark主题。
+&lt;/p&gt;
+
+&lt;p&gt;
+Open iTerm2, open Preferences, click on the &quot;Profiles&quot; (formerly Addresses, formerly Bookmarks) icon in the preferences toolbar, then select the &quot;colors&quot; tab. Click on the &quot;load presets&quot; and select &quot;import&amp;#x2026;&quot;. Select the Solarized Light or Dark theme file.
+&lt;/p&gt;
+
+&lt;p&gt;
+You have now loaded the Solarized color presets into iTerm 2, but haven&#39;t yet applied them. To apply them, simply select an existing profile from the profile list window on the left, or create a new profile. Then select the Solarized Dark or Solarized Light preset from the &quot;Load Presets&quot; drop down.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline2&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline2&quot;&gt;Gnome-terminal&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline2&quot;&gt;
+&lt;p&gt;
+You need the dconf command (if you run a recent Gnome version).
+&lt;/p&gt;
+
+&lt;div class=&quot;org-src-container&quot;&gt;
+
+&lt;pre class=&quot;src src-sh&quot;&gt;sudo apt-get install dconf-cli
+&lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;cd&lt;/span&gt; /opt/git
+git clone git@github.com:Anthony25/gnome-terminal-colors-solarized.git
+&lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;cd&lt;/span&gt; gnome-terminal-colors-solarized
+./install.sh
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline3&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline3&quot;&gt;Guake&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline3&quot;&gt;
+&lt;div class=&quot;org-src-container&quot;&gt;
+
+&lt;pre class=&quot;src src-sh&quot;&gt;&lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;cd&lt;/span&gt; /opt/git
+git clone git@github.com:coolwanglu/guake-colors-solarized.git
+&lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;cd&lt;/span&gt; guake-colors-solarized
+./set_dark solarized
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline4&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline4&quot;&gt;vim&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline4&quot;&gt;
+&lt;p&gt;
+in vimrc:
+&lt;/p&gt;
+&lt;div class=&quot;org-src-container&quot;&gt;
+
+&lt;pre class=&quot;src src-vim&quot;&gt;Plugin &#39;altercation/vim-colors-solarized&#39;
+set background=dark
+colorscheme solarized
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline7&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline7&quot;&gt;dircolors-solarized&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline7&quot;&gt;
+&lt;/div&gt;&lt;div id=&quot;outline-container-orgheadline5&quot; class=&quot;outline-3&quot;&gt;
+&lt;h3 id=&quot;orgheadline5&quot;&gt;Linux&lt;/h3&gt;
+&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline5&quot;&gt;
+&lt;div class=&quot;org-src-container&quot;&gt;
+
+&lt;pre class=&quot;src src-sh&quot;&gt;&lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;cd&lt;/span&gt; /opt/git
+git clone git@github.com:seebi/dircolors-solarized.git
+cp /opt/git/dircolors-solarized/dircolors.256dark ~/.dircolors.256dark
+cat &amp;gt;&amp;gt; ~/.zshrc &amp;lt;&amp;lt; EOF
+&lt;span style=&quot;font-weight: bold;&quot;&gt;eval `dircolors ~/.dircolors.256dark`&lt;/span&gt;
+&lt;span style=&quot;font-weight: bold;&quot;&gt;EOF&lt;/span&gt;
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline6&quot; class=&quot;outline-3&quot;&gt;
+&lt;h3 id=&quot;orgheadline6&quot;&gt;MAC&lt;/h3&gt;
+&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline6&quot;&gt;
+&lt;div class=&quot;org-src-container&quot;&gt;
+
+&lt;pre class=&quot;src src-sh&quot;&gt;&lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;cd&lt;/span&gt; /opt/git
+git clone git@github.com:seebi/dircolors-solarized.git
+cp /opt/git/dircolors-solarized/dircolors.256dark ~/.dircolors.256dark
+brew install coreutils
+cat &amp;gt;&amp;gt; ~/.zshrc &amp;lt;&amp;lt; EOF
+&lt;span style=&quot;font-weight: bold;&quot;&gt;eval `gdircolors ~/.dircolors.256dark`&lt;/span&gt;
+&lt;span style=&quot;font-weight: bold;&quot;&gt;alias ls=&#39;gls --color=auto&#39;&lt;/span&gt;
+&lt;span style=&quot;font-weight: bold;&quot;&gt;EOF&lt;/span&gt;
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline8&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline8&quot;&gt;Terminal type&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline8&quot;&gt;
+&lt;div class=&quot;org-src-container&quot;&gt;
+
+&lt;pre class=&quot;src src-sh&quot;&gt;&lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;export&lt;/span&gt; &lt;span style=&quot;color: #007;&quot;&gt;TERM&lt;/span&gt;=xterm-256color        &lt;span style=&quot;color: #633;&quot;&gt;# &lt;/span&gt;&lt;span style=&quot;color: #633;&quot;&gt;for common 256 color terminals (e.g. gnome-terminal)&lt;/span&gt;
+&lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;export&lt;/span&gt; &lt;span style=&quot;color: #007;&quot;&gt;TERM&lt;/span&gt;=screen-256color       &lt;span style=&quot;color: #633;&quot;&gt;# &lt;/span&gt;&lt;span style=&quot;color: #633;&quot;&gt;for a tmux -2 session (also for screen)&lt;/span&gt;
+&lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;export&lt;/span&gt; &lt;span style=&quot;color: #007;&quot;&gt;TERM&lt;/span&gt;=rxvt-unicode-256color &lt;span style=&quot;color: #633;&quot;&gt;# &lt;/span&gt;&lt;span style=&quot;color: #633;&quot;&gt;for a colorful rxvt unicode session&lt;/span&gt;
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+</description>
+        <pubDate>Fri, 29 Apr 2016 00:00:00 +0800</pubDate>
+        <link>/sysadmin/solarized-color-scheme.html</link>
+        <guid isPermaLink="true">/sysadmin/solarized-color-scheme.html</guid>
+        
+        <category>solarized</category>
+        
+        
+        <category>sysadmin</category>
+        
+      </item>
     
       <item>
         <title>软件随想录卷2-书摘</title>
@@ -1561,151 +1715,6 @@ set t_Co=256
         
         
         <category>editor</category>
-        
-      </item>
-    
-      <item>
-        <title>Git basic operation</title>
-        <description>&lt;div id=&quot;table-of-contents&quot;&gt;
-&lt;h2&gt;Table of Contents&lt;/h2&gt;
-&lt;div id=&quot;text-table-of-contents&quot;&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&quot;#orgheadline1&quot;&gt;flow chart&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#orgheadline2&quot;&gt;create project&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#orgheadline3&quot;&gt;stage,commit,push, tags&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#orgheadline4&quot;&gt;branches&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#orgheadline5&quot;&gt;rebase&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#orgheadline6&quot;&gt;git设置socks 代理&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;!--abstract-begin--&gt;
-&lt;p&gt;
-本文介绍git常用操作。
-&lt;/p&gt;
-&lt;!--abstract-end--&gt;
-
-&lt;div id=&quot;outline-container-orgheadline1&quot; class=&quot;outline-2&quot;&gt;
-&lt;h2 id=&quot;orgheadline1&quot;&gt;flow chart&lt;/h2&gt;
-&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline1&quot;&gt;
-&lt;div class=&quot;org-center&quot;&gt;
-
-&lt;div class=&quot;figure&quot;&gt;
-&lt;p&gt;&lt;img src=&quot;/resource/tools/fig/git/bg20150807.png&quot; alt=&quot;bg20150807.png&quot; /&gt;
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id=&quot;outline-container-orgheadline2&quot; class=&quot;outline-2&quot;&gt;
-&lt;h2 id=&quot;orgheadline2&quot;&gt;create project&lt;/h2&gt;
-&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline2&quot;&gt;
-&lt;div class=&quot;org-src-container&quot;&gt;
-
-&lt;pre class=&quot;src src-sh&quot;&gt;mkdir -p repo.git
-git init
-&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;div class=&quot;org-src-container&quot;&gt;
-
-&lt;pre class=&quot;src src-sh&quot;&gt;git clone url/filepath repo.git
-&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;div class=&quot;org-src-container&quot;&gt;
-
-&lt;pre class=&quot;src src-sh&quot;&gt;mkdir -p repo.git
-git init --bare
-&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;
-&lt;code&gt;notes: repo only, not allowed to see text content in file&lt;/code&gt;
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-
-&lt;div id=&quot;outline-container-orgheadline3&quot; class=&quot;outline-2&quot;&gt;
-&lt;h2 id=&quot;orgheadline3&quot;&gt;stage,commit,push, tags&lt;/h2&gt;
-&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline3&quot;&gt;
-&lt;div class=&quot;org-src-container&quot;&gt;
-
-&lt;pre class=&quot;src src-sh&quot;&gt;&lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;echo&lt;/span&gt; &lt;span style=&quot;color: #800;&quot;&gt;&quot;bin/&quot;&lt;/span&gt; &amp;gt; .gitignore
-&lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;echo&lt;/span&gt; &lt;span style=&quot;color: #800;&quot;&gt;&quot;*.o&quot;&lt;/span&gt; &amp;gt;&amp;gt; .gitignore
-git add README.md
-git add -A .
-git reset
-git commit -m &lt;span style=&quot;color: #800;&quot;&gt;&quot;1st commit&quot;&lt;/span&gt;
-git remote add origin git@github.com:/username/repo.git
-
-git tag -a v0.1.2 -m &amp;#8220;version0.1.2&amp;#8221;
-git tag -a v0.1.1 9fbc3d0 -m &lt;span style=&quot;color: #800;&quot;&gt;&quot;version0.1.1&quot;&lt;/span&gt;
-
-git push origin master
-&lt;/pre&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id=&quot;outline-container-orgheadline4&quot; class=&quot;outline-2&quot;&gt;
-&lt;h2 id=&quot;orgheadline4&quot;&gt;branches&lt;/h2&gt;
-&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline4&quot;&gt;
-&lt;div class=&quot;org-src-container&quot;&gt;
-
-&lt;pre class=&quot;src src-sh&quot;&gt;git checkout -b feature
-git checkout master
-git checkout master~2 Makefile
-rm -f hello.c
-git checkout hello.c
-git stash
-git stash list
-git stash pop
-&lt;/pre&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id=&quot;outline-container-orgheadline5&quot; class=&quot;outline-2&quot;&gt;
-&lt;h2 id=&quot;orgheadline5&quot;&gt;rebase&lt;/h2&gt;
-&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline5&quot;&gt;
-&lt;div class=&quot;org-src-container&quot;&gt;
-
-&lt;pre class=&quot;src src-sh&quot;&gt;git rebase -i origin/master
-git rebase -i HEAD~3
-&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;
-&lt;code&gt;rebase can be used to combine multiple commits into single one before push to remote repo&lt;/code&gt;
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id=&quot;outline-container-orgheadline6&quot; class=&quot;outline-2&quot;&gt;
-&lt;h2 id=&quot;orgheadline6&quot;&gt;git设置socks 代理&lt;/h2&gt;
-&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline6&quot;&gt;
-&lt;p&gt;
-vi ~/.ssh/config
-&lt;/p&gt;
-&lt;pre class=&quot;example&quot;&gt;
-Host github.com
-  User  git
-  ProxyCommand  nc -x localhost:1080 %h %p
-&lt;/pre&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-</description>
-        <pubDate>Fri, 07 Aug 2015 00:00:00 +0800</pubDate>
-        <link>/tools/git-basic-operation.html</link>
-        <guid isPermaLink="true">/tools/git-basic-operation.html</guid>
-        
-        <category>git</category>
-        
-        
-        <category>tools</category>
         
       </item>
     

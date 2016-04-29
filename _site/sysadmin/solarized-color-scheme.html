@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width initial-scale=1" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>Solarized Color Scheme Setup</title>
+    <meta name="description" content="Wonder is the beginning of wisdom">
+
+    <link rel="stylesheet" href="/theme/css/main.css">
+    <link rel="icon" href="/theme/icon/leaf.png">
+    <link rel="shortcut icon" href="/theme/icon/leaf.png">
+    <link rel="canonical" href="/sysadmin/solarized-color-scheme.html">
+
+    <script src="/theme/js/jquery-2.1.1.min.js"></script>
+    <script src="/theme/js/default.js"></script>
+
+
+</head>
+
+<header>
+  <div class="sidebar">
+    <div align="center">
+      <div class="site-img">
+        <a href="/"><image src="/theme/icon/leaf.png"></a>
+      </div>
+      <a class="side-nav" href="/menu/posts.html">文章</a>
+      <a class="side-nav" href="/menu/categories.html">分类</a>
+      <a class="side-nav" href="/menu/tags.html">标签</a>
+    </div>
+    <div align="center">
+      <a class="side-nav" href="/menu/douban.html">豆瓣</a>
+      <a class="side-nav" href="/menu/favorite.html">收藏</a>
+      <a class="side-nav" href="/menu/about.html">关于</a>
+    </div>
+
+    <div class="side-toc">
+      <hr>
+      <div id="sidebar-toc">
+        <div align="center">
+          <br>
+          三千年读史<br>
+          不外功名利禄<br>
+          九万里悟道<br>
+          终归诗酒田园<br>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sidebar-toggler">
+    <div id="sidebar-status">
+
+    </div>
+  </div>
+</header>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+    <div class="site-title">
+      <a class="site-title" href="/">田园牧歌</a>
+    </div>
+  </div>
+
+  <div class="wrapper">
+  <div class="site-subtitle">
+    一花一世界，一叶一菩提。
+  </div>
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <div class="post">
+<!--
+  <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+-->
+  <script src="/theme/js/post.js"></script>
+
+  <header class="post-header">
+    <h1 class="post-title">Solarized Color Scheme Setup</h1>
+    <p class="post-meta">2016年04月29日
+      <span class="author"> 田园牧歌 </span>
+    </p>
+    <p>
+    
+    <a class="post-tags" href="/resource/tags/solarized.html">solarized</a>
+    
+    </p>
+    <hr><br>
+  </header>
+
+  <article class="post-content">
+    <div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline1">iTerm2</a></li>
+<li><a href="#orgheadline2">Gnome-terminal</a></li>
+<li><a href="#orgheadline3">Guake</a></li>
+<li><a href="#orgheadline4">vim</a></li>
+<li><a href="#orgheadline7">dircolors-solarized</a>
+<ul>
+<li><a href="#orgheadline5">Linux</a></li>
+<li><a href="#orgheadline6">MAC</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline8">Terminal type</a></li>
+</ul>
+</div>
+</div>
+<!--abstract-begin-->
+<p>
+solarized是一种非常流行的配色方案，适用于常见的编辑器，如vim, emacs, 及常见仿真终端。本文纪录iterm2, gnome-terminal, guake, vim编辑器solarized的配置方法。
+</p>
+<!--abstract-end-->
+
+<div id="outline-container-orgheadline1" class="outline-2">
+<h2 id="orgheadline1">iTerm2</h2>
+<div class="outline-text-2" id="text-orgheadline1">
+<p>
+下载 <a href="https://github.com/altercation/solarized/tree/master/iterm2-colors-solarized">iterm2-colors-solarized</a> ，此处采用dark主题。
+</p>
+
+<p>
+Open iTerm2, open Preferences, click on the "Profiles" (formerly Addresses, formerly Bookmarks) icon in the preferences toolbar, then select the "colors" tab. Click on the "load presets" and select "import&#x2026;". Select the Solarized Light or Dark theme file.
+</p>
+
+<p>
+You have now loaded the Solarized color presets into iTerm 2, but haven't yet applied them. To apply them, simply select an existing profile from the profile list window on the left, or create a new profile. Then select the Solarized Dark or Solarized Light preset from the "Load Presets" drop down.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline2" class="outline-2">
+<h2 id="orgheadline2">Gnome-terminal</h2>
+<div class="outline-text-2" id="text-orgheadline2">
+<p>
+You need the dconf command (if you run a recent Gnome version).
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-sh">sudo apt-get install dconf-cli
+<span style="color: #058; font-weight: bold;">cd</span> /opt/git
+git clone git@github.com:Anthony25/gnome-terminal-colors-solarized.git
+<span style="color: #058; font-weight: bold;">cd</span> gnome-terminal-colors-solarized
+./install.sh
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline3" class="outline-2">
+<h2 id="orgheadline3">Guake</h2>
+<div class="outline-text-2" id="text-orgheadline3">
+<div class="org-src-container">
+
+<pre class="src src-sh"><span style="color: #058; font-weight: bold;">cd</span> /opt/git
+git clone git@github.com:coolwanglu/guake-colors-solarized.git
+<span style="color: #058; font-weight: bold;">cd</span> guake-colors-solarized
+./set_dark solarized
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline4" class="outline-2">
+<h2 id="orgheadline4">vim</h2>
+<div class="outline-text-2" id="text-orgheadline4">
+<p>
+in vimrc:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-vim">Plugin 'altercation/vim-colors-solarized'
+set background=dark
+colorscheme solarized
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline7" class="outline-2">
+<h2 id="orgheadline7">dircolors-solarized</h2>
+<div class="outline-text-2" id="text-orgheadline7">
+</div><div id="outline-container-orgheadline5" class="outline-3">
+<h3 id="orgheadline5">Linux</h3>
+<div class="outline-text-3" id="text-orgheadline5">
+<div class="org-src-container">
+
+<pre class="src src-sh"><span style="color: #058; font-weight: bold;">cd</span> /opt/git
+git clone git@github.com:seebi/dircolors-solarized.git
+cp /opt/git/dircolors-solarized/dircolors.256dark ~/.dircolors.256dark
+cat &gt;&gt; ~/.zshrc &lt;&lt; EOF
+<span style="font-weight: bold;">eval `dircolors ~/.dircolors.256dark`</span>
+<span style="font-weight: bold;">EOF</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline6" class="outline-3">
+<h3 id="orgheadline6">MAC</h3>
+<div class="outline-text-3" id="text-orgheadline6">
+<div class="org-src-container">
+
+<pre class="src src-sh"><span style="color: #058; font-weight: bold;">cd</span> /opt/git
+git clone git@github.com:seebi/dircolors-solarized.git
+cp /opt/git/dircolors-solarized/dircolors.256dark ~/.dircolors.256dark
+brew install coreutils
+cat &gt;&gt; ~/.zshrc &lt;&lt; EOF
+<span style="font-weight: bold;">eval `gdircolors ~/.dircolors.256dark`</span>
+<span style="font-weight: bold;">alias ls='gls --color=auto'</span>
+<span style="font-weight: bold;">EOF</span>
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline8" class="outline-2">
+<h2 id="orgheadline8">Terminal type</h2>
+<div class="outline-text-2" id="text-orgheadline8">
+<div class="org-src-container">
+
+<pre class="src src-sh"><span style="color: #058; font-weight: bold;">export</span> <span style="color: #007;">TERM</span>=xterm-256color        <span style="color: #633;"># </span><span style="color: #633;">for common 256 color terminals (e.g. gnome-terminal)</span>
+<span style="color: #058; font-weight: bold;">export</span> <span style="color: #007;">TERM</span>=screen-256color       <span style="color: #633;"># </span><span style="color: #633;">for a tmux -2 session (also for screen)</span>
+<span style="color: #058; font-weight: bold;">export</span> <span style="color: #007;">TERM</span>=rxvt-unicode-256color <span style="color: #633;"># </span><span style="color: #633;">for a colorful rxvt unicode session</span>
+</pre>
+</div>
+</div>
+</div>
+
+
+    <hr><br>
+    <div class="post-prev">
+      <a class="post-nav" href="/books/more-joel-on-software.html">上一篇</a>
+    </div>
+    <div class="post-next">
+      <a class="post-nav" href="">下一篇</a>
+    </div>
+  </article>
+
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col-1">
+        <ul class="contact-list">
+          <li><a class="username" href="mailto:wlfqware#gmail.com">wlfqware#gmail.com</a></li>
+
+          
+        </ul>
+      </div>
+
+      <div class="footer-col-2">
+        <p class="text">Wonder is the beginning of wisdom</p>
+      </div>
+
+    </div>
+    <div class="footer-col-wrapper">
+      <div align="center">
+        &copy; 2014-2016 |
+          
+            <a class="username" href="https://github.com/wanglf">
+              <span class="icon  icon--github">
+                <svg viewBox="0 0 16 16">
+                  <path fill="#828282" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761 c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32 c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472 c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037 C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65 c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261 c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082 c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129 c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/>
+                </svg>
+              </span>
+              <span class="username">wanglf</span>
+            </a>
+          
+      </div>
+    </div>
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>
