@@ -5,8 +5,8 @@
     <description>Wonder is the beginning of wisdom</description>
     <link>/</link>
     <atom:link href="/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Fri, 29 Apr 2016 20:26:59 +0800</pubDate>
-    <lastBuildDate>Fri, 29 Apr 2016 20:26:59 +0800</lastBuildDate>
+    <pubDate>Fri, 29 Apr 2016 21:12:00 +0800</pubDate>
+    <lastBuildDate>Fri, 29 Apr 2016 21:12:00 +0800</lastBuildDate>
     <generator>Jekyll v2.5.3</generator>
     
       <item>
@@ -25,7 +25,8 @@
 &lt;li&gt;&lt;a href=&quot;#orgheadline6&quot;&gt;MAC&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#orgheadline8&quot;&gt;Terminal type&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline8&quot;&gt;Tmux&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline9&quot;&gt;Terminal type&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/div&gt;
 &lt;/div&gt;
@@ -140,8 +141,49 @@ cat &amp;gt;&amp;gt; ~/.zshrc &amp;lt;&amp;lt; EOF
 &lt;/div&gt;
 
 &lt;div id=&quot;outline-container-orgheadline8&quot; class=&quot;outline-2&quot;&gt;
-&lt;h2 id=&quot;orgheadline8&quot;&gt;Terminal type&lt;/h2&gt;
+&lt;h2 id=&quot;orgheadline8&quot;&gt;Tmux&lt;/h2&gt;
 &lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline8&quot;&gt;
+&lt;pre class=&quot;example&quot;&gt;
+set -g default-terminal &quot;screen-256color&quot;
+set -g status-left &quot;#[fg=green]s#S:w#I.p#P#[default]&quot;
+
+#### COLOUR (Solarized dark
+# default statusbar colors
+set-option -g status-bg black #base02
+set-option -g status-fg yellow #yellow
+set-option -g status-attr default
+
+# default window title colors
+set-window-option -g window-status-fg brightblue #base0
+set-window-option -g window-status-bg default
+#set-window-option -g window-status-attr dim
+
+# active window title colors
+set-window-option -g window-status-current-fg brightred #orange
+set-window-option -g window-status-current-bg default
+#set-window-option -g window-status-current-attr bright
+
+# pane border
+set-option -g pane-border-fg black #base02
+set-option -g pane-active-border-fg brightgreen #base01
+
+# message text
+set-option -g message-bg black #base02
+set-option -g message-fg brightred #orange
+
+# pane number display
+set-option -g display-panes-active-colour blue #blue
+set-option -g display-panes-colour brightred #orange
+
+# clock
+set-window-option -g clock-mode-colour green #green
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline9&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline9&quot;&gt;Terminal type&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline9&quot;&gt;
 &lt;div class=&quot;org-src-container&quot;&gt;
 
 &lt;pre class=&quot;src src-sh&quot;&gt;&lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;export&lt;/span&gt; &lt;span style=&quot;color: #007;&quot;&gt;TERM&lt;/span&gt;=xterm-256color        &lt;span style=&quot;color: #633;&quot;&gt;# &lt;/span&gt;&lt;span style=&quot;color: #633;&quot;&gt;for common 256 color terminals (e.g. gnome-terminal)&lt;/span&gt;

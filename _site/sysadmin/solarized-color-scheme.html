@@ -113,7 +113,8 @@
 <li><a href="#orgheadline6">MAC</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline8">Terminal type</a></li>
+<li><a href="#orgheadline8">Tmux</a></li>
+<li><a href="#orgheadline9">Terminal type</a></li>
 </ul>
 </div>
 </div>
@@ -228,8 +229,49 @@ cat &gt;&gt; ~/.zshrc &lt;&lt; EOF
 </div>
 
 <div id="outline-container-orgheadline8" class="outline-2">
-<h2 id="orgheadline8">Terminal type</h2>
+<h2 id="orgheadline8">Tmux</h2>
 <div class="outline-text-2" id="text-orgheadline8">
+<pre class="example">
+set -g default-terminal "screen-256color"
+set -g status-left "#[fg=green]s#S:w#I.p#P#[default]"
+
+#### COLOUR (Solarized dark
+# default statusbar colors
+set-option -g status-bg black #base02
+set-option -g status-fg yellow #yellow
+set-option -g status-attr default
+
+# default window title colors
+set-window-option -g window-status-fg brightblue #base0
+set-window-option -g window-status-bg default
+#set-window-option -g window-status-attr dim
+
+# active window title colors
+set-window-option -g window-status-current-fg brightred #orange
+set-window-option -g window-status-current-bg default
+#set-window-option -g window-status-current-attr bright
+
+# pane border
+set-option -g pane-border-fg black #base02
+set-option -g pane-active-border-fg brightgreen #base01
+
+# message text
+set-option -g message-bg black #base02
+set-option -g message-fg brightred #orange
+
+# pane number display
+set-option -g display-panes-active-colour blue #blue
+set-option -g display-panes-colour brightred #orange
+
+# clock
+set-window-option -g clock-mode-colour green #green
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orgheadline9" class="outline-2">
+<h2 id="orgheadline9">Terminal type</h2>
+<div class="outline-text-2" id="text-orgheadline9">
 <div class="org-src-container">
 
 <pre class="src src-sh"><span style="color: #058; font-weight: bold;">export</span> <span style="color: #007;">TERM</span>=xterm-256color        <span style="color: #633;"># </span><span style="color: #633;">for common 256 color terminals (e.g. gnome-terminal)</span>
