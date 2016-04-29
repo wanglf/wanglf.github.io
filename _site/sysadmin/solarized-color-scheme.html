@@ -114,13 +114,14 @@
 </ul>
 </li>
 <li><a href="#orgheadline8">Tmux</a></li>
-<li><a href="#orgheadline9">Terminal type</a></li>
+<li><a href="#orgheadline9">SecureCRT</a></li>
+<li><a href="#orgheadline10">Terminal type</a></li>
 </ul>
 </div>
 </div>
 <!--abstract-begin-->
 <p>
-solarized是一种非常流行的配色方案，适用于常见的编辑器，如vim, emacs, 及常见仿真终端。本文纪录iterm2, gnome-terminal, guake, vim编辑器solarized的配置方法。
+solarized是一种非常流行的配色方案，适用于常见的编辑器，如vim, emacs, 及常见仿真终端。本文纪录iterm2, gnome-terminal, guake, SecureCRT, Tmux,  vim编辑器solarized的配置方法。
 </p>
 <!--abstract-end-->
 
@@ -270,8 +271,18 @@ set-window-option -g clock-mode-colour green #green
 </div>
 
 <div id="outline-container-orgheadline9" class="outline-2">
-<h2 id="orgheadline9">Terminal type</h2>
+<h2 id="orgheadline9">SecureCRT</h2>
 <div class="outline-text-2" id="text-orgheadline9">
+<ul class="org-ul">
+<li><a href="https://raw.githubusercontent.com/wanglf/dotfiles/master/securecrt/Global.ini">Global.ini</a></li>
+<li><a href="https://raw.githubusercontent.com/wanglf/dotfiles/master/securecrt/Color%20Schemes.ini">Color Schemes.ini</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgheadline10" class="outline-2">
+<h2 id="orgheadline10">Terminal type</h2>
+<div class="outline-text-2" id="text-orgheadline10">
 <div class="org-src-container">
 
 <pre class="src src-sh"><span style="color: #058; font-weight: bold;">export</span> <span style="color: #007;">TERM</span>=xterm-256color        <span style="color: #633;"># </span><span style="color: #633;">for common 256 color terminals (e.g. gnome-terminal)</span>

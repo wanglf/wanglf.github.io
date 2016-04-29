@@ -5,8 +5,8 @@
     <description>Wonder is the beginning of wisdom</description>
     <link>/</link>
     <atom:link href="/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Fri, 29 Apr 2016 21:12:00 +0800</pubDate>
-    <lastBuildDate>Fri, 29 Apr 2016 21:12:00 +0800</lastBuildDate>
+    <pubDate>Fri, 29 Apr 2016 21:22:13 +0800</pubDate>
+    <lastBuildDate>Fri, 29 Apr 2016 21:22:13 +0800</lastBuildDate>
     <generator>Jekyll v2.5.3</generator>
     
       <item>
@@ -26,13 +26,14 @@
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;li&gt;&lt;a href=&quot;#orgheadline8&quot;&gt;Tmux&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#orgheadline9&quot;&gt;Terminal type&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline9&quot;&gt;SecureCRT&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline10&quot;&gt;Terminal type&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;!--abstract-begin--&gt;
 &lt;p&gt;
-solarized是一种非常流行的配色方案，适用于常见的编辑器，如vim, emacs, 及常见仿真终端。本文纪录iterm2, gnome-terminal, guake, vim编辑器solarized的配置方法。
+solarized是一种非常流行的配色方案，适用于常见的编辑器，如vim, emacs, 及常见仿真终端。本文纪录iterm2, gnome-terminal, guake, SecureCRT, Tmux,  vim编辑器solarized的配置方法。
 &lt;/p&gt;
 &lt;!--abstract-end--&gt;
 
@@ -182,8 +183,18 @@ set-window-option -g clock-mode-colour green #green
 &lt;/div&gt;
 
 &lt;div id=&quot;outline-container-orgheadline9&quot; class=&quot;outline-2&quot;&gt;
-&lt;h2 id=&quot;orgheadline9&quot;&gt;Terminal type&lt;/h2&gt;
+&lt;h2 id=&quot;orgheadline9&quot;&gt;SecureCRT&lt;/h2&gt;
 &lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline9&quot;&gt;
+&lt;ul class=&quot;org-ul&quot;&gt;
+&lt;li&gt;&lt;a href=&quot;https://raw.githubusercontent.com/wanglf/dotfiles/master/securecrt/Global.ini&quot;&gt;Global.ini&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://raw.githubusercontent.com/wanglf/dotfiles/master/securecrt/Color%20Schemes.ini&quot;&gt;Color Schemes.ini&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline10&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline10&quot;&gt;Terminal type&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline10&quot;&gt;
 &lt;div class=&quot;org-src-container&quot;&gt;
 
 &lt;pre class=&quot;src src-sh&quot;&gt;&lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;export&lt;/span&gt; &lt;span style=&quot;color: #007;&quot;&gt;TERM&lt;/span&gt;=xterm-256color        &lt;span style=&quot;color: #633;&quot;&gt;# &lt;/span&gt;&lt;span style=&quot;color: #633;&quot;&gt;for common 256 color terminals (e.g. gnome-terminal)&lt;/span&gt;
