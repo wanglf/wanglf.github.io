@@ -5,8 +5,8 @@
     <description>Wonder is the beginning of wisdom</description>
     <link>/</link>
     <atom:link href="/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Fri, 29 Apr 2016 21:22:13 +0800</pubDate>
-    <lastBuildDate>Fri, 29 Apr 2016 21:22:13 +0800</lastBuildDate>
+    <pubDate>Mon, 02 May 2016 18:23:03 +0800</pubDate>
+    <lastBuildDate>Mon, 02 May 2016 18:23:03 +0800</lastBuildDate>
     <generator>Jekyll v2.5.3</generator>
     
       <item>
@@ -28,6 +28,12 @@
 &lt;li&gt;&lt;a href=&quot;#orgheadline8&quot;&gt;Tmux&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&quot;#orgheadline9&quot;&gt;SecureCRT&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&quot;#orgheadline10&quot;&gt;Terminal type&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline13&quot;&gt;Screenshot&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline11&quot;&gt;iTerm2&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline12&quot;&gt;dircolor&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/div&gt;
 &lt;/div&gt;
@@ -201,6 +207,36 @@ set-window-option -g clock-mode-colour green #green
 &lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;export&lt;/span&gt; &lt;span style=&quot;color: #007;&quot;&gt;TERM&lt;/span&gt;=screen-256color       &lt;span style=&quot;color: #633;&quot;&gt;# &lt;/span&gt;&lt;span style=&quot;color: #633;&quot;&gt;for a tmux -2 session (also for screen)&lt;/span&gt;
 &lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;export&lt;/span&gt; &lt;span style=&quot;color: #007;&quot;&gt;TERM&lt;/span&gt;=rxvt-unicode-256color &lt;span style=&quot;color: #633;&quot;&gt;# &lt;/span&gt;&lt;span style=&quot;color: #633;&quot;&gt;for a colorful rxvt unicode session&lt;/span&gt;
 &lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline13&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline13&quot;&gt;Screenshot&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline13&quot;&gt;
+&lt;/div&gt;&lt;div id=&quot;outline-container-orgheadline11&quot; class=&quot;outline-3&quot;&gt;
+&lt;h3 id=&quot;orgheadline11&quot;&gt;iTerm2&lt;/h3&gt;
+&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline11&quot;&gt;
+&lt;div class=&quot;org-center&quot;&gt;
+
+&lt;div class=&quot;figure&quot;&gt;
+&lt;p&gt;&lt;img src=&quot;/resource/sysadmin/fig/iterm2_solarized.png&quot; alt=&quot;iterm2_solarized.png&quot; /&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline12&quot; class=&quot;outline-3&quot;&gt;
+&lt;h3 id=&quot;orgheadline12&quot;&gt;dircolor&lt;/h3&gt;
+&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline12&quot;&gt;
+&lt;div class=&quot;org-center&quot;&gt;
+
+&lt;div class=&quot;figure&quot;&gt;
+&lt;p&gt;&lt;img src=&quot;/resource/sysadmin/fig/dircolor_solarized.png&quot; alt=&quot;dircolor_solarized.png&quot; /&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
