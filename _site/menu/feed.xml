@@ -5,9 +5,305 @@
     <description>Wonder is the beginning of wisdom</description>
     <link>/</link>
     <atom:link href="/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Mon, 23 May 2016 13:02:40 +0800</pubDate>
-    <lastBuildDate>Mon, 23 May 2016 13:02:40 +0800</lastBuildDate>
+    <pubDate>Sun, 29 May 2016 17:59:36 +0800</pubDate>
+    <lastBuildDate>Sun, 29 May 2016 17:59:36 +0800</lastBuildDate>
     <generator>Jekyll v2.5.3</generator>
+    
+      <item>
+        <title>用Ansible配置思科网络设备</title>
+        <description>&lt;div id=&quot;table-of-contents&quot;&gt;
+&lt;h2&gt;Table of Contents&lt;/h2&gt;
+&lt;div id=&quot;text-table-of-contents&quot;&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline3&quot;&gt;环境准备&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline1&quot;&gt;deploy端&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline2&quot;&gt;目标机器&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline10&quot;&gt;ansible playbook&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline4&quot;&gt;hosts&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline5&quot;&gt;directory layout&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline6&quot;&gt;site.yml&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline7&quot;&gt;tasks/main.yml&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline8&quot;&gt;vars/main.yml&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline9&quot;&gt;templates/config.j2&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;!--abstract-begin--&gt;
+&lt;p&gt;
+ansible是个什么东西呢？官方的title是“Ansible is Simple IT Automation”——简单的自动化IT工具。这个工具的目标有这么几项：让我们自动化部署APP；自动化管理配置项；自动化的持续交付。Ansible一般通过ssh协议实现linux服务器的管理，但从2.1版本开始，ansible core modules加入了对cisco ios设备的支持，对应的模块为ios_command, ios_config, ios_template。
+&lt;/p&gt;
+&lt;!--abstract-end--&gt;
+
+&lt;div id=&quot;outline-container-orgheadline3&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline3&quot;&gt;环境准备&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline3&quot;&gt;
+&lt;/div&gt;&lt;div id=&quot;outline-container-orgheadline1&quot; class=&quot;outline-3&quot;&gt;
+&lt;h3 id=&quot;orgheadline1&quot;&gt;deploy端&lt;/h3&gt;
+&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline1&quot;&gt;
+&lt;p&gt;
+确认ansible的版本高于2.1
+&lt;/p&gt;
+&lt;pre class=&quot;example&quot;&gt;
+ansible --version
+ansible 2.2.0 (devel f961f9f4d0) last updated 2016/05/28 09:56:33 (GMT +800)
+  lib/ansible/modules/core: (detached HEAD 90e8a36d4c) last updated 2016/05/28 10:23:02 (GMT +800)
+  lib/ansible/modules/extras: (detached HEAD 0e4a023a7e) last updated 2016/05/28 10:23:37 (GMT +800)
+  config file = /etc/ansible/ansible.cfg
+  configured module search path = Default w/o overrides
+&lt;/pre&gt;
+
+&lt;p&gt;
+如果yum仓库的版本低于2.1，可以通过如下方式从源码安装:
+&lt;/p&gt;
+
+&lt;div class=&quot;org-src-container&quot;&gt;
+
+&lt;pre class=&quot;src src-sh&quot;&gt;&lt;span style=&quot;color: #633;&quot;&gt;#&lt;/span&gt;&lt;span style=&quot;color: #633;&quot;&gt;!/bin/&lt;/span&gt;&lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;sh&lt;/span&gt;
+&lt;span style=&quot;color: #633;&quot;&gt;# &lt;/span&gt;&lt;span style=&quot;color: #633;&quot;&gt;shell script to install ansible from git repo or upgrade&lt;/span&gt;
+
+&lt;span style=&quot;color: #007;&quot;&gt;count&lt;/span&gt;=$&lt;span style=&quot;color: #007;&quot;&gt;#&lt;/span&gt;
+&lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;if&lt;/span&gt; [ $&lt;span style=&quot;color: #007;&quot;&gt;count&lt;/span&gt; -ne 1 ]; &lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;then&lt;/span&gt;
+    &lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;echo&lt;/span&gt; &lt;span style=&quot;color: #800;&quot;&gt;&quot;usage: setup.sh install|update&quot;&lt;/span&gt;
+    &lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;exit&lt;/span&gt; 1
+&lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;fi&lt;/span&gt;
+
+&lt;span style=&quot;color: #007;&quot;&gt;param&lt;/span&gt;=$&lt;span style=&quot;color: #007;&quot;&gt;1&lt;/span&gt;
+&lt;span style=&quot;color: #007;&quot;&gt;repodir&lt;/span&gt;=/opt/git
+&lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;cd&lt;/span&gt; $&lt;span style=&quot;color: #007;&quot;&gt;repodir&lt;/span&gt;
+&lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;if&lt;/span&gt; [ $&lt;span style=&quot;color: #007;&quot;&gt;param&lt;/span&gt; == &lt;span style=&quot;color: #800;&quot;&gt;&#39;install&#39;&lt;/span&gt; ]; &lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;then&lt;/span&gt;
+    git clone git://github.com/ansible/ansible.git --recursive
+    &lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;cd&lt;/span&gt; ansible
+    &lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;source&lt;/span&gt; ./hacking/env-setup
+    &lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;exit&lt;/span&gt; 0
+&lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;fi&lt;/span&gt;
+
+&lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;if&lt;/span&gt; [ $&lt;span style=&quot;color: #007;&quot;&gt;param&lt;/span&gt; == &lt;span style=&quot;color: #800;&quot;&gt;&#39;update&#39;&lt;/span&gt; ]; &lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;then&lt;/span&gt;
+    &lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;cd&lt;/span&gt; ansible
+    git pull --rebase
+    git submodule update --init --recursive
+    &lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;exit&lt;/span&gt; 0
+&lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;fi&lt;/span&gt;
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline2&quot; class=&quot;outline-3&quot;&gt;
+&lt;h3 id=&quot;orgheadline2&quot;&gt;目标机器&lt;/h3&gt;
+&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline2&quot;&gt;
+&lt;p&gt;
+确认思科路由器配置了ssh服务
+&lt;/p&gt;
+&lt;pre class=&quot;example&quot;&gt;
+ip domain name xyz.com
+crypto key generate rsa modulus 1024
+line vty 0 4
+  transport input telnet ssh
+end
+wr
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline10&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline10&quot;&gt;ansible playbook&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline10&quot;&gt;
+&lt;/div&gt;&lt;div id=&quot;outline-container-orgheadline4&quot; class=&quot;outline-3&quot;&gt;
+&lt;h3 id=&quot;orgheadline4&quot;&gt;hosts&lt;/h3&gt;
+&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline4&quot;&gt;
+&lt;pre class=&quot;example&quot;&gt;
+[cisco]
+r1
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline5&quot; class=&quot;outline-3&quot;&gt;
+&lt;h3 id=&quot;orgheadline5&quot;&gt;directory layout&lt;/h3&gt;
+&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline5&quot;&gt;
+&lt;pre class=&quot;example&quot;&gt;
+find cisco_ios
+cisco_ios
+cisco_ios/vars
+cisco_ios/vars/main.yml
+cisco_ios/tasks
+cisco_ios/tasks/main.yml
+cisco_ios/templates
+cisco_ios/templates/config.j2
+cisco_ios/site.yml
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id=&quot;outline-container-orgheadline6&quot; class=&quot;outline-3&quot;&gt;
+&lt;h3 id=&quot;orgheadline6&quot;&gt;site.yml&lt;/h3&gt;
+&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline6&quot;&gt;
+&lt;div class=&quot;org-src-container&quot;&gt;
+
+&lt;pre class=&quot;src src-yaml&quot;&gt;- &lt;span style=&quot;color: #007;&quot;&gt;name&lt;/span&gt;: change and show running-config on cisco ios device
+  &lt;span style=&quot;color: #007;&quot;&gt;hosts&lt;/span&gt;:
+  - cisco
+  &lt;span style=&quot;color: #007;&quot;&gt;gather_facts&lt;/span&gt;: &lt;span style=&quot;color: #046; font-weight: bold;&quot;&gt;no&lt;/span&gt;
+  &lt;span style=&quot;color: #007;&quot;&gt;connection&lt;/span&gt;: local
+  &lt;span style=&quot;color: #007;&quot;&gt;roles&lt;/span&gt;:
+  - cisco_ios
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline7&quot; class=&quot;outline-3&quot;&gt;
+&lt;h3 id=&quot;orgheadline7&quot;&gt;tasks/main.yml&lt;/h3&gt;
+&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline7&quot;&gt;
+&lt;div class=&quot;org-src-container&quot;&gt;
+
+&lt;pre class=&quot;src src-yaml&quot;&gt;&lt;span style=&quot;color: #633;&quot;&gt;---&lt;/span&gt;
+- &lt;span style=&quot;color: #007;&quot;&gt;name&lt;/span&gt;: define provider
+  &lt;span style=&quot;color: #007;&quot;&gt;set_fact&lt;/span&gt;:
+    &lt;span style=&quot;color: #007;&quot;&gt;provider&lt;/span&gt;:
+      &lt;span style=&quot;color: #007;&quot;&gt;host&lt;/span&gt;: &lt;span style=&quot;color: #800;&quot;&gt;&quot;&quot;&lt;/span&gt;
+      &lt;span style=&quot;color: #007;&quot;&gt;username&lt;/span&gt;: &lt;span style=&quot;color: #800;&quot;&gt;&quot;&quot;&lt;/span&gt;
+      &lt;span style=&quot;color: #007;&quot;&gt;password&lt;/span&gt;: &lt;span style=&quot;color: #800;&quot;&gt;&quot;&quot;&lt;/span&gt;
+
+- &lt;span style=&quot;color: #007;&quot;&gt;name&lt;/span&gt;: run show commands with ios_command
+  &lt;span style=&quot;color: #007;&quot;&gt;ios_command&lt;/span&gt;:
+    &lt;span style=&quot;color: #007;&quot;&gt;provider&lt;/span&gt;: &lt;span style=&quot;color: #800;&quot;&gt;&quot;&quot;&lt;/span&gt;
+    &lt;span style=&quot;color: #007;&quot;&gt;commands&lt;/span&gt;:
+      - show version
+      - show ip interface brief
+      - show inventory
+      - show running | include logging
+  &lt;span style=&quot;color: #007;&quot;&gt;register&lt;/span&gt;: show_result
+
+- &lt;span style=&quot;color: #007;&quot;&gt;debug&lt;/span&gt;: var=show_result.stdout_lines
+
+- &lt;span style=&quot;color: #007;&quot;&gt;name&lt;/span&gt;: change syslog server with ios_config
+  &lt;span style=&quot;color: #007;&quot;&gt;ios_config&lt;/span&gt;:
+    &lt;span style=&quot;color: #007;&quot;&gt;provider&lt;/span&gt;: &lt;span style=&quot;color: #800;&quot;&gt;&quot;&quot;&lt;/span&gt;
+    &lt;span style=&quot;color: #007;&quot;&gt;authorize&lt;/span&gt;: &lt;span style=&quot;color: #046; font-weight: bold;&quot;&gt;yes&lt;/span&gt;
+    &lt;span style=&quot;color: #007;&quot;&gt;lines&lt;/span&gt;:
+      - logging 
+      - logging 
+    &lt;span style=&quot;color: #007;&quot;&gt;replace&lt;/span&gt;: line
+    &lt;span style=&quot;color: #007;&quot;&gt;match&lt;/span&gt;: line
+    &lt;span style=&quot;color: #007;&quot;&gt;before&lt;/span&gt;:
+      - no logging 
+      - no logging 
+    &lt;span style=&quot;color: #007;&quot;&gt;force&lt;/span&gt;: &lt;span style=&quot;color: #046; font-weight: bold;&quot;&gt;true&lt;/span&gt;
+
+- &lt;span style=&quot;color: #007;&quot;&gt;name&lt;/span&gt;: run show logging after change with ios_config
+  &lt;span style=&quot;color: #007;&quot;&gt;ios_command&lt;/span&gt;:
+    &lt;span style=&quot;color: #007;&quot;&gt;provider&lt;/span&gt;: &lt;span style=&quot;color: #800;&quot;&gt;&quot;&quot;&lt;/span&gt;
+    &lt;span style=&quot;color: #007;&quot;&gt;commands&lt;/span&gt;:
+      - show logging
+  &lt;span style=&quot;color: #007;&quot;&gt;register&lt;/span&gt;: after_change_syslog
+
+- &lt;span style=&quot;color: #007;&quot;&gt;debug&lt;/span&gt;: var=after_change_syslog.stdout_lines
+
+- &lt;span style=&quot;color: #007;&quot;&gt;name&lt;/span&gt;: change syslog server with ios_template
+  &lt;span style=&quot;color: #007;&quot;&gt;ios_template&lt;/span&gt;:
+    &lt;span style=&quot;color: #007;&quot;&gt;host&lt;/span&gt;: &lt;span style=&quot;color: #800;&quot;&gt;&quot;&quot;&lt;/span&gt;
+    &lt;span style=&quot;color: #007;&quot;&gt;username&lt;/span&gt;: &lt;span style=&quot;color: #800;&quot;&gt;&quot;&quot;&lt;/span&gt;
+    &lt;span style=&quot;color: #007;&quot;&gt;password&lt;/span&gt;: &lt;span style=&quot;color: #800;&quot;&gt;&quot;&quot;&lt;/span&gt;
+    &lt;span style=&quot;color: #007;&quot;&gt;src&lt;/span&gt;: config.j2
+    &lt;span style=&quot;color: #007;&quot;&gt;force&lt;/span&gt;: &lt;span style=&quot;color: #046; font-weight: bold;&quot;&gt;true&lt;/span&gt;
+
+- &lt;span style=&quot;color: #007;&quot;&gt;name&lt;/span&gt;: run &lt;span style=&quot;color: #800;&quot;&gt;&quot;show running | include logging&quot;&lt;/span&gt; after change made
+  &lt;span style=&quot;color: #007;&quot;&gt;ios_command&lt;/span&gt;:
+    &lt;span style=&quot;color: #007;&quot;&gt;provider&lt;/span&gt;: &lt;span style=&quot;color: #800;&quot;&gt;&quot;&quot;&lt;/span&gt;
+    &lt;span style=&quot;color: #007;&quot;&gt;commands&lt;/span&gt;:
+      - show running | include logging
+  &lt;span style=&quot;color: #007;&quot;&gt;register&lt;/span&gt;: syslogsrv_list
+
+- &lt;span style=&quot;color: #007;&quot;&gt;debug&lt;/span&gt;: var=syslogsrv_list.stdout_lines
+
+- &lt;span style=&quot;color: #007;&quot;&gt;name&lt;/span&gt;: save running-config to startup-config
+  &lt;span style=&quot;color: #007;&quot;&gt;ios_command&lt;/span&gt;:
+    &lt;span style=&quot;color: #007;&quot;&gt;provider&lt;/span&gt;: &lt;span style=&quot;color: #800;&quot;&gt;&quot;&quot;&lt;/span&gt;
+    &lt;span style=&quot;color: #007;&quot;&gt;commands&lt;/span&gt;:
+      - write
+  &lt;span style=&quot;color: #007;&quot;&gt;register&lt;/span&gt;: write_output
+
+- &lt;span style=&quot;color: #007;&quot;&gt;debug&lt;/span&gt;: var=write_output.stdout_lines
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline8&quot; class=&quot;outline-3&quot;&gt;
+&lt;h3 id=&quot;orgheadline8&quot;&gt;vars/main.yml&lt;/h3&gt;
+&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline8&quot;&gt;
+&lt;div class=&quot;org-src-container&quot;&gt;
+
+&lt;pre class=&quot;src src-yaml&quot;&gt;&lt;span style=&quot;color: #007;&quot;&gt;username&lt;/span&gt;: admin
+&lt;span style=&quot;color: #007;&quot;&gt;password&lt;/span&gt;: password123
+&lt;span style=&quot;color: #007;&quot;&gt;syslogsrv01&lt;/span&gt;: 172.168.10.1
+&lt;span style=&quot;color: #007;&quot;&gt;syslogsrv02&lt;/span&gt;: 172.168.10.2
+&lt;span style=&quot;color: #007;&quot;&gt;syslogsrv03&lt;/span&gt;: 172.168.10.3
+&lt;span style=&quot;color: #007;&quot;&gt;syslogsrv04&lt;/span&gt;: 172.168.10.4
+&lt;span style=&quot;color: #007;&quot;&gt;ntpsrv01&lt;/span&gt;: 172.168.10.1
+&lt;span style=&quot;color: #007;&quot;&gt;ntpsrv02&lt;/span&gt;: 172.168.10.2
+&lt;span style=&quot;color: #007;&quot;&gt;ntpsrv03&lt;/span&gt;: 172.168.10.3
+&lt;span style=&quot;color: #007;&quot;&gt;ntpsrv04&lt;/span&gt;: 172.168.10.4
+&lt;span style=&quot;color: #007;&quot;&gt;ntpsrv05&lt;/span&gt;: 172.168.10.5
+&lt;span style=&quot;color: #007;&quot;&gt;ntpsrv06&lt;/span&gt;: 172.168.10.6
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline9&quot; class=&quot;outline-3&quot;&gt;
+&lt;h3 id=&quot;orgheadline9&quot;&gt;templates/config.j2&lt;/h3&gt;
+&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline9&quot;&gt;
+&lt;pre class=&quot;example&quot;&gt;
+
+service tcp-keepalives-in
+service tcp-keepalives-out
+service timestamps debug datetime localtime
+service timestamps log datetime localtime
+service password-encryption
+logging buffered 512000
+clock timezone Beijing 8
+no ip source-route
+no ip domain lookup
+ip domain name xyz.com
+no ip http server
+no ip http secure-server
+
+!
+logging {{syslogsrv01}}
+logging {{syslogsrv02}}
+!
+snmp-server community {{community}} RO
+snmp-server ifindex persist
+ntp server {{ntpsrv01}}
+ntp server {{ntpsrv02}}
+no ntp server {{ntpsrv03}}
+no ntp server {{ntpsrv04}}
+no ntp server {{ntpsrv05}}
+no ntp server {{ntpsrv06}}
+
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+</description>
+        <pubDate>Sun, 29 May 2016 00:00:00 +0800</pubDate>
+        <link>/network/config-cisco-router-with-ansible.html</link>
+        <guid isPermaLink="true">/network/config-cisco-router-with-ansible.html</guid>
+        
+        <category>ansible</category>
+        
+        
+        <category>network</category>
+        
+      </item>
     
       <item>
         <title>Solarized Color Scheme Setup</title>
@@ -1544,263 +1840,6 @@ jekyll build
         <guid isPermaLink="true">/editor/blogging-with-org-mode-and-jekyll.html</guid>
         
         <category>emacs</category>
-        
-        
-        <category>editor</category>
-        
-      </item>
-    
-      <item>
-        <title>我的vim工作环境</title>
-        <description>&lt;div id=&quot;table-of-contents&quot;&gt;
-&lt;h2&gt;Table of Contents&lt;/h2&gt;
-&lt;div id=&quot;text-table-of-contents&quot;&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&quot;#orgheadline1&quot;&gt;通过vundle管理插件&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#orgheadline8&quot;&gt;常用插件&lt;/a&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&quot;#orgheadline2&quot;&gt;vim-airline&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#orgheadline3&quot;&gt;vim-fugitive&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#orgheadline4&quot;&gt;nerdtree&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#orgheadline5&quot;&gt;nerdtreeCommenter&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#orgheadline6&quot;&gt;delimitMate&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#orgheadline7&quot;&gt;vim-markdown&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#orgheadline9&quot;&gt;完整的vimrc文件&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;!--abstract-begin--&gt;
-&lt;p&gt;
-vim是linux下功能非常强大的一款编辑器，打造适合自己的vim环境需要长年的积累。若需要在不同的机器编辑修改文件，则势必涉及到vim工作环境的迁移。如何进行vim环境快速迁移，此文可作为参考。
-&lt;/p&gt;
-&lt;!--abstract-end--&gt;
-
-&lt;div id=&quot;outline-container-orgheadline1&quot; class=&quot;outline-2&quot;&gt;
-&lt;h2 id=&quot;orgheadline1&quot;&gt;通过vundle管理插件&lt;/h2&gt;
-&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline1&quot;&gt;
-&lt;pre class=&quot;example&quot;&gt;
-set rtp+=~/.vim/bundle/Vundle.vim
-call vundle#begin()
-&quot; let Vundle manage Vundle, required
-Plugin &#39;gmarik/Vundle.vim&#39;&quot;
-call vundle#end()
-filetype plugin indent on
-&lt;/pre&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id=&quot;outline-container-orgheadline8&quot; class=&quot;outline-2&quot;&gt;
-&lt;h2 id=&quot;orgheadline8&quot;&gt;常用插件&lt;/h2&gt;
-&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline8&quot;&gt;
-&lt;/div&gt;&lt;div id=&quot;outline-container-orgheadline2&quot; class=&quot;outline-3&quot;&gt;
-&lt;h3 id=&quot;orgheadline2&quot;&gt;vim-airline&lt;/h3&gt;
-&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline2&quot;&gt;
-&lt;pre class=&quot;example&quot;&gt;
-Plugin &#39;bling/vim-airline&#39;
-let g:airline#extensions#tabline#enabled = 1
-let g:airline_powerline_fonts = 1
-set laststatus=2
-&lt;/pre&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id=&quot;outline-container-orgheadline3&quot; class=&quot;outline-3&quot;&gt;
-&lt;h3 id=&quot;orgheadline3&quot;&gt;vim-fugitive&lt;/h3&gt;
-&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline3&quot;&gt;
-&lt;pre class=&quot;example&quot;&gt;
-Plugin &#39;tpope/vim-fugitive&#39;
-set statusline=%&amp;lt;%f\ %h%m%r%{fugitive#statusline()}%=%-14.(%l,%c%V%)\ %P
-&lt;/pre&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id=&quot;outline-container-orgheadline4&quot; class=&quot;outline-3&quot;&gt;
-&lt;h3 id=&quot;orgheadline4&quot;&gt;nerdtree&lt;/h3&gt;
-&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline4&quot;&gt;
-&lt;pre class=&quot;example&quot;&gt;
-Plugin &#39;https://github.com/scrooloose/nerdtree.git&#39;
-autocmd bufenter * if (winnr(&quot;$&quot;) == 1 &amp;amp;&amp;amp; exists(&quot;b:NERDTreeType&quot;) &amp;amp;&amp;amp; b:NERDTreeType == &quot;primary&quot;) | q | endif
-map &amp;lt;C-n&amp;gt; :NERDTreeToggle&amp;lt;CR&amp;gt;
-&lt;/pre&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id=&quot;outline-container-orgheadline5&quot; class=&quot;outline-3&quot;&gt;
-&lt;h3 id=&quot;orgheadline5&quot;&gt;nerdtreeCommenter&lt;/h3&gt;
-&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline5&quot;&gt;
-&lt;pre class=&quot;example&quot;&gt;
-Plugin &#39;scrooloose/nerdcommenter&#39;
-&lt;/pre&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id=&quot;outline-container-orgheadline6&quot; class=&quot;outline-3&quot;&gt;
-&lt;h3 id=&quot;orgheadline6&quot;&gt;delimitMate&lt;/h3&gt;
-&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline6&quot;&gt;
-&lt;pre class=&quot;example&quot;&gt;
-Plugin &#39;Raimondi/delimitMate&#39;
-&lt;/pre&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id=&quot;outline-container-orgheadline7&quot; class=&quot;outline-3&quot;&gt;
-&lt;h3 id=&quot;orgheadline7&quot;&gt;vim-markdown&lt;/h3&gt;
-&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline7&quot;&gt;
-&lt;pre class=&quot;example&quot;&gt;
-Plugin &#39;godlygeek/tabular&#39;
-Plugin &#39;plasticboy/vim-markdown&#39;
-&lt;/pre&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id=&quot;outline-container-orgheadline9&quot; class=&quot;outline-2&quot;&gt;
-&lt;h2 id=&quot;orgheadline9&quot;&gt;完整的vimrc文件&lt;/h2&gt;
-&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline9&quot;&gt;
-&lt;pre class=&quot;example&quot;&gt;
-&quot; begin vundle configuration
-&quot; pre job: 
-&quot; 1. mkdir -p ~/.vim/bundle/ &amp;amp;&amp;amp; cd ~/.vim/bundle/
-&quot; 2. git clone https://github.com/gmarik/Vundle.vim.git
-set nocompatible              &quot; be iMproved, required
-filetype off                  &quot; required
-
-&quot; set the runtime path to include Vundle and initialize
-&quot; ~/.vim/bundle/Vundle.vim
-set rtp+=~/.vim/bundle/Vundle.vim
-call vundle#begin()
-&quot; alternatively, pass a path where Vundle should install plugins
-&quot;call vundle#begin(&#39;~/some/path/here&#39;)
-
-&quot; let Vundle manage Vundle, required
-Plugin &#39;gmarik/Vundle.vim&#39;
-&quot; Plugin &#39;altercation/vim-colors-solarized&#39;
-
-Plugin &#39;https://github.com/scrooloose/nerdtree.git&#39;
-Plugin &#39;scrooloose/nerdcommenter&#39;
-Plugin &#39;mattn/emmet-vim&#39;
-Plugin &#39;pangloss/vim-javascript&#39;
-Plugin &#39;othree/html5.vim&#39;
-
-&quot; fugitive for git
-Plugin &#39;tpope/vim-fugitive&#39;
-
-&quot; youcompleteme 
-&quot; Plugin &#39;Valloric/YouCompleteMe&#39;
-
-&quot; Vim plugin, provides insert mode auto-completion for quotes, parens,
-&quot; brackets, etc.
-Plugin &#39;Raimondi/delimitMate&#39;
-
-&quot; Syntax checking hacks for vim
-&quot; Plugin &#39;scrooloose/syntastic&#39;
-
-&quot; lean &amp;amp; mean status/tabline for vim that&#39;s light as air
-Plugin &#39;bling/vim-airline&#39;
-&quot; Plugin &#39;edkolev/tmuxline.vim&#39;
-
-
-&quot; snipMate plugin
-Plugin &#39;MarcWeber/vim-addon-mw-utils&#39;
-Plugin &#39;tomtom/tlib_vim&#39;
-Plugin &#39;garbas/vim-snipmate&#39;
-Plugin &#39;honza/vim-snippets&#39;
-
-&quot; markdown vim mode
-Plugin &#39;godlygeek/tabular&#39;
-Plugin &#39;plasticboy/vim-markdown&#39;
-&quot; disable the folding configuration:
-&quot; let g:vim_markdown_folding_disabled=1
-&quot; Highlight YAML frontmatter as used by Jekyll:
-let g:vim_markdown_frontmatter=1
-
-&quot; set snips_author variable
-let g:snips_author=&#39;wanglifeng&#39;
-
-&quot; nerdtree plugin
-&quot; autocmd vimenter * NERDTree
-&quot; close nerdtree when the last window left is nerdtree
-autocmd bufenter * if (winnr(&quot;$&quot;) == 1 &amp;amp;&amp;amp; exists(&quot;b:NERDTreeType&quot;) &amp;amp;&amp;amp; b:NERDTreeType == &quot;primary&quot;) | q | endif
-map &amp;lt;C-n&amp;gt; :NERDTreeToggle&amp;lt;CR&amp;gt;
-
-&quot; The following are examples of different formats supported.
-&quot; Keep Plugin commands between vundle#begin/end.
-&quot; plugin on GitHub repo
-&quot; Plugin &#39;tpope/vim-fugitive&#39;
-&quot; plugin from http://vim-scripts.org/vim/scripts.html
-&quot; Plugin &#39;L9&#39;
-&quot; Git plugin not hosted on GitHub
-&quot; Plugin &#39;git://git.wincent.com/command-t.git&#39;
-&quot; git repos on your local machine (i.e. when working on your own plugin)
-&quot; Plugin &#39;file:///home/gmarik/path/to/plugin&#39;
-&quot; The sparkup vim script is in a subdirectory of this repo called vim.
-&quot; Pass the path to set the runtimepath properly.
-&quot; Plugin &#39;rstacruz/sparkup&#39;, {&#39;rtp&#39;: &#39;vim/&#39;}
-&quot; Avoid a name conflict with L9
-&quot; Plugin &#39;user/L9&#39;, {&#39;name&#39;: &#39;newL9&#39;}
-
-&quot; All of your Plugins must be added before the following line
-call vundle#end()            &quot; required
-filetype plugin indent on    &quot; required
-&quot; To ignore plugin indent changes, instead use:
-&quot;filetype plugin on
-&quot;
-&quot; Brief help
-&quot; :PluginList       - lists configured plugins
-&quot; :PluginInstall    - installs plugins; append `!` to update or just :PluginUpdate
-&quot; :PluginSearch foo - searches for foo; append `!` to refresh local cache
-&quot; :PluginClean      - confirms removal of unused plugins; append `!` to auto-approve removal
-&quot;
-&quot; see :h vundle for more details or wiki for FAQ
-&quot; Put your non-Plugin stuff after this line
-
-&quot;
-&quot;settings for plugin scrooloose/syntastic
-&quot;set statusline+=%#warningmsg#
-&quot;set statusline+=%{SyntasticStatuslineFlag()}
-&quot;set statusline+=%*
-
-&quot;let g:syntastic_always_populate_loc_list = 1
-&quot;let g:syntastic_auto_loc_list = 1
-&quot;let g:syntastic_check_on_open = 1
-&quot;let g:syntastic_check_on_wq = 0
-
-&quot; vim-airline
-&quot; Automatically displays all buffers when there&#39;s only one tab open.
-let g:airline#extensions#tabline#enabled = 1
-let g:airline_powerline_fonts = 1
-set laststatus=2
-nnoremap [b :bp&amp;lt;CR&amp;gt;
-nnoremap ]b :bn&amp;lt;CR&amp;gt;
-
-&quot; set expandtab
-&quot; used by fugitive to show current git branch
-set statusline=%&amp;lt;%f\ %h%m%r%{fugitive#statusline()}%=%-14.(%l,%c%V%)\ %P
-
-&quot; Separators can be configured independently for the tabline, so here is how
-&quot; you can define &quot;straight&quot; tabs:
-let g:airline#extensions#tabline#left_sep = &#39; &#39;
-let g:airline#extensions#tabline#left_alt_sep = &#39;|&#39;
-
-&quot;detect and display in right encoding
-set fileencodings=ucs-bom,utf-8,cp936,gb18030,big5,euc-jp,euc-kr,latin1
-set autoindent
-set cindent
-set smartindent
-set tabstop=4
-set shiftwidth=4
-set t_Co=256
-&lt;/pre&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-</description>
-        <pubDate>Wed, 12 Aug 2015 00:00:00 +0800</pubDate>
-        <link>/editor/my-vim-environment.html</link>
-        <guid isPermaLink="true">/editor/my-vim-environment.html</guid>
-        
-        <category>vim</category>
         
         
         <category>editor</category>
