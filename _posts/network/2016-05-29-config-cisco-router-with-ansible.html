@@ -156,7 +156,8 @@ cisco_ios/site.yml
 <div class="outline-text-3" id="text-orgheadline7">
 <div class="org-src-container">
 
-<pre class="src src-yaml"><span style="color: #633;">---</span>
+<pre class="src src-yaml">{% raw %}
+<span style="color: #633;">---</span>
 - <span style="color: #007;">name</span>: define provider
   <span style="color: #007;">set_fact</span>:
     <span style="color: #007;">provider</span>:
@@ -224,6 +225,7 @@ cisco_ios/site.yml
   <span style="color: #007;">register</span>: write_output
 
 - <span style="color: #007;">debug</span>: var=write_output.stdout_lines
+{% endraw %}
 </pre>
 </div>
 </div>

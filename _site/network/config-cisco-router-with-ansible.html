@@ -254,17 +254,18 @@ cisco_ios/site.yml
 <div class="outline-text-3" id="text-orgheadline7">
 <div class="org-src-container">
 
-<pre class="src src-yaml"><span style="color: #633;">---</span>
+<pre class="src src-yaml">
+<span style="color: #633;">---</span>
 - <span style="color: #007;">name</span>: define provider
   <span style="color: #007;">set_fact</span>:
     <span style="color: #007;">provider</span>:
-      <span style="color: #007;">host</span>: <span style="color: #800;">""</span>
-      <span style="color: #007;">username</span>: <span style="color: #800;">""</span>
-      <span style="color: #007;">password</span>: <span style="color: #800;">""</span>
+      <span style="color: #007;">host</span>: <span style="color: #800;">"{{inventory_hostname}}"</span>
+      <span style="color: #007;">username</span>: <span style="color: #800;">"{{username}}"</span>
+      <span style="color: #007;">password</span>: <span style="color: #800;">"{{password}}"</span>
 
 - <span style="color: #007;">name</span>: run show commands with ios_command
   <span style="color: #007;">ios_command</span>:
-    <span style="color: #007;">provider</span>: <span style="color: #800;">""</span>
+    <span style="color: #007;">provider</span>: <span style="color: #800;">"{{provider}}"</span>
     <span style="color: #007;">commands</span>:
       - show version
       - show ip interface brief
@@ -276,21 +277,21 @@ cisco_ios/site.yml
 
 - <span style="color: #007;">name</span>: change syslog server with ios_config
   <span style="color: #007;">ios_config</span>:
-    <span style="color: #007;">provider</span>: <span style="color: #800;">""</span>
+    <span style="color: #007;">provider</span>: <span style="color: #800;">"{{ provider }}"</span>
     <span style="color: #007;">authorize</span>: <span style="color: #046; font-weight: bold;">yes</span>
     <span style="color: #007;">lines</span>:
-      - logging 
-      - logging 
+      - logging {{syslogsrv01}}
+      - logging {{syslogsrv02}}
     <span style="color: #007;">replace</span>: line
     <span style="color: #007;">match</span>: line
     <span style="color: #007;">before</span>:
-      - no logging 
-      - no logging 
+      - no logging {{syslogsrv03}}
+      - no logging {{syslogsrv04}}
     <span style="color: #007;">force</span>: <span style="color: #046; font-weight: bold;">true</span>
 
 - <span style="color: #007;">name</span>: run show logging after change with ios_config
   <span style="color: #007;">ios_command</span>:
-    <span style="color: #007;">provider</span>: <span style="color: #800;">""</span>
+    <span style="color: #007;">provider</span>: <span style="color: #800;">"{{ provider }}"</span>
     <span style="color: #007;">commands</span>:
       - show logging
   <span style="color: #007;">register</span>: after_change_syslog
@@ -299,15 +300,15 @@ cisco_ios/site.yml
 
 - <span style="color: #007;">name</span>: change syslog server with ios_template
   <span style="color: #007;">ios_template</span>:
-    <span style="color: #007;">host</span>: <span style="color: #800;">""</span>
-    <span style="color: #007;">username</span>: <span style="color: #800;">""</span>
-    <span style="color: #007;">password</span>: <span style="color: #800;">""</span>
+    <span style="color: #007;">host</span>: <span style="color: #800;">"{{inventory_hostname}}"</span>
+    <span style="color: #007;">username</span>: <span style="color: #800;">"{{username}}"</span>
+    <span style="color: #007;">password</span>: <span style="color: #800;">"{{password}}"</span>
     <span style="color: #007;">src</span>: config.j2
     <span style="color: #007;">force</span>: <span style="color: #046; font-weight: bold;">true</span>
 
 - <span style="color: #007;">name</span>: run <span style="color: #800;">"show running | include logging"</span> after change made
   <span style="color: #007;">ios_command</span>:
-    <span style="color: #007;">provider</span>: <span style="color: #800;">""</span>
+    <span style="color: #007;">provider</span>: <span style="color: #800;">"{{ provider }}"</span>
     <span style="color: #007;">commands</span>:
       - show running | include logging
   <span style="color: #007;">register</span>: syslogsrv_list
@@ -316,12 +317,13 @@ cisco_ios/site.yml
 
 - <span style="color: #007;">name</span>: save running-config to startup-config
   <span style="color: #007;">ios_command</span>:
-    <span style="color: #007;">provider</span>: <span style="color: #800;">""</span>
+    <span style="color: #007;">provider</span>: <span style="color: #800;">"{{ provider }}"</span>
     <span style="color: #007;">commands</span>:
       - write
   <span style="color: #007;">register</span>: write_output
 
 - <span style="color: #007;">debug</span>: var=write_output.stdout_lines
+
 </pre>
 </div>
 </div>
