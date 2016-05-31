@@ -1,0 +1,128 @@
+---
+title: "用ELK来分析Netflow数据"
+tags: elk
+layout: post
+categories: network
+---
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline1">说明</a></li>
+<li><a href="#orgheadline2">Cisco路由器配置</a></li>
+<li><a href="#orgheadline3">logstash配置</a></li>
+<li><a href="#orgheadline4">排错</a></li>
+<li><a href="#orgheadline5">效果图</a></li>
+<li><a href="#orgheadline6">netflow包格式</a></li>
+</ul>
+</div>
+</div>
+<!--abstract-begin-->
+<p>
+作为网络运维人员，可随时获取设备上流量分布情况，对容量规划，制定安全措施，均有重要参考意义。ELK技术栈主要的应用场景为日志中心，但本文主要讲述如何利用ELK技术栈分析NETFLOW数据包，实现网络数据流的可视化。Logstash本身带了decoder可直接对netflow UDP数据包进行解析，并index至elasticsearch，随后即可从kibana界面，从不同维度按需对网络数据流进行检索与分析。
+</p>
+<!--abstract-end-->
+
+<div id="outline-container-orgheadline1" class="outline-2">
+<h2 id="orgheadline1">说明</h2>
+<div class="outline-text-2" id="text-orgheadline1">
+<p>
+本文纪录ELK实现NETFLOW数据包分析的主要步骤，详细的ELK安装与配置步骤请参考官方网站<a href="https://www.elastic.co/">www.elastic.co</a> 。
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline2" class="outline-2">
+<h2 id="orgheadline2">Cisco路由器配置</h2>
+<div class="outline-text-2" id="text-orgheadline2">
+<pre class="example">
+interface GigabitEthernet0/0
+ ip flow ingress
+interface GigabitEthernet0/1.2
+ ip flow ingress
+interface GigabitEthernet0/1.3
+ ip flow ingress
+ip flow-export source Loopback0
+ip flow-export version 9
+ip flow-export destination 1.1.1.1 2055
+</pre>
+
+<p>
+<b>注：此处1.1.1.1为logstash地址，2055为侦听端口</b>
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline3" class="outline-2">
+<h2 id="orgheadline3">logstash配置</h2>
+<div class="outline-text-2" id="text-orgheadline3">
+<pre class="example">
+input {
+  udp {
+    port =&gt; "2055"
+    codec =&gt; netflow {
+      versions =&gt; [9]
+    }
+  }
+}
+
+output {
+  elasticsearch {
+    index =&gt; "netflow-%{+YYYY.MM.DD}"
+    hosts =&gt; "localhost:9200"
+  }
+#  stdout {
+#    codec =&gt; rubydebug {
+#      metadata =&gt; true
+#    }
+#  }
+} #end output block
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orgheadline4" class="outline-2">
+<h2 id="orgheadline4">排错</h2>
+<div class="outline-text-2" id="text-orgheadline4">
+<ul class="org-ul">
+<li>本人测试时发现，若采用netflow version 5，会出现数据不全的情况。</li>
+<li>若elasticsearch未收到数据，可尝试打开rubydebug，观察logstash对netflow包parse结果。</li>
+<li>若logstash未收到包，可尝试运行tcpdump，观察是否已收到路由器送过来的UDP报文。</li>
+</ul>
+
+<p>
+tcpdump抓包与保存命令如下，随后可通过wireshark查看截取的数据包。
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">tcpdump -i any -n port 2055 -w netflow.pcap
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline5" class="outline-2">
+<h2 id="orgheadline5">效果图</h2>
+<div class="outline-text-2" id="text-orgheadline5">
+<div class="org-center">
+
+<div class="figure">
+<p><img src="/resource/network/fig/kibana.png" alt="kibana.png" />
+</p>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline6" class="outline-2">
+<h2 id="orgheadline6">netflow包格式</h2>
+<div class="outline-text-2" id="text-orgheadline6">
+<div class="org-center">
+
+<div class="figure">
+<p><img src="/resource/network/fig/tcpdump.png" alt="tcpdump.png" />
+</p>
+</div>
+</div>
+</div>
+</div>
