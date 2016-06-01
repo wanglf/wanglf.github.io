@@ -5,8 +5,8 @@
     <description>Wonder is the beginning of wisdom</description>
     <link>/</link>
     <atom:link href="/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Tue, 31 May 2016 14:04:42 +0800</pubDate>
-    <lastBuildDate>Tue, 31 May 2016 14:04:42 +0800</lastBuildDate>
+    <pubDate>Wed, 01 Jun 2016 11:42:37 +0800</pubDate>
+    <lastBuildDate>Wed, 01 Jun 2016 11:42:37 +0800</lastBuildDate>
     <generator>Jekyll v2.5.3</generator>
     
       <item>
@@ -36,6 +36,16 @@
 &lt;p&gt;
 本文纪录ELK实现NETFLOW数据包分析的主要步骤，详细的ELK安装与配置步骤请参考官方网站&lt;a href=&quot;https://www.elastic.co/&quot;&gt;www.elastic.co&lt;/a&gt; 。
 &lt;/p&gt;
+
+&lt;p&gt;
+此方案特色：
+&lt;/p&gt;
+
+&lt;ul class=&quot;org-ul&quot;&gt;
+&lt;li&gt;ElasticSearch后端采用的是Lucene搜索引擎，检索效率非常高。&lt;/li&gt;
+&lt;li&gt;可在dashboard的filter中进一步筛选，并实时反映在dashboard效果图。利用这一特性，可以做一通用模板，根据搜索的结果来按需生成效果图。&lt;/li&gt;
+&lt;li&gt;ElasticSearch天然具有分布式，冗余的特点，支持非常大规模的部署。理论上支持上千个服务器节点，可以满足不同规模的应用场景。&lt;/li&gt;
+&lt;/ul&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 

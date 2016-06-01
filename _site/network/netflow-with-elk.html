@@ -127,6 +127,16 @@
 <p>
 本文纪录ELK实现NETFLOW数据包分析的主要步骤，详细的ELK安装与配置步骤请参考官方网站<a href="https://www.elastic.co/">www.elastic.co</a> 。
 </p>
+
+<p>
+此方案特色：
+</p>
+
+<ul class="org-ul">
+<li>ElasticSearch后端采用的是Lucene搜索引擎，检索效率非常高。</li>
+<li>可在dashboard的filter中进一步筛选，并实时反映在dashboard效果图。利用这一特性，可以做一通用模板，根据搜索的结果来按需生成效果图。</li>
+<li>ElasticSearch天然具有分布式，冗余的特点，支持非常大规模的部署。理论上支持上千个服务器节点，可以满足不同规模的应用场景。</li>
+</ul>
 </div>
 </div>
 
