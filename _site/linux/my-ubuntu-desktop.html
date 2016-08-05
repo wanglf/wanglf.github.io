@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width initial-scale=1" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>my ubuntu desktop</title>
+    <meta name="description" content="Wonder is the beginning of wisdom">
+
+    <link rel="stylesheet" href="/theme/css/main.css">
+    <link rel="icon" href="/theme/icon/leaf.png">
+    <link rel="shortcut icon" href="/theme/icon/leaf.png">
+    <link rel="canonical" href="/linux/my-ubuntu-desktop.html">
+
+    <script src="/theme/js/jquery-2.1.1.min.js"></script>
+    <script src="/theme/js/default.js"></script>
+
+
+</head>
+
+<header>
+  <div class="sidebar">
+    <div align="center">
+      <div class="site-img">
+        <a href="/"><image src="/theme/icon/leaf.png"></a>
+      </div>
+      <a class="side-nav" href="/menu/posts.html">文章</a>
+      <a class="side-nav" href="/menu/categories.html">分类</a>
+      <a class="side-nav" href="/menu/tags.html">标签</a>
+    </div>
+    <div align="center">
+      <a class="side-nav" href="/menu/douban.html">豆瓣</a>
+      <a class="side-nav" href="/menu/favorite.html">收藏</a>
+      <a class="side-nav" href="http://notes.wanglifeng.info">笔记</a>
+    </div>
+    <div align="center">
+      <a class="side-nav" href="/menu/about.html">关于</a>
+    </div>
+
+    <div class="side-toc">
+      <hr>
+      <div id="sidebar-toc">
+        <div align="center">
+          <br>
+          三千年读史<br>
+          不外功名利禄<br>
+          九万里悟道<br>
+          终归诗酒田园<br>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sidebar-toggler">
+    <div id="sidebar-status">
+
+    </div>
+  </div>
+</header>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+    <div class="site-title">
+      <a class="site-title" href="/">田园牧歌</a>
+    </div>
+  </div>
+
+  <div class="wrapper">
+  <div class="site-subtitle">
+    一花一世界，一叶一菩提。
+  </div>
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <div class="post">
+<!--
+  <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+-->
+  <script src="/theme/js/post.js"></script>
+
+  <header class="post-header">
+    <h1 class="post-title">my ubuntu desktop</h1>
+    <p class="post-meta">2016年08月05日
+      <span class="author"> 田园牧歌 </span>
+    </p>
+    <p>
+    
+    <a class="post-tags" href="/resource/tags/ubuntu.html">ubuntu</a>
+    
+    </p>
+    <hr><br>
+  </header>
+
+  <article class="post-content">
+    <div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline1">create bootable disk</a>
+<ul>
+<li><a href="#orgheadline2">find disk name</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline3">install ubuntu16.04 os</a></li>
+<li><a href="#orgheadline6">install additional language and setup input method</a>
+<ul>
+<li><a href="#orgheadline4">install language</a></li>
+<li><a href="#orgheadline5">install fcitx input method</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline7">prepare dotfiles</a></li>
+<li><a href="#orgheadline8">ohmyzsh</a></li>
+<li><a href="#orgheadline12">terminal</a>
+<ul>
+<li><a href="#orgheadline9">colorscheme</a></li>
+<li><a href="#orgheadline10">dircolor</a></li>
+<li><a href="#orgheadline11">font</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline13">tmux</a></li>
+<li><a href="#orgheadline14">ssh</a></li>
+<li><a href="#orgheadline22">emacs</a>
+<ul>
+<li><a href="#orgheadline17">install 24.5 from source</a>
+<ul>
+<li><a href="#orgheadline15">prerequiste</a></li>
+<li><a href="#orgheadline16">install</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline18">ipython</a></li>
+<li><a href="#orgheadline19">ob-shell</a></li>
+<li><a href="#orgheadline20">start</a></li>
+<li><a href="#orgheadline21">usage</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline23">vim</a></li>
+<li><a href="#orgheadline24">atom</a></li>
+<li><a href="#orgheadline25">git</a></li>
+<li><a href="#orgheadline26">tweak tool</a></li>
+</ul>
+</div>
+</div>
+<!--abstract-begin-->
+<p>
+This article illustrates various settings of my desktop pc whose os is ubuntu 16.04 LTS.
+</p>
+<!--abstract-end-->
+
+<div id="outline-container-orgheadline1" class="outline-2">
+<h2 id="orgheadline1">create bootable disk</h2>
+<div class="outline-text-2" id="text-orgheadline1">
+<div class="org-src-container">
+
+<pre class="src src-sh">sudo dd <span style="color: #007;">if</span>=~/Downloads/ubuntu-16.04.1-desktop-amd64.iso <span style="color: #007;">of</span>=/dev/rdisk2 <span style="color: #007;">bs</span>=1m
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orgheadline2" class="outline-3">
+<h3 id="orgheadline2">find disk name</h3>
+<div class="outline-text-3" id="text-orgheadline2">
+<dl class="org-dl">
+<dt>mac</dt><dd>diskutil list</dd>
+<dt>linux</dt><dd>ls -al /dev/sd*</dd>
+</dl>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline3" class="outline-2">
+<h2 id="orgheadline3">install ubuntu16.04 os</h2>
+<div class="outline-text-2" id="text-orgheadline3">
+<p>
+use bootable usb disk to install operating system
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline6" class="outline-2">
+<h2 id="orgheadline6">install additional language and setup input method</h2>
+<div class="outline-text-2" id="text-orgheadline6">
+</div><div id="outline-container-orgheadline4" class="outline-3">
+<h3 id="orgheadline4">install language</h3>
+</div>
+<div id="outline-container-orgheadline5" class="outline-3">
+<h3 id="orgheadline5">install fcitx input method</h3>
+<div class="outline-text-3" id="text-orgheadline5">
+<div class="org-src-container">
+
+<pre class="src src-sh">sudo apt-get install fcitx fcitx-config-gtk fcitx-sunpinyin fcitx-googlepinyin fcitx-module-cloudpinyin im-config
+sudo im-config -s fcitx -z default
+sudo reboot
+</pre>
+</div>
+
+<dl class="org-dl">
+<dt>CTRL + SPACE</dt><dd>switch language</dd>
+<dt>CTRL + SHIFT</dt><dd>switch input method</dd>
+</dl>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline7" class="outline-2">
+<h2 id="orgheadline7">prepare dotfiles</h2>
+<div class="outline-text-2" id="text-orgheadline7">
+<div class="org-src-container">
+
+<pre class="src src-sh">sudo apt-get install git
+sudo mkdir -p /opt/git
+sudo chown -R wesley:wesley /opt/git
+<span style="color: #058; font-weight: bold;">cd</span> /opt/git
+git clone git@github.com:wanglf/dotfiles.git dotfiles.git
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline8" class="outline-2">
+<h2 id="orgheadline8">ohmyzsh</h2>
+<div class="outline-text-2" id="text-orgheadline8">
+<div class="org-src-container">
+
+<pre class="src src-sh">sudo apt-get install zsh
+ln -s /opt/git/dotfiles.git/ohmyzsh/.zshrc ~
+cp /opt/git/dotfiles.git/ohmyzsh/.cusomrc ~
+chsh -s /bin/zsh
+sudo reboot
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline12" class="outline-2">
+<h2 id="orgheadline12">terminal</h2>
+<div class="outline-text-2" id="text-orgheadline12">
+</div><div id="outline-container-orgheadline9" class="outline-3">
+<h3 id="orgheadline9">colorscheme</h3>
+<div class="outline-text-3" id="text-orgheadline9">
+<div class="org-src-container">
+
+<pre class="src src-sh"><span style="color: #058; font-weight: bold;">cd</span> /opt/git/dotfiles.git/gnome-terminal
+./install.sh
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline10" class="outline-3">
+<h3 id="orgheadline10">dircolor</h3>
+<div class="outline-text-3" id="text-orgheadline10">
+<div class="org-src-container">
+
+<pre class="src src-sh">ln -s /opt/git/dotfiles.git/dircolors-solarized/dircolors.256dark ~/.dircolors.256dark
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline11" class="outline-3">
+<h3 id="orgheadline11">font</h3>
+<div class="outline-text-3" id="text-orgheadline11">
+<div class="org-src-container">
+
+<pre class="src src-sh">mkdir -p ~/.fonts
+cp /opt/git/dotfiles.git/fonts/sauce_code_powerline_regular.otf ~/.fonts/
+sudo fc-cache -f -v
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline13" class="outline-2">
+<h2 id="orgheadline13">tmux</h2>
+<div class="outline-text-2" id="text-orgheadline13">
+<div class="org-src-container">
+
+<pre class="src src-sh">sudo apt-get install tmux
+ln -s /opt/git/dotfiles.git/tmux/.tmux.conf ~
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline14" class="outline-2">
+<h2 id="orgheadline14">ssh</h2>
+<div class="outline-text-2" id="text-orgheadline14">
+<div class="org-src-container">
+
+<pre class="src src-sh">cp /opt/git/dotfiles.git/ssh/config ~/.ssh/
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline22" class="outline-2">
+<h2 id="orgheadline22">emacs</h2>
+<div class="outline-text-2" id="text-orgheadline22">
+</div><div id="outline-container-orgheadline17" class="outline-3">
+<h3 id="orgheadline17">install 24.5 from source</h3>
+<div class="outline-text-3" id="text-orgheadline17">
+</div><div id="outline-container-orgheadline15" class="outline-4">
+<h4 id="orgheadline15">prerequiste</h4>
+<div class="outline-text-4" id="text-orgheadline15">
+<div class="org-src-container">
+
+<pre class="src src-sh">sudo apt-get install libxpm-dev libjpeg62-dev libgif-dev libtiff4-dev libpng16-dev
+sudo apt-get install libncurses-dev
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline16" class="outline-4">
+<h4 id="orgheadline16">install</h4>
+<div class="outline-text-4" id="text-orgheadline16">
+<div class="org-src-container">
+
+<pre class="src src-sh"><span style="color: #058; font-weight: bold;">cd</span> emacs-24.5
+./configure --with-x-toolkit=no
+make
+sudo make install
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline18" class="outline-3">
+<h3 id="orgheadline18">ipython</h3>
+<div class="outline-text-3" id="text-orgheadline18">
+<div class="org-src-container">
+
+<pre class="src src-sh">sudo apt-get install python-pip
+tar xvf ipython-3.2.1.tar.gz
+<span style="color: #058; font-weight: bold;">cd</span> ipython-3.2.1
+python setup.py install
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline19" class="outline-3">
+<h3 id="orgheadline19">ob-shell</h3>
+<div class="outline-text-3" id="text-orgheadline19">
+<div class="org-src-container">
+
+<pre class="src src-sh">scp root@devsrv:/opt/download/ob-shell.el /usr/local/share/emacs/24.5/lisp/org
+scp root@devsrv:/opt/download/ob-shell.elc /usr/local/share/emacs/24.5/lisp/org
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline20" class="outline-3">
+<h3 id="orgheadline20">start</h3>
+<div class="outline-text-3" id="text-orgheadline20">
+<div class="org-src-container">
+
+<pre class="src src-sh">rm ~/.emacs.d
+ln -s /opt/git/dotfiles.git/emacs.d ~/.emacs.d
+emacs
+</pre>
+</div>
+
+<p>
+wait emacs to install elpa packages
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline21" class="outline-3">
+<h3 id="orgheadline21">usage</h3>
+<div class="outline-text-3" id="text-orgheadline21">
+<div class="org-src-container">
+
+<pre class="src src-sh"><span style="color: #633;"># </span><span style="color: #633;">in ~/.customrc add following 3 aliases</span>
+<span style="color: #633;"># </span><span style="color: #633;">alias emacsd='emacs -nw --daemon --no-desktop'</span>
+<span style="color: #633;"># </span><span style="color: #633;">alias killemacs='kill -9 `pidof emacs`'</span>
+<span style="color: #633;"># </span><span style="color: #633;">alias ec='TERM=xterm-256color emacsclient -t'</span>
+emacsd
+ec
+killemacs
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline23" class="outline-2">
+<h2 id="orgheadline23">vim</h2>
+<div class="outline-text-2" id="text-orgheadline23">
+<div class="org-src-container">
+
+<pre class="src src-sh">mkdir -p ~/.vim/bundle/ &amp;&amp; <span style="color: #058; font-weight: bold;">cd</span> ~/.vim/bundle/
+git clone https://github.com/gmarik/Vundle.vim.git
+ln -s /opt/git/dotfiles.git/vim/.vimrc ~/
+</pre>
+</div>
+
+<p>
+int vim command mode issue <b>PluginInstall</b>
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline24" class="outline-2">
+<h2 id="orgheadline24">atom</h2>
+<div class="outline-text-2" id="text-orgheadline24">
+<div class="org-src-container">
+
+<pre class="src src-sh">cp /opt/git/dotfiles.git/atom/.apmrc ~/.atom/
+</pre>
+</div>
+
+<p>
+install following packages:
+</p>
+<ul class="org-ul">
+<li>vim-mode</li>
+<li>ex-mode</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgheadline25" class="outline-2">
+<h2 id="orgheadline25">git</h2>
+<div class="outline-text-2" id="text-orgheadline25">
+<div class="org-src-container">
+
+<pre class="src src-sh">cp /opt/git/dotfiles.git/git/.gitconfig ~/
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline26" class="outline-2">
+<h2 id="orgheadline26">tweak tool</h2>
+<div class="outline-text-2" id="text-orgheadline26">
+<div class="org-src-container">
+
+<pre class="src src-sh">sudo apt-get install gnome-tweak-tool
+</pre>
+</div>
+<p>
+open gnome-tweak-tool, goto Typing menu, Caps Lock key behavior
+</p>
+</div>
+</div>
+
+
+    <hr><br>
+    <div class="post-prev">
+      <a class="post-nav" href="/network/bind-dns-server-notes.html">上一篇</a>
+    </div>
+    <div class="post-next">
+      <a class="post-nav" href="">下一篇</a>
+    </div>
+  </article>
+
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col-1">
+        <ul class="contact-list">
+          <li><a class="username" href="mailto:wlfqware#gmail.com">wlfqware#gmail.com</a></li>
+
+          
+        </ul>
+      </div>
+
+      <div class="footer-col-2">
+        <p class="text">Wonder is the beginning of wisdom</p>
+      </div>
+
+    </div>
+    <div class="footer-col-wrapper">
+      <div align="center">
+        &copy; 2014-2016 |
+          
+            <a class="username" href="https://github.com/wanglf">
+              <span class="icon  icon--github">
+                <svg viewBox="0 0 16 16">
+                  <path fill="#828282" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761 c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32 c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472 c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037 C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65 c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261 c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082 c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129 c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/>
+                </svg>
+              </span>
+              <span class="username">wanglf</span>
+            </a>
+          
+      </div>
+    </div>
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>

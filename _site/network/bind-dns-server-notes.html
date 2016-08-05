@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width initial-scale=1" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>Bind DNS服务器学习笔记</title>
+    <meta name="description" content="Wonder is the beginning of wisdom">
+
+    <link rel="stylesheet" href="/theme/css/main.css">
+    <link rel="icon" href="/theme/icon/leaf.png">
+    <link rel="shortcut icon" href="/theme/icon/leaf.png">
+    <link rel="canonical" href="/network/bind-dns-server-notes.html">
+
+    <script src="/theme/js/jquery-2.1.1.min.js"></script>
+    <script src="/theme/js/default.js"></script>
+
+
+</head>
+
+<header>
+  <div class="sidebar">
+    <div align="center">
+      <div class="site-img">
+        <a href="/"><image src="/theme/icon/leaf.png"></a>
+      </div>
+      <a class="side-nav" href="/menu/posts.html">文章</a>
+      <a class="side-nav" href="/menu/categories.html">分类</a>
+      <a class="side-nav" href="/menu/tags.html">标签</a>
+    </div>
+    <div align="center">
+      <a class="side-nav" href="/menu/douban.html">豆瓣</a>
+      <a class="side-nav" href="/menu/favorite.html">收藏</a>
+      <a class="side-nav" href="http://notes.wanglifeng.info">笔记</a>
+    </div>
+    <div align="center">
+      <a class="side-nav" href="/menu/about.html">关于</a>
+    </div>
+
+    <div class="side-toc">
+      <hr>
+      <div id="sidebar-toc">
+        <div align="center">
+          <br>
+          三千年读史<br>
+          不外功名利禄<br>
+          九万里悟道<br>
+          终归诗酒田园<br>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sidebar-toggler">
+    <div id="sidebar-status">
+
+    </div>
+  </div>
+</header>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+    <div class="site-title">
+      <a class="site-title" href="/">田园牧歌</a>
+    </div>
+  </div>
+
+  <div class="wrapper">
+  <div class="site-subtitle">
+    一花一世界，一叶一菩提。
+  </div>
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <div class="post">
+<!--
+  <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+-->
+  <script src="/theme/js/post.js"></script>
+
+  <header class="post-header">
+    <h1 class="post-title">Bind DNS服务器学习笔记</h1>
+    <p class="post-meta">2016年07月16日
+      <span class="author"> 田园牧歌 </span>
+    </p>
+    <p>
+    
+    <a class="post-tags" href="/resource/tags/bind.html">bind</a>
+    
+    </p>
+    <hr><br>
+  </header>
+
+  <article class="post-content">
+    <div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline13">DNS术语</a>
+<ul>
+<li><a href="#orgheadline1">Root</a></li>
+<li><a href="#orgheadline2">TLD域名</a></li>
+<li><a href="#orgheadline3">Master</a></li>
+<li><a href="#orgheadline4">Slave</a></li>
+<li><a href="#orgheadline5">Forward</a></li>
+<li><a href="#orgheadline6">Zone</a></li>
+<li><a href="#orgheadline7">纪录类型</a>
+<ul>
+<li><a href="#orgheadline8">A纪录</a></li>
+<li><a href="#orgheadline9">AAAA纪录</a></li>
+<li><a href="#orgheadline10">NS纪录</a></li>
+<li><a href="#orgheadline11">CNAME</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline12">FQDN</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline18">实际架构</a>
+<ul>
+<li><a href="#orgheadline14">一主两从</a></li>
+<li><a href="#orgheadline15">VIEW功能</a></li>
+<li><a href="#orgheadline16">禁用forward</a></li>
+<li><a href="#orgheadline17">IP地址分配</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline26">服务器主要配置</a>
+<ul>
+<li><a href="#orgheadline19">注释格式</a></li>
+<li><a href="#orgheadline20">master /etc/named.conf</a></li>
+<li><a href="#orgheadline21">slave /etc/named.conf</a></li>
+<li><a href="#orgheadline25">zone文件</a>
+<ul>
+<li><a href="#orgheadline22">位置</a></li>
+<li><a href="#orgheadline23">示例</a></li>
+<li><a href="#orgheadline24">域名规范</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#orgheadline29">客户端配置</a>
+<ul>
+<li><a href="#orgheadline27">卸载NetworkManager</a></li>
+<li><a href="#orgheadline28">/etc/resolv.conf</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline40">日常维护</a>
+<ul>
+<li><a href="#orgheadline30">增加纪录</a>
+<ul>
+<li><a href="#orgheadline31">修改sc.named.abc.com</a></li>
+<li><a href="#orgheadline32">修改oa.named.abc.com</a></li>
+<li><a href="#orgheadline33">修改SERIAL</a></li>
+<li><a href="#orgheadline34">查看前后差异</a></li>
+<li><a href="#orgheadline35">重新加载文件</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline36">备份</a></li>
+<li><a href="#orgheadline37">监控</a></li>
+<li><a href="#orgheadline38">日志文件</a></li>
+<li><a href="#orgheadline39">诊断工具</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline41">ansible自动安装脚本</a></li>
+<li><a href="#orgheadline44">最佳实践</a>
+<ul>
+<li><a href="#orgheadline42">最小化重启</a></li>
+<li><a href="#orgheadline43">隐藏primary server</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline45">参考资料</a></li>
+</ul>
+</div>
+</div>
+<!--abstract-begin-->
+<p>
+DNS是构建互联网的基础，而bind是DNS服务器软件中历史最悠久，市场占用率最高的产品，在此纪录学习过程中的一些笔记。
+</p>
+<!--abstract-end-->
+
+<div id="outline-container-orgheadline13" class="outline-2">
+<h2 id="orgheadline13">DNS术语</h2>
+<div class="outline-text-2" id="text-orgheadline13">
+</div><div id="outline-container-orgheadline1" class="outline-3">
+<h3 id="orgheadline1">Root</h3>
+<div class="outline-text-3" id="text-orgheadline1">
+<p>
+DNS的根为英文句点"." , 目前全球共有12家组织，提供13个根服务器。比如通过在互联网任一Linux机器上使用dig +trace @8.8.8.8 www.baidu.com可以看到各根域名服务器情况。
+</p>
+
+<p>
+根服务器分布如下:
+</p>
+<pre class="example">
+A - VeriSign Global Registry Services
+B - University of Southern California - Information Sciences Institute
+C - Cogent Communications
+D - University of Maryland
+E - NASA Ames Research Center
+F - Internet Systems Consortium, Inc.
+G - U.S. DOD Network Information Center
+H - U.S. Army Research Lab
+I - Autonomica/NORDUnet
+J - VeriSign Global Registry Services
+K - RIPE NCC
+L - ICANN
+M - WIDE Project
+</pre>
+</div>
+</div>
+<div id="outline-container-orgheadline2" class="outline-3">
+<h3 id="orgheadline2">TLD域名</h3>
+<div class="outline-text-3" id="text-orgheadline2">
+<p>
+.com, .edu. .cn等均为顶级域名(TLD)，由域名机构管理者维护。一般申请者只能申请到二级域名，例如abc.com。
+</p>
+</div>
+</div>
+<div id="outline-container-orgheadline3" class="outline-3">
+<h3 id="orgheadline3">Master</h3>
+<div class="outline-text-3" id="text-orgheadline3">
+<p>
+主DNS服务器，一般由其维护DNS纪录。
+</p>
+</div>
+</div>
+<div id="outline-container-orgheadline4" class="outline-3">
+<h3 id="orgheadline4">Slave</h3>
+<div class="outline-text-3" id="text-orgheadline4">
+<p>
+从DNS服务器，一般通过zone transfer实现从主服务器自动同步，通讯端口为tcp 53。
+</p>
+</div>
+</div>
+<div id="outline-container-orgheadline5" class="outline-3">
+<h3 id="orgheadline5">Forward</h3>
+<div class="outline-text-3" id="text-orgheadline5">
+<p>
+当本地不存在纪录时，是否向上游转发。典型的运营商的DNS服务器一般为forward only，本身不维护任何纪录，只负责向上游转发。
+</p>
+</div>
+</div>
+<div id="outline-container-orgheadline6" class="outline-3">
+<h3 id="orgheadline6">Zone</h3>
+<div class="outline-text-3" id="text-orgheadline6">
+<p>
+一般一个域名就是一个zone，同时会有对应的zone文件用于维护纪录。
+</p>
+</div>
+</div>
+<div id="outline-container-orgheadline7" class="outline-3">
+<h3 id="orgheadline7">纪录类型</h3>
+<div class="outline-text-3" id="text-orgheadline7">
+<p>
+最常用的有如下几种，其他类型此处不再列出
+</p>
+</div>
+<div id="outline-container-orgheadline8" class="outline-4">
+<h4 id="orgheadline8">A纪录</h4>
+<div class="outline-text-4" id="text-orgheadline8">
+<p>
+address的缩写，代表一个域名所对应的IP地址，最常用的类型
+</p>
+</div>
+</div>
+<div id="outline-container-orgheadline9" class="outline-4">
+<h4 id="orgheadline9">AAAA纪录</h4>
+<div class="outline-text-4" id="text-orgheadline9">
+<p>
+类似于A纪录，不过用于ipv6地址的解析
+</p>
+</div>
+</div>
+<div id="outline-container-orgheadline10" class="outline-4">
+<h4 id="orgheadline10">NS纪录</h4>
+<div class="outline-text-4" id="text-orgheadline10">
+<p>
+name server的缩写，一般用于指定DNS服务器的域名或者指派子域名
+</p>
+</div>
+</div>
+<div id="outline-container-orgheadline11" class="outline-4">
+<h4 id="orgheadline11">CNAME</h4>
+<div class="outline-text-4" id="text-orgheadline11">
+<p>
+canonical name的缩写，简单理解就是别名。比如各大互联网公司经常将其用于门户的入口，这样带来的好处是对外保持域名不变，通过映射关系实现灵活切换。通过如下命令可查看cname的一个示例:
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-sh">dig @8.8.8.8 www.163.com
+</pre>
+</div>
+
+<pre class="example">
+www.163.com.    0    IN    CNAME    www.163.com.lxdns.com.
+www.163.com.lxdns.com.    0    IN    CNAME    163.xdwscache.ourglb0.com
+163.xdwscache.ourglb0.com.    51    IN    A      183.134.16.86
+163.xdwscache.ourglb0.com.    51    IN    A      115.231.22.80
+</pre>
+
+<p>
+代表www.163.com的别名为www.163.com.lxdns.com，同时www.163.com.lxdns.com的别名又指向163.xdwscache.ourglb0.com, 最终通过解析163.xdwscache.ourglb0.com的域名获得实际IP有两个。
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline12" class="outline-3">
+<h3 id="orgheadline12">FQDN</h3>
+<div class="outline-text-3" id="text-orgheadline12">
+<p>
+完整域名，例如: ntp01.abc.com，FQDN为: ntp01.abc.com. ， 主机部分为ntp01。 如果在/etc/resolv.conf中配置了search abc.com，此时ping ntp01与ntp01.abc.com均可返回对应的IP地址。实际使用建议采用完整域名，减少可能发生的分歧。
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline18" class="outline-2">
+<h2 id="orgheadline18">实际架构</h2>
+<div class="outline-text-2" id="text-orgheadline18">
+</div><div id="outline-container-orgheadline14" class="outline-3">
+<h3 id="orgheadline14">一主两从</h3>
+<div class="outline-text-3" id="text-orgheadline14">
+<p>
+Bind name server采用一主两从模式。Master修改zone文件后，通过信令自动同步至slave服务器。首次安装完成后，slave服务器不再做任何变更，所有变更操作均在master服务器上完成。Master服务器不向外暴露，只有两个slave服务器提供查询服务。
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline15" class="outline-3">
+<h3 id="orgheadline15">VIEW功能</h3>
+<div class="outline-text-3" id="text-orgheadline15">
+<p>
+Bind name server 启用VIEW功能。举个例子，针对ntp01.abc.com的请求，如果客户端源地址是192.168.11.126，此时命中acl sc，将返回sc-view中对应的纪录，此时读取的zone文件是sc.named.abc.com。如果客户端源地址是172.16.138.71，此时命中的acl oa，将返回oa-view中对应的纪录，此时读取的zone文件为oa.named.abc.com。
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline16" class="outline-3">
+<h3 id="orgheadline16">禁用forward</h3>
+<div class="outline-text-3" id="text-orgheadline16">
+<p>
+由于是一个封闭的系统，不启用forward功能，所有纪录都通过本地文件或缓存解析。
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline17" class="outline-3">
+<h3 id="orgheadline17">IP地址分配</h3>
+<div class="outline-text-3" id="text-orgheadline17">
+<dl class="org-dl">
+<dt>Master</dt><dd>192.168.1.63</dd>
+<dt>Slave</dt><dd>192.168.1.61/192.168.1.62</dd>
+</dl>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline26" class="outline-2">
+<h2 id="orgheadline26">服务器主要配置</h2>
+<div class="outline-text-2" id="text-orgheadline26">
+</div><div id="outline-container-orgheadline19" class="outline-3">
+<h3 id="orgheadline19">注释格式</h3>
+<div class="outline-text-3" id="text-orgheadline19">
+<pre class="example">
+/* This is a C-style comment */
+// This is a c++-style comment
+# This is a shell-style comment
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orgheadline20" class="outline-3">
+<h3 id="orgheadline20">master /etc/named.conf</h3>
+<div class="outline-text-3" id="text-orgheadline20">
+<div class="org-src-container">
+
+<pre class="src src-sh">key <span style="color: #800;">"sc-key"</span> {
+    algorithm HMAC-MD5;
+    secret <span style="color: #800;">"ZUZdBP96TP+bXUGA+TaVuRMLitTrxz5aM08mxd8u3mI="</span>;
+};
+
+key <span style="color: #800;">"oa-key"</span> {
+    algorithm HMAC-MD5;
+    secret <span style="color: #800;">"LZdRodIo1LCSYZMYnAta8270RFn8cUgZoL96W5LWNVU="</span>;
+};
+
+options {
+    listen-on port 53 {
+        any;
+    };
+    directory   <span style="color: #800;">"/var/named"</span>;
+    dump-file   <span style="color: #800;">"/var/named/data/cache_dump.db"</span>;
+    statistics-file <span style="color: #800;">"/var/named/data/named_stats.txt"</span>;
+    memstatistics-file <span style="color: #800;">"/var/named/data/named_mem_stats.txt"</span>;
+    allow-query {
+        any;
+    };
+    recursion no;
+    notify explicit; // default yes, notify nameserver which has NS records
+    allow-transfer {
+        none;
+    };
+    managed-keys-directory <span style="color: #800;">"/var/named/dynamic"</span>;
+    pid-file <span style="color: #800;">"/run/named/named.pid"</span>;
+    session-keyfile <span style="color: #800;">"/run/named/session.key"</span>;
+};
+
+logging {
+    channel default_debug {
+        file <span style="color: #800;">"data/named.run"</span>;
+        severity dynamic;
+    };
+};
+
+acl sc {
+    <span style="color: #C00;">!</span>key oa-key;
+    key sc-key;
+    localhost;
+    192.168.0.0/16;
+};
+
+acl oa {
+    <span style="color: #C00;">!</span>key sc-key;
+    key oa-key;
+    172.16.0.0/16;
+};
+
+view <span style="color: #800;">"sc-view"</span> {
+    match-clients {
+        sc;
+    };
+    allow-transfer {
+        key sc-key;
+    };
+    zone <span style="color: #800;">"abc.com"</span> IN {
+        <span style="color: #058; font-weight: bold;">type</span> master;
+        file <span style="color: #800;">"sc.named.abc.com"</span>;
+        also-notify {
+            192.168.1.61 key sc-key;
+            192.168.1.62 key sc-key;
+        };
+        zone-statistics yes;
+    };
+};
+
+view <span style="color: #800;">"oa-view"</span> {
+    match-clients {
+        oa;
+    };
+    allow-transfer {
+        key oa-key;
+    };
+    zone <span style="color: #800;">"abc.com"</span> IN {
+        <span style="color: #058; font-weight: bold;">type</span> master;
+        file <span style="color: #800;">"oa.named.abc.com"</span>;
+        also-notify {
+            192.168.1.61 key oa-key;
+            192.168.1.62 key oa-key;
+        };
+        zone-statistics yes;
+    };
+};
+
+controls {
+    inet 127.0.0.1 port 953 allow {
+        127.0.0.1;
+    };
+};
+
+statistics-channels {
+    inet 0.0.0.0 port 8053 allow {
+        localhost;
+        192.168.11.0/24;
+    };
+};
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline21" class="outline-3">
+<h3 id="orgheadline21">slave /etc/named.conf</h3>
+<div class="outline-text-3" id="text-orgheadline21">
+<div class="org-src-container">
+
+<pre class="src src-sh">key <span style="color: #800;">"sc-key"</span> {
+    algorithm HMAC-MD5;
+    secret <span style="color: #800;">"ZUZdBP96TP+bXUGA+TaVuRMLitTrxz5aM08mxd8u3mI="</span>;
+};
+
+key <span style="color: #800;">"oa-key"</span> {
+    algorithm HMAC-MD5;
+    secret <span style="color: #800;">"LZdRodIo1LCSYZMYnAta8270RFn8cUgZoL96W5LWNVU="</span>;
+};
+
+options {
+    listen-on port 53 {
+        any;
+    };
+    directory   <span style="color: #800;">"/var/named"</span>;
+    dump-file   <span style="color: #800;">"/var/named/data/cache_dump.db"</span>;
+    statistics-file <span style="color: #800;">"/var/named/data/named_stats.txt"</span>;
+    memstatistics-file <span style="color: #800;">"/var/named/data/named_mem_stats.txt"</span>;
+    allow-query {
+        any;
+    };
+    allow-transfer {
+        none;
+    };
+    recursion no;
+    notify explicit;
+    managed-keys-directory <span style="color: #800;">"/var/named/dynamic"</span>;
+    pid-file <span style="color: #800;">"/run/named/named.pid"</span>;
+    session-keyfile <span style="color: #800;">"/run/named/session.key"</span>;
+};
+
+logging {
+    channel default_debug {
+        file <span style="color: #800;">"data/named.run"</span>;
+        severity dynamic;
+    };
+};
+
+acl sc {
+    <span style="color: #C00;">!</span>key oa-key;
+    key sc-key;
+    127.0.0.0/8;
+    192.168.0.0/16;
+};
+
+acl oa {
+    <span style="color: #C00;">!</span>key sc-key;
+    key oa-key;
+    172.16.0.0/16;
+};
+
+view <span style="color: #800;">"sc-view"</span> {
+    match-clients {
+        sc;
+    };
+    zone <span style="color: #800;">"abc.com"</span> IN {
+        file <span style="color: #800;">"slaves/bak.sc.named.abc.com"</span>;
+        <span style="color: #058; font-weight: bold;">type</span> slave;
+        masterfile-format text;
+        masters {
+            192.168.1.63 key sc-key;
+        };
+        zone-statistics yes;
+    };
+};
+
+view <span style="color: #800;">"oa-view"</span> {
+    match-clients {
+        oa;
+    };
+
+    zone <span style="color: #800;">"abc.com"</span> IN {
+        file <span style="color: #800;">"slaves/bak.oa.named.abc.com"</span>;
+        <span style="color: #058; font-weight: bold;">type</span> slave;
+        masterfile-format text;
+        masters {
+            192.168.1.63 key oa-key;
+        };
+        zone-statistics yes;
+    };
+};
+
+controls {
+    inet 127.0.0.1 port 953 allow {
+        127.0.0.1;
+    };
+};
+
+statistics-channels {
+    inet 0.0.0.0 port 8053 allow {
+        localhost;
+        192.168.11.0/24;
+    };
+};
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline25" class="outline-3">
+<h3 id="orgheadline25">zone文件</h3>
+<div class="outline-text-3" id="text-orgheadline25">
+</div><div id="outline-container-orgheadline22" class="outline-4">
+<h4 id="orgheadline22">位置</h4>
+<div class="outline-text-4" id="text-orgheadline22">
+<dl class="org-dl">
+<dt>master</dt><dd>/var/named</dd>
+<dt>slave:</dt><dd>/var/named/slaves</dd>
+</dl>
+</div>
+</div>
+
+<div id="outline-container-orgheadline23" class="outline-4">
+<h4 id="orgheadline23">示例</h4>
+<div class="outline-text-4" id="text-orgheadline23">
+<div class="org-src-container">
+
+<pre class="src src-sh">$<span style="color: #007;">TTL</span> 1D
+@       IN SOA  @ wanglifeng_abc.com. (
+                                        2016071908       ; serial YYYYMMDDNN
+                                        1D      ; refresh
+                                        1H      ; retry
+                                        30D     ; expire
+                                        3H )    ; negative caching ttl
+@                                       IN NS  ns00.abc.com.
+@                                       IN NS  ns01.abc.com.
+@                                       IN NS  ns02.abc.com.
+ns00.abc.com. IN A 192.168.1.63
+ns01.abc.com. IN A 192.168.1.61
+ns02.abc.com. IN A 192.168.1.62
+ntp01   IN      A  192.168.4.11
+ntp02   IN      A  192.168.4.12
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline24" class="outline-4">
+<h4 id="orgheadline24">域名规范</h4>
+<div class="outline-text-4" id="text-orgheadline24">
+<p>
+域名建议采用如下格式:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">A.B.C.abc.com
+</pre>
+</div>
+<p>
+其中A代表主机名称，B代表应用名称,C代表环境(test,dev，生产环境为空)，例如:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">db01.appname.abc.com
+db01.appname.test.abc.com
+</pre>
+</div>
+
+<p>
+一些公共环境，可以省略应用名称，例如:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">ntp01.abc.com
+ftp.abc.com
+lb01.abc.com
+lb01.test.abc.com
+</pre>
+</div>
+
+<p>
+zone文件维护:
+</p>
+<ul class="org-ul">
+<li>建议按照IP地址大小，按升序排列</li>
+<li>所有域名采用小写</li>
+<li>第一个与第二个字段采用三个tab分隔，后面的字段单个TAB分隔</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline29" class="outline-2">
+<h2 id="orgheadline29">客户端配置</h2>
+<div class="outline-text-2" id="text-orgheadline29">
+</div><div id="outline-container-orgheadline27" class="outline-3">
+<h3 id="orgheadline27">卸载NetworkManager</h3>
+<div class="outline-text-3" id="text-orgheadline27">
+<p>
+Redhat/Centos系列，一般建议不管是否配置DNS均卸载如下三个软件包:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">yum -y remove NetworkManager-tui NetworkManager-libnm NetworkManager
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline28" class="outline-3">
+<h3 id="orgheadline28">/etc/resolv.conf</h3>
+<div class="outline-text-3" id="text-orgheadline28">
+<p>
+修改/etc/resolv.conf, 包含如下内容，虽然domain与search两者互斥，last one wins，但此处两者均配置。
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">domain abc.com
+search abc.com
+options rotate timeout:1 attempts:4
+nameserver 192.168.1.61
+nameserver 192.168.1.62
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline40" class="outline-2">
+<h2 id="orgheadline40">日常维护</h2>
+<div class="outline-text-2" id="text-orgheadline40">
+</div><div id="outline-container-orgheadline30" class="outline-3">
+<h3 id="orgheadline30">增加纪录</h3>
+<div class="outline-text-3" id="text-orgheadline30">
+<p>
+例如ftp.abc.com, 对应生产IP 192.168.193.127，办公IP 172.16.2.150
+操作步骤如下：
+</p>
+</div>
+<div id="outline-container-orgheadline31" class="outline-4">
+<h4 id="orgheadline31">修改sc.named.abc.com</h4>
+<div class="outline-text-4" id="text-orgheadline31">
+<div class="org-src-container">
+
+<pre class="src src-sh">192.168.193.127    IN    A     ftp
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline32" class="outline-4">
+<h4 id="orgheadline32">修改oa.named.abc.com</h4>
+<div class="outline-text-4" id="text-orgheadline32">
+<div class="org-src-container">
+
+<pre class="src src-sh">172.16.2.150    IN    A     ftp
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline33" class="outline-4">
+<h4 id="orgheadline33">修改SERIAL</h4>
+<div class="outline-text-4" id="text-orgheadline33">
+<p>
+zone文件其中有一行标志文件的版本号，添加纪录时，需增加SERIAL的值，此时bind服务器才会认为对此文件做了更新，从而让新zone生效。此处SERIAL的值采用的格式为YYYYMMDDNN，例如2016072001, 表示2016年7月20日的第一次更新，因为计数器的长度只有2^32，所以无法添加小时与分钟，而改用当天修改的次数来表示。
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline34" class="outline-4">
+<h4 id="orgheadline34">查看前后差异</h4>
+<div class="outline-text-4" id="text-orgheadline34">
+<p>
+登录ns00，通过如下命令可查看配置文件与已提交版本差异：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh"><span style="color: #058; font-weight: bold;">cd</span> /root/dns
+sh backupdns.sh
+git diff --color
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline35" class="outline-4">
+<h4 id="orgheadline35">重新加载文件</h4>
+<div class="outline-text-4" id="text-orgheadline35">
+<div class="org-src-container">
+
+<pre class="src src-sh">rndc reload
+</pre>
+</div>
+
+<p>
+添加纪录，并递增序列号后，需要通过来重新加载配置。 一般不建议通过重启named服务来重新加载配置。
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline36" class="outline-3">
+<h3 id="orgheadline36">备份</h3>
+<div class="outline-text-3" id="text-orgheadline36">
+<div class="org-src-container">
+
+<pre class="src src-sh"><span style="color: #633;">#</span><span style="color: #633;">!/bin/</span><span style="color: #800; font-weight: bold;">sh</span>
+
+<span style="color: #007;">LOGFILE</span>=/var/log/backupdns.log
+
+<span style="color: #633;">#</span><span style="color: #633;">redirect STDOUT and STDERR to file</span>
+<span style="color: #800; font-weight: bold;">exec</span> 4&lt;&amp;1
+<span style="color: #800; font-weight: bold;">exec</span> 5&lt;&amp;2
+<span style="color: #800; font-weight: bold;">exec</span> 1&gt;&gt;$<span style="color: #007;">LOGFILE</span>
+<span style="color: #800; font-weight: bold;">exec</span> 2&gt;&gt;$<span style="color: #007;">LOGFILE</span>
+
+<span style="color: #058; font-weight: bold;">echo</span> <span style="color: #800;">"-------------------------------------------------------------------------"</span>
+<span style="color: #058; font-weight: bold;">echo</span> $(date -u) <span style="color: #800;">" - start backup dns configuration"</span>
+<span style="color: #058; font-weight: bold;">echo</span> <span style="color: #800;">"-------------------------------------------------------------------------"</span>
+
+/usr/bin/rsync -avz /var/named/sc.named.abc.com /root/dns/
+/usr/bin/rsync -avz /var/named/oa.named.abc.com /root/dns/
+/usr/bin/rsync -avz /etc/named.conf /root/dns/master.named.conf
+/usr/bin/rsync -avz root@ns01.abc.com:/etc/named.conf /root/dns/slave01.named.conf
+/usr/bin/rsync -avz root@ns02.abc.com:/etc/named.conf /root/dns/slave02.named.conf
+/usr/bin/rsync -avz /root/dns/ root@ns01.abc.com:/root/dns/
+/usr/bin/rsync -avz /root/dns/ root@ns02.abc.com:/root/dns/
+
+<span style="color: #058; font-weight: bold;">echo</span> <span style="color: #800;">"-------------------------------------------------------------------------"</span>
+<span style="color: #058; font-weight: bold;">echo</span> $(date -u) <span style="color: #800;">" - finish backup dns configuration"</span>
+<span style="color: #058; font-weight: bold;">echo</span> <span style="color: #800;">"-------------------------------------------------------------------------"</span>
+
+<span style="color: #800; font-weight: bold;">exec</span> 1&lt;&amp;4
+<span style="color: #800; font-weight: bold;">exec</span> 2&lt;&amp;5
+</pre>
+</div>
+
+<p>
+通过定时作业运行，除将主要文件备份至本地外，在两台slave服务器上各留存了一份。为了方便后期对历史纪录进行回溯，建议通过如下命令将配置文件加入版本控制
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-sh"><span style="color: #058; font-weight: bold;">cd</span> /root/dns
+git init
+git add -A .
+git status
+git commit
+</pre>
+</div>
+
+<p>
+加入此版本变更说明，比如：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">serial 2016072001
+
+- type A: 192.168.4.11 =&gt; ntp01
+- type A: 192.168.4.12 =&gt; ntp02
+- type A: 192.168.193.127 =&gt; ftp.test
+</pre>
+</div>
+
+<p>
+目前已经提交了一个版本，信息如下：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">[root@ns00 dns]# git log
+commit dc890ae944826d0e060e12b9ca704f92228afc10
+Author: wanglifeng_hz &lt;wanglifeng_abc.com&gt;
+Date:   Fri Jul 22 09:41:59 2016 +0800
+
+    initial commit
+
+    sc.abc.com:
+    ------------------------------------------------------------
+    ntp01                       IN      A       192.168.4.11
+    ntp02                       IN      A       192.168.4.12
+    ftp.test                    IN      A       192.168.193.127
+
+    oa.abc.com
+    ------------------------------------------------------------
+    ntp01                       IN      A       172.16.2.200
+    ftp.test                    IN      A       172.16.2.150
+</pre>
+</div>
+
+<p>
+后续可以通过<code>git log</code>命令查看历史变更情况，同时通过<code>checkout</code>回退至任何版本。
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline37" class="outline-3">
+<h3 id="orgheadline37">监控</h3>
+<div class="outline-text-3" id="text-orgheadline37">
+<p>
+较新版本的bind服务器支持通过http协议暴露出一些DNS服务器的计数器，方便监控与统计分析。访问的网址为<a href="http://192.168.1.61:8053/">http://192.168.1.61:8053/</a> . 当重启DNS服务器时，计数器将被清空。为方便对历史数据进行统计分析，在三台DNS服务器上安装了zabbix-agent，由zabbix-server定期采集数据。具体的报表由grafana dashboard展示，链接地址为：<a href="http://192.168.11.150:3000/">http://192.168.11.150:3000/</a>
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline38" class="outline-3">
+<h3 id="orgheadline38">日志文件</h3>
+<div class="outline-text-3" id="text-orgheadline38">
+<ul class="org-ul">
+<li>/var/named/data/named.run</li>
+<li>/var/log/message</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline39" class="outline-3">
+<h3 id="orgheadline39">诊断工具</h3>
+<div class="outline-text-3" id="text-orgheadline39">
+<p>
+可以通过在客户端安装bind-utils包用于DNS服务器的诊断，包含dig, nslookup等命令行工具。
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">dig -t A @192.168.1.61 ntp01.abc.com
+dig -t SOA @192.168.1.61 ntp01.abc.com
+dig -t NS @192.168.1.61 ntp01.abc.com
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline41" class="outline-2">
+<h2 id="orgheadline41">ansible自动安装脚本</h2>
+<div class="outline-text-2" id="text-orgheadline41">
+<p>
+<a href="https://github.com/wanglf/ansible-playbook/tree/master/roles/bind">Bind playbook</a>
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline44" class="outline-2">
+<h2 id="orgheadline44">最佳实践</h2>
+<div class="outline-text-2" id="text-orgheadline44">
+</div><div id="outline-container-orgheadline42" class="outline-3">
+<h3 id="orgheadline42">最小化重启</h3>
+<div class="outline-text-3" id="text-orgheadline42">
+<p>
+利用<code>rndc reload</code>单个zone
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline43" class="outline-3">
+<h3 id="orgheadline43">隐藏primary server</h3>
+<div class="outline-text-3" id="text-orgheadline43">
+<p>
+只有slave server对外提供查询功能，master server只用于配置变更。
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline45" class="outline-2">
+<h2 id="orgheadline45">参考资料</h2>
+<div class="outline-text-2" id="text-orgheadline45">
+<ol class="org-ol">
+<li><a href="http://linux.vbird.org/linux_server/0350dns.php">鸟哥的私房菜-DNS伺服器</a></li>
+<li><a href="http://shop.oreilly.com/product/9780596100575.do">DNS and BIND, 5th Edition By Cricket Liu, Paul Albitz.</a></li>
+</ol>
+</div>
+</div>
+
+
+    <hr><br>
+    <div class="post-prev">
+      <a class="post-nav" href="/network/netflow-with-elk.html">上一篇</a>
+    </div>
+    <div class="post-next">
+      <a class="post-nav" href="/linux/my-ubuntu-desktop.html">下一篇</a>
+    </div>
+  </article>
+
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col-1">
+        <ul class="contact-list">
+          <li><a class="username" href="mailto:wlfqware#gmail.com">wlfqware#gmail.com</a></li>
+
+          
+        </ul>
+      </div>
+
+      <div class="footer-col-2">
+        <p class="text">Wonder is the beginning of wisdom</p>
+      </div>
+
+    </div>
+    <div class="footer-col-wrapper">
+      <div align="center">
+        &copy; 2014-2016 |
+          
+            <a class="username" href="https://github.com/wanglf">
+              <span class="icon  icon--github">
+                <svg viewBox="0 0 16 16">
+                  <path fill="#828282" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761 c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32 c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472 c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037 C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65 c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261 c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082 c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129 c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/>
+                </svg>
+              </span>
+              <span class="username">wanglf</span>
+            </a>
+          
+      </div>
+    </div>
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>
