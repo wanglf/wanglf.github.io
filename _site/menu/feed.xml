@@ -5,8 +5,8 @@
     <description>Wonder is the beginning of wisdom</description>
     <link>/</link>
     <atom:link href="/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Fri, 05 Aug 2016 21:08:26 +0800</pubDate>
-    <lastBuildDate>Fri, 05 Aug 2016 21:08:26 +0800</lastBuildDate>
+    <pubDate>Sat, 06 Aug 2016 21:22:00 +0800</pubDate>
+    <lastBuildDate>Sat, 06 Aug 2016 21:22:00 +0800</lastBuildDate>
     <generator>Jekyll v2.5.3</generator>
     
       <item>
@@ -224,8 +224,7 @@ ln -s /opt/git/dotfiles.git/tmux/.tmux.conf ~
 &lt;div class=&quot;outline-text-4&quot; id=&quot;text-orgheadline15&quot;&gt;
 &lt;div class=&quot;org-src-container&quot;&gt;
 
-&lt;pre class=&quot;src src-sh&quot;&gt;sudo apt-get install libxpm-dev libjpeg62-dev libgif-dev libtiff4-dev libpng16-dev
-sudo apt-get install libncurses-dev
+&lt;pre class=&quot;src src-sh&quot;&gt;sudo apt-get install build-essential texinfo libx11-dev libxpm-dev libjpeg-dev libpng-dev libgif-dev libtiff-dev libgtk2.0-dev libncurses-dev libxpm-dev automake autoconf
 &lt;/pre&gt;
 &lt;/div&gt;
 &lt;/div&gt;
@@ -237,7 +236,7 @@ sudo apt-get install libncurses-dev
 &lt;div class=&quot;org-src-container&quot;&gt;
 
 &lt;pre class=&quot;src src-sh&quot;&gt;&lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;cd&lt;/span&gt; emacs-24.5
-./configure --with-x-toolkit=no
+./configure
 make
 sudo make install
 &lt;/pre&gt;

@@ -217,8 +217,7 @@ ln -s /opt/git/dotfiles.git/tmux/.tmux.conf ~
 <div class="outline-text-4" id="text-orgheadline15">
 <div class="org-src-container">
 
-<pre class="src src-sh">sudo apt-get install libxpm-dev libjpeg62-dev libgif-dev libtiff4-dev libpng16-dev
-sudo apt-get install libncurses-dev
+<pre class="src src-sh">sudo apt-get install build-essential texinfo libx11-dev libxpm-dev libjpeg-dev libpng-dev libgif-dev libtiff-dev libgtk2.0-dev libncurses-dev libxpm-dev automake autoconf
 </pre>
 </div>
 </div>
@@ -230,7 +229,7 @@ sudo apt-get install libncurses-dev
 <div class="org-src-container">
 
 <pre class="src src-sh"><span style="color: #058; font-weight: bold;">cd</span> emacs-24.5
-./configure --with-x-toolkit=no
+./configure
 make
 sudo make install
 </pre>
