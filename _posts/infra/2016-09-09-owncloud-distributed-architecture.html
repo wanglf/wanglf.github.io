@@ -1,0 +1,438 @@
+---
+title: "Owncloud distributed architecture"
+tags: owncloud
+layout: post
+categories: infra
+---
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline1">Topologoy</a></li>
+<li><a href="#orgheadline2">Load balancer</a></li>
+<li><a href="#orgheadline3">Webapp</a>
+<ul>
+<li><a href="#orgheadline4">config.php</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline14">MariaDB Galera Cluster</a>
+<ul>
+<li><a href="#orgheadline5">Mysql use authorization</a></li>
+<li><a href="#orgheadline9">Mariadb configuration</a>
+<ul>
+<li><a href="#orgheadline6">s1 server.cnf</a></li>
+<li><a href="#orgheadline7">s2 server.cnf</a></li>
+<li><a href="#orgheadline8">s3 server.cnf</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline13">Start</a>
+<ul>
+<li><a href="#orgheadline10">s1</a></li>
+<li><a href="#orgheadline11">s2</a></li>
+<li><a href="#orgheadline12">s3</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#orgheadline16">Redis Cache Server</a>
+<ul>
+<li><a href="#orgheadline15">sentinel</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline21">GlusterFS</a>
+<ul>
+<li><a href="#orgheadline17">Format and mount the bricks</a></li>
+<li><a href="#orgheadline18">install glusterfs-server</a></li>
+<li><a href="#orgheadline19">setup GlusterFS Volumn</a></li>
+<li><a href="#orgheadline20">Client</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<!--abstract-begin-->
+<p>
+ownCloud is a self-hosted file sync and share server. It provides access to your data through a web interface, sync clients or WebDAV while providing a platform to view, sync and share across devices easily — all under your control. ownCloud’s open architecture is extensible via a simple but powerful API for applications and plugins and it works with any storage.
+</p>
+
+<p>
+This Document illustrate how to scale out the architecture.
+</p>
+<!--abstract-end-->
+
+<div id="outline-container-orgheadline1" class="outline-2">
+<h2 id="orgheadline1">Topologoy</h2>
+<div class="outline-text-2" id="text-orgheadline1">
+<div class="org-center">
+
+<div class="figure">
+<p><img src="/resource/infra/fig/owncloud.png" alt="owncloud.png" />
+</p>
+</div>
+</div>
+
+<p>
+This architecture consist of five components:
+</p>
+
+<ul class="org-ul">
+<li>Load balancer</li>
+<li>Webapp</li>
+<li>Database cluster</li>
+<li>Cache cluster</li>
+<li>File storage server</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgheadline2" class="outline-2">
+<h2 id="orgheadline2">Load balancer</h2>
+<div class="outline-text-2" id="text-orgheadline2">
+<p>
+HAProxy, which stands for High Availability Proxy, is a popular open source software TCP/HTTP Load Balancer and proxying solution which can be run on Linux, Solaris, and FreeBSD. Its most common use is to improve the performance and reliability of a server environment by distributing the workload across multiple servers (e.g. web, application, database).
+</p>
+
+<p>
+Here we use haproxy as load balancer for webapp and database cluster, and provide ha for redis master-slave cluster. We also install keepalived to provide ip floating.
+</p>
+
+<p>
+Haproxy configuration as follows:
+</p>
+
+<pre class="example">
+defaults
+    mode                    tcp
+    log                     global
+    option                  dontlognull
+    option                  redispatch
+    retries                 3
+    timeout queue           45s
+    timeout connect         5s
+    timeout client          1m
+    timeout server          1m
+    timeout check           10s
+    maxconn                 3000
+
+listen ocdb 0.0.0.0:3306
+    mode tcp
+    balance source
+    server ocdb01 192.168.1.77:3306 check
+    server ocdb02 192.168.1.78:3306 check
+    server ocdb03 192.168.1.79:3306 check
+
+listen ocredis 0.0.0.0:6379
+    mode tcp
+    balance first
+    option tcp-check
+    tcp-check send info\ replication\r\n
+    tcp-check expect string role:master
+
+    server ocredis01 192.168.1.77:6379 maxconn 20000 check inter 1s
+    server ocredis02 192.168.1.78:6379 maxconn 20000 check inter 1s
+    server ocredis03 192.168.1.79:6379 maxconn 20000 check inter 1s
+
+listen ocwebapp 0.0.0.0:80
+    mode http
+    balance roundrobin
+    option forwardfor
+    option httpclose
+    #option http-request set-header X-Client-IP %[src]
+    server ocwebapp01 192.168.1.73:80 check
+    server ocwebapp02 192.168.1.74:80 check
+    server ocwebapp03 192.168.1.75:80 check
+    server ocwebapp04 192.168.1.76:80 check
+
+listen haproxy-monitoring *:3307
+    mode http
+    stats enable
+    stats show-legends
+    stats refresh                       60s
+    stats uri                           /
+    stats admin                         if TRUE
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orgheadline3" class="outline-2">
+<h2 id="orgheadline3">Webapp</h2>
+<div class="outline-text-2" id="text-orgheadline3">
+<p>
+Owncloud is developed base on LAMP (Linux + Apache + Mysql + Php) environment. Official site provide the tar ball file for downloading [<a href="https://download.owncloud.org/community/owncloud-9.1.0.tar.bz2">owncloud </a>]. After finish setting up LAMP, we just need to extract the tar file to apache DocumentRoot. Then we can visit <a href="http://192.168.1.73/owncloud">http://192.168.1.73/owncloud</a> to do some initialization work.
+</p>
+</div>
+
+<div id="outline-container-orgheadline4" class="outline-3">
+<h3 id="orgheadline4">config.php</h3>
+<div class="outline-text-3" id="text-orgheadline4">
+<div class="org-src-container">
+
+<pre class="src src-php"><span style="color: #800;">&lt;?php</span>
+<span style="color: #555; background-color: #fee;">$</span><span style="color: #007;">CONFIG</span> = <span style="color: #800; font-weight: bold;">array</span> (
+  <span style="color: #800;">'instanceid'</span> =&gt; <span style="color: #800;">'oco51ibikx38'</span>,
+  <span style="color: #800;">'passwordsalt'</span> =&gt; <span style="color: #800;">'HrqoS90h7zTuhggUDzjhF8Oi4nM5w2'</span>,
+  <span style="color: #800;">'secret'</span> =&gt; <span style="color: #800;">'kmY+cxh1tfSuXjDmIsFf9m+aH48U5qq//KxZuh10JukP/LBu'</span>,
+  <span style="color: #800;">'trusted_domains'</span> =&gt;
+  <span style="color: #800; font-weight: bold;">array</span> (
+    0 =&gt; <span style="color: #800;">'192.168.1.70'</span>,
+  ),
+  <span style="color: #800;">'datadirectory'</span> =&gt; <span style="color: #800;">'/owncloud/data'</span>,
+  <span style="color: #800;">'overwrite.cli.url'</span> =&gt; <span style="color: #800;">'http://192.168.1.70/owncloud'</span>,
+  <span style="color: #800;">'dbtype'</span> =&gt; <span style="color: #800;">'mysql'</span>,
+  <span style="color: #800;">'version'</span> =&gt; <span style="color: #800;">'9.1.0.15'</span>,
+  <span style="color: #800;">'dbname'</span> =&gt; <span style="color: #800;">'owncloud'</span>,
+  <span style="color: #800;">'dbhost'</span> =&gt; <span style="color: #800;">'ocdb'</span>,
+  <span style="color: #800;">'dbtableprefix'</span> =&gt; <span style="color: #800;">'oc_'</span>,
+  <span style="color: #800;">'dbuser'</span> =&gt; <span style="color: #800;">'owncloud'</span>,
+  <span style="color: #800;">'dbpassword'</span> =&gt; <span style="color: #800;">'owncloud'</span>,
+  <span style="color: #800;">'log_type'</span> =&gt; <span style="color: #800;">'owncloud'</span>,
+  <span style="color: #800;">'logfile'</span> =&gt; <span style="color: #800;">'/var/log/owncloud/owncloud.log'</span>,
+  <span style="color: #800;">'loglevel'</span> =&gt; <span style="color: #800;">'3'</span>,
+  <span style="color: #800;">'logtimezone'</span> =&gt; <span style="color: #800;">'Asia/Shanghai'</span>,
+  <span style="color: #800;">'log_rotate_size'</span> =&gt; 104857600, <span style="color: #633;">/* </span><span style="color: #633;">100MB */</span>
+  <span style="color: #800;">'installed'</span> =&gt; <span style="color: #046; font-weight: bold;">true</span>,
+  <span style="color: #800;">'ldapIgnoreNamingRules'</span> =&gt; <span style="color: #046; font-weight: bold;">false</span>,
+  <span style="color: #800;">'ldapUserCleanupInterval'</span> =&gt; 60, <span style="color: #633;">/* </span><span style="color: #633;">1h */</span>
+  <span style="color: #800;">'filelocking.enabled'</span> =&gt; <span style="color: #046; font-weight: bold;">true</span>,
+  <span style="color: #800;">'blacklisted_files'</span> =&gt; <span style="color: #800; font-weight: bold;">array</span>(
+    0 =&gt; <span style="color: #800;">'.htaccess'</span>, <span style="color: #633;">/* </span><span style="color: #633;">only exact file, no wildcards */</span>
+  ),
+  <span style="color: #800;">'memcache.distributed'</span> =&gt; <span style="color: #800;">'\OC\Memcache\Redis'</span>,
+  <span style="color: #800;">'memcache.locking'</span> =&gt; <span style="color: #800;">'\OC\Memcache\Redis'</span>,
+  <span style="color: #800;">'memcache.local'</span> =&gt; <span style="color: #800;">'\OC\Memcache\Redis'</span>, <span style="color: #633;">/* </span><span style="color: #633;">official recommend to use APCu for local, but we here use redis */</span>
+  <span style="color: #800;">'redis'</span> =&gt; <span style="color: #800; font-weight: bold;">array</span>(
+    <span style="color: #800;">'host'</span> =&gt; <span style="color: #800;">'ocredis'</span>,
+    <span style="color: #800;">'port'</span> =&gt; 6379,
+  ),
+  <span style="color: #800;">'upgrade.disable-web'</span> =&gt; <span style="color: #046; font-weight: bold;">true</span>,
+  <span style="color: #800;">'default_language'</span> =&gt; <span style="color: #800;">'cn'</span>,
+  <span style="color: #800;">'theme'</span> =&gt; <span style="color: #800;">'citic'</span>,
+  <span style="color: #800;">"knowledgebaseenabled"</span> =&gt; <span style="color: #046; font-weight: bold;">false</span>, <span style="color: #633;">/* </span><span style="color: #633;">disable help menu for every user */</span>
+);
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline14" class="outline-2">
+<h2 id="orgheadline14">MariaDB Galera Cluster</h2>
+<div class="outline-text-2" id="text-orgheadline14">
+</div><div id="outline-container-orgheadline5" class="outline-3">
+<h3 id="orgheadline5">Mysql use authorization</h3>
+<div class="outline-text-3" id="text-orgheadline5">
+<pre class="example">
+mysql&gt; DELETE FROM mysql.user WHERE user='';
+mysql&gt; GRANT ALL ON *.* TO 'root'@'%' IDENTIFIED BY 'dbpass';
+mysql&gt; GRANT USAGE ON *.* to sst_user@'%' IDENTIFIED BY 'dbpass';
+mysql&gt; GRANT ALL PRIVILEGES on *.* to sst_user@'%';
+mysql&gt; FLUSH PRIVILEGES;
+mysql&gt; quit
+</pre>
+</div>
+</div>
+<div id="outline-container-orgheadline9" class="outline-3">
+<h3 id="orgheadline9">Mariadb configuration</h3>
+<div class="outline-text-3" id="text-orgheadline9">
+</div><div id="outline-container-orgheadline6" class="outline-4">
+<h4 id="orgheadline6">s1 server.cnf</h4>
+<div class="outline-text-4" id="text-orgheadline6">
+<pre class="example">
+# These groups are read by MariaDB server.
+# Use it for options that only the server (but not clients) should see
+#
+# See the examples of server my.cnf files in /usr/share/mysql/
+#
+
+# this is read by the standalone daemon and embedded servers
+[server]
+
+# this is only for the mysqld standalone daemon
+[mysqld]
+skip-name-resolve
+
+#
+# * Galera-related settings
+#
+[galera]
+binlog_format=ROW
+default-storage-engine=innodb
+innodb_autoinc_lock_mode=2
+innodb_locks_unsafe_for_binlog=1
+query_cache_size=0
+query_cache_type=0
+bind-address=0.0.0.0
+datadir=/var/lib/mysql
+innodb_log_file_size=100M
+innodb_file_per_table
+innodb_flush_log_at_trx_commit=2
+wsrep_provider=/usr/lib64/galera/libgalera_smm.so
+wsrep_cluster_address="gcomm://192.168.1.77,192.168.1.78,192.168.1.79"
+wsrep_cluster_name='galera_cluster'
+wsrep_node_address='192.168.1.77'
+wsrep_node_name='ocdb01'
+wsrep_sst_method=rsync
+wsrep_sst_auth=sst_user:sst_user
+# Optional setting
+#wsrep_slave_threads=1
+#innodb_flush_log_at_trx_commit=0
+
+# this is only for embedded server
+[embedded]
+
+# This group is only read by MariaDB servers, not by MySQL.
+# If you use the same .cnf file for MySQL and MariaDB,
+# you can put MariaDB-only options here
+[mariadb]
+
+# This group is only read by MariaDB-10.0 servers.
+# If you use the same .cnf file for MariaDB of different versions,
+# use this group for options that older servers don't understand
+[mariadb-10.0]
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orgheadline7" class="outline-4">
+<h4 id="orgheadline7">s2 server.cnf</h4>
+<div class="outline-text-4" id="text-orgheadline7">
+<pre class="example">
+wsrep_node_address='192.168.1.78'
+wsrep_node_name='ocdb02'
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orgheadline8" class="outline-4">
+<h4 id="orgheadline8">s3 server.cnf</h4>
+<div class="outline-text-4" id="text-orgheadline8">
+<pre class="example">
+wsrep_node_address='192.168.1.79'
+wsrep_node_name='ocdb03'
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline13" class="outline-3">
+<h3 id="orgheadline13">Start</h3>
+<div class="outline-text-3" id="text-orgheadline13">
+</div><div id="outline-container-orgheadline10" class="outline-4">
+<h4 id="orgheadline10">s1</h4>
+<div class="outline-text-4" id="text-orgheadline10">
+<div class="org-src-container">
+
+<pre class="src src-sh">service mysql start --wsrep-new-cluster
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline11" class="outline-4">
+<h4 id="orgheadline11">s2</h4>
+<div class="outline-text-4" id="text-orgheadline11">
+<div class="org-src-container">
+
+<pre class="src src-sh">service mysql start
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline12" class="outline-4">
+<h4 id="orgheadline12">s3</h4>
+<div class="outline-text-4" id="text-orgheadline12">
+<div class="org-src-container">
+
+<pre class="src src-sh">service mysql start
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline16" class="outline-2">
+<h2 id="orgheadline16">Redis Cache Server</h2>
+<div class="outline-text-2" id="text-orgheadline16">
+</div><div id="outline-container-orgheadline15" class="outline-3">
+<h3 id="orgheadline15">sentinel</h3>
+<div class="outline-text-3" id="text-orgheadline15">
+<pre class="example">
+port 26379
+
+sentinel monitor oaredis 192.168.1.77 6379 2
+sentinel down-after-milliseconds oaredis 5000
+sentinel failover-timeout oaredis 60000
+sentinel config-epoch oaredis 191
+
+logfile "/var/log/redis/sentinel.log"
+</pre>
+
+<div class="org-src-container">
+
+<pre class="src src-sh">systemctl start redis
+systemctl start redis-sentinel
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline21" class="outline-2">
+<h2 id="orgheadline21">GlusterFS</h2>
+<div class="outline-text-2" id="text-orgheadline21">
+</div><div id="outline-container-orgheadline17" class="outline-3">
+<h3 id="orgheadline17">Format and mount the bricks</h3>
+<div class="outline-text-3" id="text-orgheadline17">
+<div class="org-src-container">
+
+<pre class="src src-sh">fdisk /dev/sdb
+mkfs.xfs -i <span style="color: #007;">size</span>=512 /dev/sdb1
+mkdir -p /data/brick1
+<span style="color: #058; font-weight: bold;">echo</span> <span style="color: #800;">'/dev/sdb1 /data/brick1 xfs defaults 1 2'</span> &gt;&gt; /etc/fstab
+mount -a &amp;&amp; mount
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline18" class="outline-3">
+<h3 id="orgheadline18">install glusterfs-server</h3>
+<div class="outline-text-3" id="text-orgheadline18">
+<div class="org-src-container">
+
+<pre class="src src-sh">yum install glusterfs-server
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline19" class="outline-3">
+<h3 id="orgheadline19">setup GlusterFS Volumn</h3>
+<div class="outline-text-3" id="text-orgheadline19">
+<div class="org-src-container">
+
+<pre class="src src-sh">gluster peer probe server2
+mkdir /data/brick1/gv0
+gluster volume create gv0 replica 2 server1:/data/brick1/gv0 server2:/data/brick1/gv0
+gluster volume start gv0
+gluster volume info
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline20" class="outline-3">
+<h3 id="orgheadline20">Client</h3>
+<div class="outline-text-3" id="text-orgheadline20">
+<div class="org-src-container">
+
+<pre class="src src-sh">yum -y install glusterfs-fuse
+mkdir -p /owncloud
+mount -t glusterfs server1:/gv0 /owncloud
+</pre>
+</div>
+</div>
+</div>
+</div>
