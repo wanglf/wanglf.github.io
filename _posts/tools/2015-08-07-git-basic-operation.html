@@ -13,7 +13,7 @@ categories: tools
 <li><a href="#orgheadline3">stage,commit,push, tags</a></li>
 <li><a href="#orgheadline4">branches</a></li>
 <li><a href="#orgheadline5">rebase</a></li>
-<li><a href="#orgheadline6">git设置socks 代理</a></li>
+<li><a href="#orgheadline6">git设置代理</a></li>
 </ul>
 </div>
 </div>
@@ -116,14 +116,16 @@ git rebase -i HEAD~3
 </pre>
 </div>
 
+<blockquote>
 <p>
-<code>rebase can be used to combine multiple commits into single one before push to remote repo</code>
+rebase can be used to combine multiple commits into single one before push to remote repo
 </p>
+</blockquote>
 </div>
 </div>
 
 <div id="outline-container-orgheadline6" class="outline-2">
-<h2 id="orgheadline6">git设置socks 代理</h2>
+<h2 id="orgheadline6">git设置代理</h2>
 <div class="outline-text-2" id="text-orgheadline6">
 <p>
 vi ~/.ssh/config
@@ -132,6 +134,16 @@ vi ~/.ssh/config
 Host github.com
   User  git
   ProxyCommand  nc -x localhost:1080 %h %p
+</pre>
+
+<p>
+此处如果是nmap版本(如centos7)的ncat，则采用如下格式。
+</p>
+
+<pre class="example">
+Host github.com
+  User git
+  ProxyCommand nc --proxy-type http --proxy 127.0.0.1:8123 %h %p
 </pre>
 </div>
 </div>

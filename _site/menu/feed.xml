@@ -5,9 +5,9 @@
     <description>Wonder is the beginning of wisdom</description>
     <link>/</link>
     <atom:link href="/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Fri, 09 Sep 2016 13:13:10 +0800</pubDate>
-    <lastBuildDate>Fri, 09 Sep 2016 13:13:10 +0800</lastBuildDate>
-    <generator>Jekyll v2.5.3</generator>
+    <pubDate>Fri, 07 Oct 2016 01:17:23 -0400</pubDate>
+    <lastBuildDate>Fri, 07 Oct 2016 01:17:23 -0400</lastBuildDate>
+    <generator>Jekyll v3.3.0</generator>
     
       <item>
         <title>Owncloud distributed architecture</title>
@@ -176,44 +176,44 @@ Owncloud is developed base on LAMP (Linux + Apache + Mysql + Php) environment. O
 
 &lt;pre class=&quot;src src-php&quot;&gt;&lt;span style=&quot;color: #800;&quot;&gt;&amp;lt;?php&lt;/span&gt;
 &lt;span style=&quot;color: #555; background-color: #fee;&quot;&gt;$&lt;/span&gt;&lt;span style=&quot;color: #007;&quot;&gt;CONFIG&lt;/span&gt; = &lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;array&lt;/span&gt; (
-  &lt;span style=&quot;color: #800;&quot;&gt;&#39;instanceid&#39;&lt;/span&gt; =&amp;gt; &lt;span style=&quot;color: #800;&quot;&gt;&#39;oco51ibikx38&#39;&lt;/span&gt;,
-  &lt;span style=&quot;color: #800;&quot;&gt;&#39;passwordsalt&#39;&lt;/span&gt; =&amp;gt; &lt;span style=&quot;color: #800;&quot;&gt;&#39;HrqoS90h7zTuhggUDzjhF8Oi4nM5w2&#39;&lt;/span&gt;,
-  &lt;span style=&quot;color: #800;&quot;&gt;&#39;secret&#39;&lt;/span&gt; =&amp;gt; &lt;span style=&quot;color: #800;&quot;&gt;&#39;kmY+cxh1tfSuXjDmIsFf9m+aH48U5qq//KxZuh10JukP/LBu&#39;&lt;/span&gt;,
-  &lt;span style=&quot;color: #800;&quot;&gt;&#39;trusted_domains&#39;&lt;/span&gt; =&amp;gt;
+  &lt;span style=&quot;color: #800;&quot;&gt;'instanceid'&lt;/span&gt; =&amp;gt; &lt;span style=&quot;color: #800;&quot;&gt;'oco51ibikx38'&lt;/span&gt;,
+  &lt;span style=&quot;color: #800;&quot;&gt;'passwordsalt'&lt;/span&gt; =&amp;gt; &lt;span style=&quot;color: #800;&quot;&gt;'HrqoS90h7zTuhggUDzjhF8Oi4nM5w2'&lt;/span&gt;,
+  &lt;span style=&quot;color: #800;&quot;&gt;'secret'&lt;/span&gt; =&amp;gt; &lt;span style=&quot;color: #800;&quot;&gt;'kmY+cxh1tfSuXjDmIsFf9m+aH48U5qq//KxZuh10JukP/LBu'&lt;/span&gt;,
+  &lt;span style=&quot;color: #800;&quot;&gt;'trusted_domains'&lt;/span&gt; =&amp;gt;
   &lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;array&lt;/span&gt; (
-    0 =&amp;gt; &lt;span style=&quot;color: #800;&quot;&gt;&#39;192.168.1.70&#39;&lt;/span&gt;,
+    0 =&amp;gt; &lt;span style=&quot;color: #800;&quot;&gt;'192.168.1.70'&lt;/span&gt;,
   ),
-  &lt;span style=&quot;color: #800;&quot;&gt;&#39;datadirectory&#39;&lt;/span&gt; =&amp;gt; &lt;span style=&quot;color: #800;&quot;&gt;&#39;/owncloud/data&#39;&lt;/span&gt;,
-  &lt;span style=&quot;color: #800;&quot;&gt;&#39;overwrite.cli.url&#39;&lt;/span&gt; =&amp;gt; &lt;span style=&quot;color: #800;&quot;&gt;&#39;http://192.168.1.70/owncloud&#39;&lt;/span&gt;,
-  &lt;span style=&quot;color: #800;&quot;&gt;&#39;dbtype&#39;&lt;/span&gt; =&amp;gt; &lt;span style=&quot;color: #800;&quot;&gt;&#39;mysql&#39;&lt;/span&gt;,
-  &lt;span style=&quot;color: #800;&quot;&gt;&#39;version&#39;&lt;/span&gt; =&amp;gt; &lt;span style=&quot;color: #800;&quot;&gt;&#39;9.1.0.15&#39;&lt;/span&gt;,
-  &lt;span style=&quot;color: #800;&quot;&gt;&#39;dbname&#39;&lt;/span&gt; =&amp;gt; &lt;span style=&quot;color: #800;&quot;&gt;&#39;owncloud&#39;&lt;/span&gt;,
-  &lt;span style=&quot;color: #800;&quot;&gt;&#39;dbhost&#39;&lt;/span&gt; =&amp;gt; &lt;span style=&quot;color: #800;&quot;&gt;&#39;ocdb&#39;&lt;/span&gt;,
-  &lt;span style=&quot;color: #800;&quot;&gt;&#39;dbtableprefix&#39;&lt;/span&gt; =&amp;gt; &lt;span style=&quot;color: #800;&quot;&gt;&#39;oc_&#39;&lt;/span&gt;,
-  &lt;span style=&quot;color: #800;&quot;&gt;&#39;dbuser&#39;&lt;/span&gt; =&amp;gt; &lt;span style=&quot;color: #800;&quot;&gt;&#39;owncloud&#39;&lt;/span&gt;,
-  &lt;span style=&quot;color: #800;&quot;&gt;&#39;dbpassword&#39;&lt;/span&gt; =&amp;gt; &lt;span style=&quot;color: #800;&quot;&gt;&#39;owncloud&#39;&lt;/span&gt;,
-  &lt;span style=&quot;color: #800;&quot;&gt;&#39;log_type&#39;&lt;/span&gt; =&amp;gt; &lt;span style=&quot;color: #800;&quot;&gt;&#39;owncloud&#39;&lt;/span&gt;,
-  &lt;span style=&quot;color: #800;&quot;&gt;&#39;logfile&#39;&lt;/span&gt; =&amp;gt; &lt;span style=&quot;color: #800;&quot;&gt;&#39;/var/log/owncloud/owncloud.log&#39;&lt;/span&gt;,
-  &lt;span style=&quot;color: #800;&quot;&gt;&#39;loglevel&#39;&lt;/span&gt; =&amp;gt; &lt;span style=&quot;color: #800;&quot;&gt;&#39;3&#39;&lt;/span&gt;,
-  &lt;span style=&quot;color: #800;&quot;&gt;&#39;logtimezone&#39;&lt;/span&gt; =&amp;gt; &lt;span style=&quot;color: #800;&quot;&gt;&#39;Asia/Shanghai&#39;&lt;/span&gt;,
-  &lt;span style=&quot;color: #800;&quot;&gt;&#39;log_rotate_size&#39;&lt;/span&gt; =&amp;gt; 104857600, &lt;span style=&quot;color: #633;&quot;&gt;/* &lt;/span&gt;&lt;span style=&quot;color: #633;&quot;&gt;100MB */&lt;/span&gt;
-  &lt;span style=&quot;color: #800;&quot;&gt;&#39;installed&#39;&lt;/span&gt; =&amp;gt; &lt;span style=&quot;color: #046; font-weight: bold;&quot;&gt;true&lt;/span&gt;,
-  &lt;span style=&quot;color: #800;&quot;&gt;&#39;ldapIgnoreNamingRules&#39;&lt;/span&gt; =&amp;gt; &lt;span style=&quot;color: #046; font-weight: bold;&quot;&gt;false&lt;/span&gt;,
-  &lt;span style=&quot;color: #800;&quot;&gt;&#39;ldapUserCleanupInterval&#39;&lt;/span&gt; =&amp;gt; 60, &lt;span style=&quot;color: #633;&quot;&gt;/* &lt;/span&gt;&lt;span style=&quot;color: #633;&quot;&gt;1h */&lt;/span&gt;
-  &lt;span style=&quot;color: #800;&quot;&gt;&#39;filelocking.enabled&#39;&lt;/span&gt; =&amp;gt; &lt;span style=&quot;color: #046; font-weight: bold;&quot;&gt;true&lt;/span&gt;,
-  &lt;span style=&quot;color: #800;&quot;&gt;&#39;blacklisted_files&#39;&lt;/span&gt; =&amp;gt; &lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;array&lt;/span&gt;(
-    0 =&amp;gt; &lt;span style=&quot;color: #800;&quot;&gt;&#39;.htaccess&#39;&lt;/span&gt;, &lt;span style=&quot;color: #633;&quot;&gt;/* &lt;/span&gt;&lt;span style=&quot;color: #633;&quot;&gt;only exact file, no wildcards */&lt;/span&gt;
+  &lt;span style=&quot;color: #800;&quot;&gt;'datadirectory'&lt;/span&gt; =&amp;gt; &lt;span style=&quot;color: #800;&quot;&gt;'/owncloud/data'&lt;/span&gt;,
+  &lt;span style=&quot;color: #800;&quot;&gt;'overwrite.cli.url'&lt;/span&gt; =&amp;gt; &lt;span style=&quot;color: #800;&quot;&gt;'http://192.168.1.70/owncloud'&lt;/span&gt;,
+  &lt;span style=&quot;color: #800;&quot;&gt;'dbtype'&lt;/span&gt; =&amp;gt; &lt;span style=&quot;color: #800;&quot;&gt;'mysql'&lt;/span&gt;,
+  &lt;span style=&quot;color: #800;&quot;&gt;'version'&lt;/span&gt; =&amp;gt; &lt;span style=&quot;color: #800;&quot;&gt;'9.1.0.15'&lt;/span&gt;,
+  &lt;span style=&quot;color: #800;&quot;&gt;'dbname'&lt;/span&gt; =&amp;gt; &lt;span style=&quot;color: #800;&quot;&gt;'owncloud'&lt;/span&gt;,
+  &lt;span style=&quot;color: #800;&quot;&gt;'dbhost'&lt;/span&gt; =&amp;gt; &lt;span style=&quot;color: #800;&quot;&gt;'ocdb'&lt;/span&gt;,
+  &lt;span style=&quot;color: #800;&quot;&gt;'dbtableprefix'&lt;/span&gt; =&amp;gt; &lt;span style=&quot;color: #800;&quot;&gt;'oc_'&lt;/span&gt;,
+  &lt;span style=&quot;color: #800;&quot;&gt;'dbuser'&lt;/span&gt; =&amp;gt; &lt;span style=&quot;color: #800;&quot;&gt;'owncloud'&lt;/span&gt;,
+  &lt;span style=&quot;color: #800;&quot;&gt;'dbpassword'&lt;/span&gt; =&amp;gt; &lt;span style=&quot;color: #800;&quot;&gt;'owncloud'&lt;/span&gt;,
+  &lt;span style=&quot;color: #800;&quot;&gt;'log_type'&lt;/span&gt; =&amp;gt; &lt;span style=&quot;color: #800;&quot;&gt;'owncloud'&lt;/span&gt;,
+  &lt;span style=&quot;color: #800;&quot;&gt;'logfile'&lt;/span&gt; =&amp;gt; &lt;span style=&quot;color: #800;&quot;&gt;'/var/log/owncloud/owncloud.log'&lt;/span&gt;,
+  &lt;span style=&quot;color: #800;&quot;&gt;'loglevel'&lt;/span&gt; =&amp;gt; &lt;span style=&quot;color: #800;&quot;&gt;'3'&lt;/span&gt;,
+  &lt;span style=&quot;color: #800;&quot;&gt;'logtimezone'&lt;/span&gt; =&amp;gt; &lt;span style=&quot;color: #800;&quot;&gt;'Asia/Shanghai'&lt;/span&gt;,
+  &lt;span style=&quot;color: #800;&quot;&gt;'log_rotate_size'&lt;/span&gt; =&amp;gt; 104857600, &lt;span style=&quot;color: #633;&quot;&gt;/* &lt;/span&gt;&lt;span style=&quot;color: #633;&quot;&gt;100MB */&lt;/span&gt;
+  &lt;span style=&quot;color: #800;&quot;&gt;'installed'&lt;/span&gt; =&amp;gt; &lt;span style=&quot;color: #046; font-weight: bold;&quot;&gt;true&lt;/span&gt;,
+  &lt;span style=&quot;color: #800;&quot;&gt;'ldapIgnoreNamingRules'&lt;/span&gt; =&amp;gt; &lt;span style=&quot;color: #046; font-weight: bold;&quot;&gt;false&lt;/span&gt;,
+  &lt;span style=&quot;color: #800;&quot;&gt;'ldapUserCleanupInterval'&lt;/span&gt; =&amp;gt; 60, &lt;span style=&quot;color: #633;&quot;&gt;/* &lt;/span&gt;&lt;span style=&quot;color: #633;&quot;&gt;1h */&lt;/span&gt;
+  &lt;span style=&quot;color: #800;&quot;&gt;'filelocking.enabled'&lt;/span&gt; =&amp;gt; &lt;span style=&quot;color: #046; font-weight: bold;&quot;&gt;true&lt;/span&gt;,
+  &lt;span style=&quot;color: #800;&quot;&gt;'blacklisted_files'&lt;/span&gt; =&amp;gt; &lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;array&lt;/span&gt;(
+    0 =&amp;gt; &lt;span style=&quot;color: #800;&quot;&gt;'.htaccess'&lt;/span&gt;, &lt;span style=&quot;color: #633;&quot;&gt;/* &lt;/span&gt;&lt;span style=&quot;color: #633;&quot;&gt;only exact file, no wildcards */&lt;/span&gt;
   ),
-  &lt;span style=&quot;color: #800;&quot;&gt;&#39;memcache.distributed&#39;&lt;/span&gt; =&amp;gt; &lt;span style=&quot;color: #800;&quot;&gt;&#39;\OC\Memcache\Redis&#39;&lt;/span&gt;,
-  &lt;span style=&quot;color: #800;&quot;&gt;&#39;memcache.locking&#39;&lt;/span&gt; =&amp;gt; &lt;span style=&quot;color: #800;&quot;&gt;&#39;\OC\Memcache\Redis&#39;&lt;/span&gt;,
-  &lt;span style=&quot;color: #800;&quot;&gt;&#39;memcache.local&#39;&lt;/span&gt; =&amp;gt; &lt;span style=&quot;color: #800;&quot;&gt;&#39;\OC\Memcache\Redis&#39;&lt;/span&gt;, &lt;span style=&quot;color: #633;&quot;&gt;/* &lt;/span&gt;&lt;span style=&quot;color: #633;&quot;&gt;official recommend to use APCu for local, but we here use redis */&lt;/span&gt;
-  &lt;span style=&quot;color: #800;&quot;&gt;&#39;redis&#39;&lt;/span&gt; =&amp;gt; &lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;array&lt;/span&gt;(
-    &lt;span style=&quot;color: #800;&quot;&gt;&#39;host&#39;&lt;/span&gt; =&amp;gt; &lt;span style=&quot;color: #800;&quot;&gt;&#39;ocredis&#39;&lt;/span&gt;,
-    &lt;span style=&quot;color: #800;&quot;&gt;&#39;port&#39;&lt;/span&gt; =&amp;gt; 6379,
+  &lt;span style=&quot;color: #800;&quot;&gt;'memcache.distributed'&lt;/span&gt; =&amp;gt; &lt;span style=&quot;color: #800;&quot;&gt;'\OC\Memcache\Redis'&lt;/span&gt;,
+  &lt;span style=&quot;color: #800;&quot;&gt;'memcache.locking'&lt;/span&gt; =&amp;gt; &lt;span style=&quot;color: #800;&quot;&gt;'\OC\Memcache\Redis'&lt;/span&gt;,
+  &lt;span style=&quot;color: #800;&quot;&gt;'memcache.local'&lt;/span&gt; =&amp;gt; &lt;span style=&quot;color: #800;&quot;&gt;'\OC\Memcache\Redis'&lt;/span&gt;, &lt;span style=&quot;color: #633;&quot;&gt;/* &lt;/span&gt;&lt;span style=&quot;color: #633;&quot;&gt;official recommend to use APCu for local, but we here use redis */&lt;/span&gt;
+  &lt;span style=&quot;color: #800;&quot;&gt;'redis'&lt;/span&gt; =&amp;gt; &lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;array&lt;/span&gt;(
+    &lt;span style=&quot;color: #800;&quot;&gt;'host'&lt;/span&gt; =&amp;gt; &lt;span style=&quot;color: #800;&quot;&gt;'ocredis'&lt;/span&gt;,
+    &lt;span style=&quot;color: #800;&quot;&gt;'port'&lt;/span&gt; =&amp;gt; 6379,
   ),
-  &lt;span style=&quot;color: #800;&quot;&gt;&#39;upgrade.disable-web&#39;&lt;/span&gt; =&amp;gt; &lt;span style=&quot;color: #046; font-weight: bold;&quot;&gt;true&lt;/span&gt;,
-  &lt;span style=&quot;color: #800;&quot;&gt;&#39;default_language&#39;&lt;/span&gt; =&amp;gt; &lt;span style=&quot;color: #800;&quot;&gt;&#39;cn&#39;&lt;/span&gt;,
-  &lt;span style=&quot;color: #800;&quot;&gt;&#39;theme&#39;&lt;/span&gt; =&amp;gt; &lt;span style=&quot;color: #800;&quot;&gt;&#39;citic&#39;&lt;/span&gt;,
+  &lt;span style=&quot;color: #800;&quot;&gt;'upgrade.disable-web'&lt;/span&gt; =&amp;gt; &lt;span style=&quot;color: #046; font-weight: bold;&quot;&gt;true&lt;/span&gt;,
+  &lt;span style=&quot;color: #800;&quot;&gt;'default_language'&lt;/span&gt; =&amp;gt; &lt;span style=&quot;color: #800;&quot;&gt;'cn'&lt;/span&gt;,
+  &lt;span style=&quot;color: #800;&quot;&gt;'theme'&lt;/span&gt; =&amp;gt; &lt;span style=&quot;color: #800;&quot;&gt;'citic'&lt;/span&gt;,
   &lt;span style=&quot;color: #800;&quot;&gt;&quot;knowledgebaseenabled&quot;&lt;/span&gt; =&amp;gt; &lt;span style=&quot;color: #046; font-weight: bold;&quot;&gt;false&lt;/span&gt;, &lt;span style=&quot;color: #633;&quot;&gt;/* &lt;/span&gt;&lt;span style=&quot;color: #633;&quot;&gt;disable help menu for every user */&lt;/span&gt;
 );
 &lt;/pre&gt;
@@ -229,10 +229,10 @@ Owncloud is developed base on LAMP (Linux + Apache + Mysql + Php) environment. O
 &lt;h3 id=&quot;orgheadline5&quot;&gt;Mysql use authorization&lt;/h3&gt;
 &lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline5&quot;&gt;
 &lt;pre class=&quot;example&quot;&gt;
-mysql&amp;gt; DELETE FROM mysql.user WHERE user=&#39;&#39;;
-mysql&amp;gt; GRANT ALL ON *.* TO &#39;root&#39;@&#39;%&#39; IDENTIFIED BY &#39;dbpass&#39;;
-mysql&amp;gt; GRANT USAGE ON *.* to sst_user@&#39;%&#39; IDENTIFIED BY &#39;dbpass&#39;;
-mysql&amp;gt; GRANT ALL PRIVILEGES on *.* to sst_user@&#39;%&#39;;
+mysql&amp;gt; DELETE FROM mysql.user WHERE user='';
+mysql&amp;gt; GRANT ALL ON *.* TO 'root'@'%' IDENTIFIED BY 'dbpass';
+mysql&amp;gt; GRANT USAGE ON *.* to sst_user@'%' IDENTIFIED BY 'dbpass';
+mysql&amp;gt; GRANT ALL PRIVILEGES on *.* to sst_user@'%';
 mysql&amp;gt; FLUSH PRIVILEGES;
 mysql&amp;gt; quit
 &lt;/pre&gt;
@@ -275,9 +275,9 @@ innodb_file_per_table
 innodb_flush_log_at_trx_commit=2
 wsrep_provider=/usr/lib64/galera/libgalera_smm.so
 wsrep_cluster_address=&quot;gcomm://192.168.1.77,192.168.1.78,192.168.1.79&quot;
-wsrep_cluster_name=&#39;galera_cluster&#39;
-wsrep_node_address=&#39;192.168.1.77&#39;
-wsrep_node_name=&#39;ocdb01&#39;
+wsrep_cluster_name='galera_cluster'
+wsrep_node_address='192.168.1.77'
+wsrep_node_name='ocdb01'
 wsrep_sst_method=rsync
 wsrep_sst_auth=sst_user:sst_user
 # Optional setting
@@ -294,7 +294,7 @@ wsrep_sst_auth=sst_user:sst_user
 
 # This group is only read by MariaDB-10.0 servers.
 # If you use the same .cnf file for MariaDB of different versions,
-# use this group for options that older servers don&#39;t understand
+# use this group for options that older servers don't understand
 [mariadb-10.0]
 &lt;/pre&gt;
 &lt;/div&gt;
@@ -304,8 +304,8 @@ wsrep_sst_auth=sst_user:sst_user
 &lt;h4 id=&quot;orgheadline7&quot;&gt;s2 server.cnf&lt;/h4&gt;
 &lt;div class=&quot;outline-text-4&quot; id=&quot;text-orgheadline7&quot;&gt;
 &lt;pre class=&quot;example&quot;&gt;
-wsrep_node_address=&#39;192.168.1.78&#39;
-wsrep_node_name=&#39;ocdb02&#39;
+wsrep_node_address='192.168.1.78'
+wsrep_node_name='ocdb02'
 &lt;/pre&gt;
 &lt;/div&gt;
 &lt;/div&gt;
@@ -314,8 +314,8 @@ wsrep_node_name=&#39;ocdb02&#39;
 &lt;h4 id=&quot;orgheadline8&quot;&gt;s3 server.cnf&lt;/h4&gt;
 &lt;div class=&quot;outline-text-4&quot; id=&quot;text-orgheadline8&quot;&gt;
 &lt;pre class=&quot;example&quot;&gt;
-wsrep_node_address=&#39;192.168.1.79&#39;
-wsrep_node_name=&#39;ocdb03&#39;
+wsrep_node_address='192.168.1.79'
+wsrep_node_name='ocdb03'
 &lt;/pre&gt;
 &lt;/div&gt;
 &lt;/div&gt;
@@ -397,7 +397,7 @@ systemctl start redis-sentinel
 &lt;pre class=&quot;src src-sh&quot;&gt;fdisk /dev/sdb
 mkfs.xfs -i &lt;span style=&quot;color: #007;&quot;&gt;size&lt;/span&gt;=512 /dev/sdb1
 mkdir -p /data/brick1
-&lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;echo&lt;/span&gt; &lt;span style=&quot;color: #800;&quot;&gt;&#39;/dev/sdb1 /data/brick1 xfs defaults 1 2&#39;&lt;/span&gt; &amp;gt;&amp;gt; /etc/fstab
+&lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;echo&lt;/span&gt; &lt;span style=&quot;color: #800;&quot;&gt;'/dev/sdb1 /data/brick1 xfs defaults 1 2'&lt;/span&gt; &amp;gt;&amp;gt; /etc/fstab
 mount -a &amp;amp;&amp;amp; mount
 &lt;/pre&gt;
 &lt;/div&gt;
@@ -444,7 +444,7 @@ mount -t glusterfs server1:/gv0 /owncloud
 &lt;/div&gt;
 &lt;/div&gt;
 </description>
-        <pubDate>Fri, 09 Sep 2016 00:00:00 +0800</pubDate>
+        <pubDate>Fri, 09 Sep 2016 00:00:00 -0400</pubDate>
         <link>/infra/owncloud-distributed-architecture.html</link>
         <guid isPermaLink="true">/infra/owncloud-distributed-architecture.html</guid>
         
@@ -742,9 +742,9 @@ wait emacs to install elpa packages
 &lt;div class=&quot;org-src-container&quot;&gt;
 
 &lt;pre class=&quot;src src-sh&quot;&gt;&lt;span style=&quot;color: #633;&quot;&gt;# &lt;/span&gt;&lt;span style=&quot;color: #633;&quot;&gt;in ~/.customrc add following 3 aliases&lt;/span&gt;
-&lt;span style=&quot;color: #633;&quot;&gt;# &lt;/span&gt;&lt;span style=&quot;color: #633;&quot;&gt;alias emacsd=&#39;emacs -nw --daemon --no-desktop&#39;&lt;/span&gt;
-&lt;span style=&quot;color: #633;&quot;&gt;# &lt;/span&gt;&lt;span style=&quot;color: #633;&quot;&gt;alias killemacs=&#39;kill -9 `pidof emacs`&#39;&lt;/span&gt;
-&lt;span style=&quot;color: #633;&quot;&gt;# &lt;/span&gt;&lt;span style=&quot;color: #633;&quot;&gt;alias ec=&#39;TERM=xterm-256color emacsclient -t&#39;&lt;/span&gt;
+&lt;span style=&quot;color: #633;&quot;&gt;# &lt;/span&gt;&lt;span style=&quot;color: #633;&quot;&gt;alias emacsd='emacs -nw --daemon --no-desktop'&lt;/span&gt;
+&lt;span style=&quot;color: #633;&quot;&gt;# &lt;/span&gt;&lt;span style=&quot;color: #633;&quot;&gt;alias killemacs='kill -9 `pidof emacs`'&lt;/span&gt;
+&lt;span style=&quot;color: #633;&quot;&gt;# &lt;/span&gt;&lt;span style=&quot;color: #633;&quot;&gt;alias ec='TERM=xterm-256color emacsclient -t'&lt;/span&gt;
 emacsd
 ec
 killemacs
@@ -815,7 +815,7 @@ open gnome-tweak-tool, goto Typing menu, Caps Lock key behavior
 &lt;/div&gt;
 &lt;/div&gt;
 </description>
-        <pubDate>Fri, 05 Aug 2016 00:00:00 +0800</pubDate>
+        <pubDate>Fri, 05 Aug 2016 00:00:00 -0400</pubDate>
         <link>/linux/my-ubuntu-desktop.html</link>
         <guid isPermaLink="true">/linux/my-ubuntu-desktop.html</guid>
         
@@ -1681,7 +1681,7 @@ dig -t NS @192.168.1.61 ntp01.abc.com
 &lt;/div&gt;
 &lt;/div&gt;
 </description>
-        <pubDate>Sat, 16 Jul 2016 00:00:00 +0800</pubDate>
+        <pubDate>Sat, 16 Jul 2016 00:00:00 -0400</pubDate>
         <link>/network/bind-dns-server-notes.html</link>
         <guid isPermaLink="true">/network/bind-dns-server-notes.html</guid>
         
@@ -1827,7 +1827,7 @@ tcpdump抓包与保存命令如下，随后可通过wireshark查看截取的数�
 &lt;/div&gt;
 &lt;/div&gt;
 </description>
-        <pubDate>Tue, 31 May 2016 00:00:00 +0800</pubDate>
+        <pubDate>Tue, 31 May 2016 00:00:00 -0400</pubDate>
         <link>/network/netflow-with-elk.html</link>
         <guid isPermaLink="true">/network/netflow-with-elk.html</guid>
         
@@ -1905,14 +1905,14 @@ ansible 2.2.0 (devel f961f9f4d0) last updated 2016/05/28 09:56:33 (GMT +800)
 &lt;span style=&quot;color: #007;&quot;&gt;param&lt;/span&gt;=$&lt;span style=&quot;color: #007;&quot;&gt;1&lt;/span&gt;
 &lt;span style=&quot;color: #007;&quot;&gt;repodir&lt;/span&gt;=/opt/git
 &lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;cd&lt;/span&gt; $&lt;span style=&quot;color: #007;&quot;&gt;repodir&lt;/span&gt;
-&lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;if&lt;/span&gt; [ $&lt;span style=&quot;color: #007;&quot;&gt;param&lt;/span&gt; == &lt;span style=&quot;color: #800;&quot;&gt;&#39;install&#39;&lt;/span&gt; ]; &lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;then&lt;/span&gt;
+&lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;if&lt;/span&gt; [ $&lt;span style=&quot;color: #007;&quot;&gt;param&lt;/span&gt; == &lt;span style=&quot;color: #800;&quot;&gt;'install'&lt;/span&gt; ]; &lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;then&lt;/span&gt;
     git clone git://github.com/ansible/ansible.git --recursive
     &lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;cd&lt;/span&gt; ansible
     &lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;source&lt;/span&gt; ./hacking/env-setup
     &lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;exit&lt;/span&gt; 0
 &lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;fi&lt;/span&gt;
 
-&lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;if&lt;/span&gt; [ $&lt;span style=&quot;color: #007;&quot;&gt;param&lt;/span&gt; == &lt;span style=&quot;color: #800;&quot;&gt;&#39;update&#39;&lt;/span&gt; ]; &lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;then&lt;/span&gt;
+&lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;if&lt;/span&gt; [ $&lt;span style=&quot;color: #007;&quot;&gt;param&lt;/span&gt; == &lt;span style=&quot;color: #800;&quot;&gt;'update'&lt;/span&gt; ]; &lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;then&lt;/span&gt;
     &lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;cd&lt;/span&gt; ansible
     git pull --rebase
     git submodule update --init --recursive
@@ -2125,7 +2125,7 @@ no ntp server {{ntpsrv06}}
 &lt;/div&gt;
 &lt;/div&gt;
 </description>
-        <pubDate>Sun, 29 May 2016 00:00:00 +0800</pubDate>
+        <pubDate>Sun, 29 May 2016 00:00:00 -0400</pubDate>
         <link>/network/config-cisco-router-with-ansible.html</link>
         <guid isPermaLink="true">/network/config-cisco-router-with-ansible.html</guid>
         
@@ -2182,7 +2182,7 @@ Open iTerm2, open Preferences, click on the &quot;Profiles&quot; (formerly Addre
 &lt;/p&gt;
 
 &lt;p&gt;
-You have now loaded the Solarized color presets into iTerm 2, but haven&#39;t yet applied them. To apply them, simply select an existing profile from the profile list window on the left, or create a new profile. Then select the Solarized Dark or Solarized Light preset from the &quot;Load Presets&quot; drop down.
+You have now loaded the Solarized color presets into iTerm 2, but haven't yet applied them. To apply them, simply select an existing profile from the profile list window on the left, or create a new profile. Then select the Solarized Dark or Solarized Light preset from the &quot;Load Presets&quot; drop down.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
@@ -2228,7 +2228,7 @@ in vimrc:
 &lt;/p&gt;
 &lt;div class=&quot;org-src-container&quot;&gt;
 
-&lt;pre class=&quot;src src-vim&quot;&gt;Plugin &#39;altercation/vim-colors-solarized&#39;
+&lt;pre class=&quot;src src-vim&quot;&gt;Plugin 'altercation/vim-colors-solarized'
 set background=dark
 colorscheme solarized
 &lt;/pre&gt;
@@ -2266,7 +2266,7 @@ cp /opt/git/dircolors-solarized/dircolors.256dark ~/.dircolors.256dark
 brew install coreutils
 cat &amp;gt;&amp;gt; ~/.zshrc &amp;lt;&amp;lt; EOF
 &lt;span style=&quot;font-weight: bold;&quot;&gt;eval `gdircolors ~/.dircolors.256dark`&lt;/span&gt;
-&lt;span style=&quot;font-weight: bold;&quot;&gt;alias ls=&#39;gls --color=auto&#39;&lt;/span&gt;
+&lt;span style=&quot;font-weight: bold;&quot;&gt;alias ls='gls --color=auto'&lt;/span&gt;
 &lt;span style=&quot;font-weight: bold;&quot;&gt;EOF&lt;/span&gt;
 &lt;/pre&gt;
 &lt;/div&gt;
@@ -2368,7 +2368,7 @@ set-window-option -g clock-mode-colour green #green
 &lt;/div&gt;
 &lt;/div&gt;
 </description>
-        <pubDate>Fri, 29 Apr 2016 00:00:00 +0800</pubDate>
+        <pubDate>Fri, 29 Apr 2016 00:00:00 -0400</pubDate>
         <link>/sysadmin/solarized-color-scheme.html</link>
         <guid isPermaLink="true">/sysadmin/solarized-color-scheme.html</guid>
         
@@ -2376,124 +2376,6 @@ set-window-option -g clock-mode-colour green #green
         
         
         <category>sysadmin</category>
-        
-      </item>
-    
-      <item>
-        <title>软件随想录卷2-书摘</title>
-        <description>&lt;div id=&quot;table-of-contents&quot;&gt;
-&lt;h2&gt;Table of Contents&lt;/h2&gt;
-&lt;div id=&quot;text-table-of-contents&quot;&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&quot;#orgheadline1&quot;&gt;为什么做一个内部程序员就糟透了&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#orgheadline2&quot;&gt;指针与递归&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#orgheadline3&quot;&gt;赢家通吃&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#orgheadline4&quot;&gt;程序员的生产效率&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#orgheadline5&quot;&gt;关于软件创业&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#orgheadline6&quot;&gt;五个为什么&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#orgheadline7&quot;&gt;给计算机系学生的建议&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;!--abstract-begin--&gt;
-&lt;p&gt;
-Joel Spolsky是世界上最有影响力的程序员之一，被誉为“程序员部落酋长”，开设的个人博客&quot;joel on software&quot;(www.joelonsoftware.com)深受全世界程序员的欢迎。2000年与人联合创办Fog Creek软件公司并经营至今；2008年创办全球最大软件技术问答服务网站stackoverflow并任CEO；2011年被创业孵化器TechStarts聘为创业导师。《软件随想录》收录的是Joel发表在网志上的一部分文章。
-&lt;/p&gt;
-&lt;!--abstract-end--&gt;
-
-&lt;div id=&quot;outline-container-orgheadline1&quot; class=&quot;outline-2&quot;&gt;
-&lt;h2 id=&quot;orgheadline1&quot;&gt;为什么做一个内部程序员就糟透了&lt;/h2&gt;
-&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline1&quot;&gt;
-&lt;ul class=&quot;org-ul&quot;&gt;
-&lt;li&gt;你永远无法用正确的方法做事，你总是被迫用最保险的方法做事&lt;/li&gt;
-&lt;li&gt;一旦你的程序可以用了，你就不得不停止开发。只要核心功能具备了，主要问题解决了，再投资没有商业理由&lt;/li&gt;
-&lt;li&gt;如果你在专业的软件公司或互联网公司中编程，你的工作与公司的主营业务直接相关，是能够为公司直接带来收入的。这至少意味着管理层会想到你。&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;
-内部使用的软件很少需要雇用巨星来开发。这就是为什么最令人满意的职业生涯(如果你是程序员)往往是在真正的软件公司里，而不是在银行里担任IT人员。
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id=&quot;outline-container-orgheadline2&quot; class=&quot;outline-2&quot;&gt;
-&lt;h2 id=&quot;orgheadline2&quot;&gt;指针与递归&lt;/h2&gt;
-&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline2&quot;&gt;
-&lt;p&gt;
-大学计算机系的课程里有两个传统的知识点，但许多人从来没有真正搞懂过，那就是指针(pointer)和递归(recursion)。
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id=&quot;outline-container-orgheadline3&quot; class=&quot;outline-2&quot;&gt;
-&lt;h2 id=&quot;orgheadline3&quot;&gt;赢家通吃&lt;/h2&gt;
-&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline3&quot;&gt;
-&lt;p&gt;
-眼下的软件市场有点&quot;赢家通吃&quot;(winner-take-all)的味道。除了苹果公司，没有其他人能在MP3播放器市场赚到钱。除了微软公司，没有其他人能在电子表格和文字处理器市场上赚到钱。
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id=&quot;outline-container-orgheadline4&quot; class=&quot;outline-2&quot;&gt;
-&lt;h2 id=&quot;orgheadline4&quot;&gt;程序员的生产效率&lt;/h2&gt;
-&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline4&quot;&gt;
-&lt;p&gt;
-最好的工作条件 -&amp;gt; 最好的程序员 -&amp;gt; 最好的软件 -&amp;gt; 利润
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id=&quot;outline-container-orgheadline5&quot; class=&quot;outline-2&quot;&gt;
-&lt;h2 id=&quot;orgheadline5&quot;&gt;关于软件创业&lt;/h2&gt;
-&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline5&quot;&gt;
-&lt;ul class=&quot;org-ul&quot;&gt;
-&lt;li&gt;如果你说不清楚你的软件解决了什么*棘手*的问题，就不要去开软件公司。&lt;/li&gt;
-&lt;li&gt;不要独自一人创办公司&lt;/li&gt;
-&lt;li&gt;一开始不要抱太高期望&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id=&quot;outline-container-orgheadline6&quot; class=&quot;outline-2&quot;&gt;
-&lt;h2 id=&quot;orgheadline6&quot;&gt;五个为什么&lt;/h2&gt;
-&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline6&quot;&gt;
-&lt;p&gt;
-我们机房的连接中断了
-&lt;/p&gt;
-
-&lt;ul class=&quot;org-ul&quot;&gt;
-&lt;li&gt;为什么? 我们交换机里的网线接口好像不工作了&lt;/li&gt;
-&lt;li&gt;为什么? 与网络运营中心交换意见后，我们判断这个问题很可能是由于网速/双工模式不匹配造成的。&lt;/li&gt;
-&lt;li&gt;为什么? 交换机网口被设置成自动协商，而没有手动设置在一个固定档。&lt;/li&gt;
-&lt;li&gt;为什么? 许多年前，我们就清楚地知道有可能发生此类故障。但是，我们始终没有写出一份书面的技术说明文档，用于指导和检查交换机在生产环境中的配置。&lt;/li&gt;
-&lt;li&gt;为什么？我们总是很狭隘地看待技术说明文档，觉得只有在找不到系统管理员的情况下才需要去看它，或者觉得只有运营团队中那些不负责系统管理的成员才需要去看它。我们没有认识到应该把它作为技术操作的标准和确认清单。&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id=&quot;outline-container-orgheadline7&quot; class=&quot;outline-2&quot;&gt;
-&lt;h2 id=&quot;orgheadline7&quot;&gt;给计算机系学生的建议&lt;/h2&gt;
-&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline7&quot;&gt;
-&lt;ul class=&quot;org-ul&quot;&gt;
-&lt;li&gt;毕业前练好写作&lt;/li&gt;
-&lt;li&gt;毕业前学好C语言&lt;/li&gt;
-&lt;li&gt;毕业前学好微观经济学&lt;/li&gt;
-&lt;li&gt;不要因为枯燥就不选修非计算机专业的课程&lt;/li&gt;
-&lt;li&gt;选修带有大量编程实践的课程&lt;/li&gt;
-&lt;li&gt;别担心所有工作都被印度人抢走&lt;/li&gt;
-&lt;li&gt;找一份好的时期实习工作&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-</description>
-        <pubDate>Sun, 03 Apr 2016 00:00:00 +0800</pubDate>
-        <link>/books/more-joel-on-software.html</link>
-        <guid isPermaLink="true">/books/more-joel-on-software.html</guid>
-        
-        <category>books</category>
-        
-        
-        <category>books</category>
         
       </item>
     
@@ -2668,7 +2550,7 @@ exec ntlm_auth {
 &lt;/div&gt;
 &lt;/div&gt;
 </description>
-        <pubDate>Sun, 03 Apr 2016 00:00:00 +0800</pubDate>
+        <pubDate>Sun, 03 Apr 2016 00:00:00 -0400</pubDate>
         <link>/network/freeradius-with-ad-ntlmauth.html</link>
         <guid isPermaLink="true">/network/freeradius-with-ad-ntlmauth.html</guid>
         
@@ -2676,6 +2558,124 @@ exec ntlm_auth {
         
         
         <category>network</category>
+        
+      </item>
+    
+      <item>
+        <title>软件随想录卷2-书摘</title>
+        <description>&lt;div id=&quot;table-of-contents&quot;&gt;
+&lt;h2&gt;Table of Contents&lt;/h2&gt;
+&lt;div id=&quot;text-table-of-contents&quot;&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline1&quot;&gt;为什么做一个内部程序员就糟透了&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline2&quot;&gt;指针与递归&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline3&quot;&gt;赢家通吃&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline4&quot;&gt;程序员的生产效率&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline5&quot;&gt;关于软件创业&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline6&quot;&gt;五个为什么&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline7&quot;&gt;给计算机系学生的建议&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;!--abstract-begin--&gt;
+&lt;p&gt;
+Joel Spolsky是世界上最有影响力的程序员之一，被誉为“程序员部落酋长”，开设的个人博客&quot;joel on software&quot;(www.joelonsoftware.com)深受全世界程序员的欢迎。2000年与人联合创办Fog Creek软件公司并经营至今；2008年创办全球最大软件技术问答服务网站stackoverflow并任CEO；2011年被创业孵化器TechStarts聘为创业导师。《软件随想录》收录的是Joel发表在网志上的一部分文章。
+&lt;/p&gt;
+&lt;!--abstract-end--&gt;
+
+&lt;div id=&quot;outline-container-orgheadline1&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline1&quot;&gt;为什么做一个内部程序员就糟透了&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline1&quot;&gt;
+&lt;ul class=&quot;org-ul&quot;&gt;
+&lt;li&gt;你永远无法用正确的方法做事，你总是被迫用最保险的方法做事&lt;/li&gt;
+&lt;li&gt;一旦你的程序可以用了，你就不得不停止开发。只要核心功能具备了，主要问题解决了，再投资没有商业理由&lt;/li&gt;
+&lt;li&gt;如果你在专业的软件公司或互联网公司中编程，你的工作与公司的主营业务直接相关，是能够为公司直接带来收入的。这至少意味着管理层会想到你。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;
+内部使用的软件很少需要雇用巨星来开发。这就是为什么最令人满意的职业生涯(如果你是程序员)往往是在真正的软件公司里，而不是在银行里担任IT人员。
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline2&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline2&quot;&gt;指针与递归&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline2&quot;&gt;
+&lt;p&gt;
+大学计算机系的课程里有两个传统的知识点，但许多人从来没有真正搞懂过，那就是指针(pointer)和递归(recursion)。
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline3&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline3&quot;&gt;赢家通吃&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline3&quot;&gt;
+&lt;p&gt;
+眼下的软件市场有点&quot;赢家通吃&quot;(winner-take-all)的味道。除了苹果公司，没有其他人能在MP3播放器市场赚到钱。除了微软公司，没有其他人能在电子表格和文字处理器市场上赚到钱。
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline4&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline4&quot;&gt;程序员的生产效率&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline4&quot;&gt;
+&lt;p&gt;
+最好的工作条件 -&amp;gt; 最好的程序员 -&amp;gt; 最好的软件 -&amp;gt; 利润
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline5&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline5&quot;&gt;关于软件创业&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline5&quot;&gt;
+&lt;ul class=&quot;org-ul&quot;&gt;
+&lt;li&gt;如果你说不清楚你的软件解决了什么*棘手*的问题，就不要去开软件公司。&lt;/li&gt;
+&lt;li&gt;不要独自一人创办公司&lt;/li&gt;
+&lt;li&gt;一开始不要抱太高期望&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline6&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline6&quot;&gt;五个为什么&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline6&quot;&gt;
+&lt;p&gt;
+我们机房的连接中断了
+&lt;/p&gt;
+
+&lt;ul class=&quot;org-ul&quot;&gt;
+&lt;li&gt;为什么? 我们交换机里的网线接口好像不工作了&lt;/li&gt;
+&lt;li&gt;为什么? 与网络运营中心交换意见后，我们判断这个问题很可能是由于网速/双工模式不匹配造成的。&lt;/li&gt;
+&lt;li&gt;为什么? 交换机网口被设置成自动协商，而没有手动设置在一个固定档。&lt;/li&gt;
+&lt;li&gt;为什么? 许多年前，我们就清楚地知道有可能发生此类故障。但是，我们始终没有写出一份书面的技术说明文档，用于指导和检查交换机在生产环境中的配置。&lt;/li&gt;
+&lt;li&gt;为什么？我们总是很狭隘地看待技术说明文档，觉得只有在找不到系统管理员的情况下才需要去看它，或者觉得只有运营团队中那些不负责系统管理的成员才需要去看它。我们没有认识到应该把它作为技术操作的标准和确认清单。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline7&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline7&quot;&gt;给计算机系学生的建议&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline7&quot;&gt;
+&lt;ul class=&quot;org-ul&quot;&gt;
+&lt;li&gt;毕业前练好写作&lt;/li&gt;
+&lt;li&gt;毕业前学好C语言&lt;/li&gt;
+&lt;li&gt;毕业前学好微观经济学&lt;/li&gt;
+&lt;li&gt;不要因为枯燥就不选修非计算机专业的课程&lt;/li&gt;
+&lt;li&gt;选修带有大量编程实践的课程&lt;/li&gt;
+&lt;li&gt;别担心所有工作都被印度人抢走&lt;/li&gt;
+&lt;li&gt;找一份好的时期实习工作&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+</description>
+        <pubDate>Sun, 03 Apr 2016 00:00:00 -0400</pubDate>
+        <link>/books/more-joel-on-software.html</link>
+        <guid isPermaLink="true">/books/more-joel-on-software.html</guid>
+        
+        <category>books</category>
+        
+        
+        <category>books</category>
         
       </item>
     
@@ -2862,7 +2862,7 @@ IPV6INIT=no
 &lt;/div&gt;
 &lt;/div&gt;
 </description>
-        <pubDate>Sun, 17 Jan 2016 00:00:00 +0800</pubDate>
+        <pubDate>Sun, 17 Jan 2016 00:00:00 -0500</pubDate>
         <link>/linux/bonding-vlan-bridge.html</link>
         <guid isPermaLink="true">/linux/bonding-vlan-bridge.html</guid>
         
@@ -2977,7 +2977,7 @@ Reboot and modprobe ath10k_pci. Do &quot;lshw -C network&quot;; &quot;ip link sh
 &lt;/div&gt;
 &lt;/div&gt;
 </description>
-        <pubDate>Sun, 03 Jan 2016 00:00:00 +0800</pubDate>
+        <pubDate>Sun, 03 Jan 2016 00:00:00 -0500</pubDate>
         <link>/linux/install-ath10k-wireless-driver-on-ubuntu.html</link>
         <guid isPermaLink="true">/linux/install-ath10k-wireless-driver-on-ubuntu.html</guid>
         

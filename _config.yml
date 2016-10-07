@@ -1,22 +1,19 @@
 title: 田园牧歌
 email: wlfqware#gmail.com
-description:
-  Wonder is the beginning of wisdom
-
+description: Wonder is the beginning of wisdom
 baseurl: ""
 host: 127.0.0.1
 port: 4001
-watch: true
 detach: true
 
 github_username: wanglf
 
+gems: [jekyll-paginate]
 permalink: /:categories/:title.html
 paginate: 7
 paginate_path: "page/:num"
 
 defaults:
-  -
-    values:
+  - values:
       layout: "post"
       author: 田园牧歌
