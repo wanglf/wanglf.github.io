@@ -5,8 +5,8 @@
     <description>Wonder is the beginning of wisdom</description>
     <link>/</link>
     <atom:link href="/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Sat, 29 Oct 2016 09:47:33 -0400</pubDate>
-    <lastBuildDate>Sat, 29 Oct 2016 09:47:33 -0400</lastBuildDate>
+    <pubDate>Sat, 29 Oct 2016 10:21:57 -0400</pubDate>
+    <lastBuildDate>Sat, 29 Oct 2016 10:21:57 -0400</lastBuildDate>
     <generator>Jekyll v3.3.0</generator>
     
       <item>
@@ -2737,6 +2737,8 @@ service network start
 &lt;pre class=&quot;src src-sh&quot;&gt;cat &amp;gt; /etc/modprobe.d/bonding.conf &amp;lt;&amp;lt; EOF
 &lt;span style=&quot;font-weight: bold;&quot;&gt;alias bond0 bonding&lt;/span&gt;
 &lt;span style=&quot;font-weight: bold;&quot;&gt;EOF&lt;/span&gt;
+&lt;span style=&quot;color: #633;&quot;&gt;# &lt;/span&gt;&lt;span style=&quot;color: #633;&quot;&gt;on RHEL 7/CentOS 7, use following command&lt;/span&gt;
+&lt;span style=&quot;color: #633;&quot;&gt;# &lt;/span&gt;&lt;span style=&quot;color: #633;&quot;&gt;modprobe --first-time bonding&lt;/span&gt;
 &lt;/pre&gt;
 &lt;/div&gt;
 &lt;/div&gt;

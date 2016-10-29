@@ -60,6 +60,8 @@ service network start
 <pre class="src src-sh">cat &gt; /etc/modprobe.d/bonding.conf &lt;&lt; EOF
 <span style="font-weight: bold;">alias bond0 bonding</span>
 <span style="font-weight: bold;">EOF</span>
+<span style="color: #633;"># </span><span style="color: #633;">on RHEL 7/CentOS 7, use following command</span>
+<span style="color: #633;"># </span><span style="color: #633;">modprobe --first-time bonding</span>
 </pre>
 </div>
 </div>
