@@ -92,6 +92,44 @@
     
     <header class="post-header">
       <h2>
+        <a href="/network/netflow-with-nfsen.html">
+          Netflow with nfsen on CentOS 7.x
+        </a>
+      </h2>
+      <p class="post-meta">2016年11月06日
+        <span class="author"> 田园牧歌 </span>
+      </p>
+      <p>
+        
+        <a class="post-tags" href="/resource/tags/netflow.html">netflow</a>
+        
+      </p>
+
+    </header>
+
+    <article class="post-content">
+      
+<p>
+之前写过一篇<a href="http://www.wanglifeng.info/network/netflow-with-elk.html">用ELK来分析Netflow数据</a> ，最终用下来发现logstash的decoder效率不是很高，且在grafana中显示es数据的时候非常卡，遂有另寻netflow sensor的想法。对比了一些解决方案:
+</p>
+
+<ul class="org-ul">
+<li><a href="http://www.ntop.org/">ntopng + nprobe</a> 组合虽有很好的界面展示，但nprobe需enterprise license。换言之，需要收取一笔不小的费用。</li>
+<li><a href="http://wvnetflow.sourceforge.net/">webview</a> 在使用logstash decoder之前，一直使用该产品，但实在太古老，功能有限，且有些小bug。</li>
+<li><a href="http://nfsen.sourceforge.net/">nfsen + nfdump</a> 是一个完全开源免费的netflow解决方案，支持插件扩展，该项目托管于sourceforge, 是一个五星项目。</li>
+</ul>
+
+<p>
+权衡各种利弊，最终nfsen的方案胜出。
+</p>
+
+      <a class="post-nav" href="/network/netflow-with-nfsen.html"> 阅读全文... </a>
+    </article>
+    
+    
+    
+    <header class="post-header">
+      <h2>
         <a href="/infra/owncloud-distributed-architecture.html">
           Owncloud distributed architecture
         </a>
@@ -261,34 +299,6 @@ solarized是一种非常流行的配色方案，适用于常见的编辑器，�
     </article>
     
     
-    
-    <header class="post-header">
-      <h2>
-        <a href="/network/freeradius-with-ad-ntlmauth.html">
-          Freeradius ntlm_auth with microsoft active directory
-        </a>
-      </h2>
-      <p class="post-meta">2016年04月03日
-        <span class="author"> 田园牧歌 </span>
-      </p>
-      <p>
-        
-        <a class="post-tags" href="/resource/tags/freeradius.html">freeradius</a>
-        
-      </p>
-
-    </header>
-
-    <article class="post-content">
-      
-<p>
-Freeradius是一款开源的AAA认证服务器, 本文总结Freeradius如何通过NTLM_AUTH接口将微软AD用户作为AAA认证用户数据库。本案例在CentOS 7环境下测试通过。
-</p>
-
-      <a class="post-nav" href="/network/freeradius-with-ad-ntlmauth.html"> 阅读全文... </a>
-    </article>
-    
-    
   </ul>
 
   
@@ -302,9 +312,7 @@ Freeradius是一款开源的AAA认证服务器, 本文总结Freeradius如何通�
     
     
     <span style="color:red">1</span>
-    <span>/ 5</span>
-    
-    
+    <span>/ 4</span>
     
     
     
@@ -318,7 +326,7 @@ Freeradius是一款开源的AAA认证服务器, 本文总结Freeradius如何通�
     <a class="post-nav" href="/page/2">下一页</a>
     
 
-    <a class="post-nav" href="/page/5">尾页</a>
+    <a class="post-nav" href="/page/4">尾页</a>
   </div>
   
 

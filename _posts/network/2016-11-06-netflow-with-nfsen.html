@@ -1,0 +1,228 @@
+---
+title: "Netflow with nfsen on CentOS 7.x"
+tags: netflow
+layout: post
+categories: network
+---
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline3">准备</a>
+<ul>
+<li><a href="#orgheadline1">软件包</a></li>
+<li><a href="#orgheadline2">Cisco路由器配置</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline12">安装nfsen</a>
+<ul>
+<li><a href="#orgheadline4">安装rpm依赖包</a></li>
+<li><a href="#orgheadline5">配置php时区</a></li>
+<li><a href="#orgheadline6">用户与组</a></li>
+<li><a href="#orgheadline7">安装nfdump</a></li>
+<li><a href="#orgheadline8">安装nfsen</a></li>
+<li><a href="#orgheadline9">apache配置/etc/httpd/conf.d/nfsen.conf</a></li>
+<li><a href="#orgheadline10">nfsen服务/etc/systemd/system/nfsen.service</a></li>
+<li><a href="#orgheadline11">启动服务</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline13">参考资料</a></li>
+</ul>
+</div>
+</div>
+<!--abstract-begin-->
+<p>
+之前写过一篇<a href="http://www.wanglifeng.info/network/netflow-with-elk.html">用ELK来分析Netflow数据</a> ，最终用下来发现logstash的decoder效率不是很高，且在grafana中显示es数据的时候非常卡，遂有另寻netflow sensor的想法。对比了一些解决方案:
+</p>
+
+<ul class="org-ul">
+<li><a href="http://www.ntop.org/">ntopng + nprobe</a> 组合虽有很好的界面展示，但nprobe需enterprise license。换言之，需要收取一笔不小的费用。</li>
+<li><a href="http://wvnetflow.sourceforge.net/">webview</a> 在使用logstash decoder之前，一直使用该产品，但实在太古老，功能有限，且有些小bug。</li>
+<li><a href="http://nfsen.sourceforge.net/">nfsen + nfdump</a> 是一个完全开源免费的netflow解决方案，支持插件扩展，该项目托管于sourceforge, 是一个五星项目。</li>
+</ul>
+
+<p>
+权衡各种利弊，最终nfsen的方案胜出。
+</p>
+<!--abstract-end-->
+
+<div id="outline-container-orgheadline3" class="outline-2">
+<h2 id="orgheadline3">准备</h2>
+<div class="outline-text-2" id="text-orgheadline3">
+</div><div id="outline-container-orgheadline1" class="outline-3">
+<h3 id="orgheadline1">软件包</h3>
+<div class="outline-text-3" id="text-orgheadline1">
+<ul class="org-ul">
+<li>nfsen-1.3.6p1.tar.gz</li>
+<li>nfdump-1.6.13.tar.gz</li>
+<li>epel repository</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgheadline2" class="outline-3">
+<h3 id="orgheadline2">Cisco路由器配置</h3>
+<div class="outline-text-3" id="text-orgheadline2">
+<pre class="example">
+interface GigabitEthernet0/0
+ ip flow ingress
+interface GigabitEthernet0/1.2
+ ip flow ingress
+interface GigabitEthernet0/1.3
+ ip flow ingress
+ip flow-export source Loopback0
+ip flow-export version 9
+ip flow-export destination 1.1.1.1 2055
+</pre>
+
+<blockquote>
+<p>
+此处1.1.1.1为nfsen所处机器IP地址，2055为侦听端口，需与nfsen配置文件对应
+</p>
+</blockquote>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline12" class="outline-2">
+<h2 id="orgheadline12">安装nfsen</h2>
+<div class="outline-text-2" id="text-orgheadline12">
+</div><div id="outline-container-orgheadline4" class="outline-3">
+<h3 id="orgheadline4">安装rpm依赖包</h3>
+<div class="outline-text-3" id="text-orgheadline4">
+<div class="org-src-container">
+
+<pre class="src src-sh">yum groupinstall development tools
+yum install rrdtool rrdtool-devel
+yum install httpd php perl-MailTools rrdtool-perl perl-Socket6 perl-Sys-Syslog.x86_64
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline5" class="outline-3">
+<h3 id="orgheadline5">配置php时区</h3>
+<div class="outline-text-3" id="text-orgheadline5">
+<div class="org-src-container">
+
+<pre class="src src-sh"><span style="color: #058; font-weight: bold;">echo</span> <span style="color: #800;">"date.timezone = Asia/Shanghai"</span> &gt; /etc/php.ini
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline6" class="outline-3">
+<h3 id="orgheadline6">用户与组</h3>
+<div class="outline-text-3" id="text-orgheadline6">
+<div class="org-src-container">
+
+<pre class="src src-sh">useradd netflow
+usermod -G apache netflow
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline7" class="outline-3">
+<h3 id="orgheadline7">安装nfdump</h3>
+<div class="outline-text-3" id="text-orgheadline7">
+<div class="org-src-container">
+
+<pre class="src src-sh"><span style="color: #058; font-weight: bold;">cd</span> nfdump-1.6.13
+./configure --prefix=/opt/nfdump --enable-nfprofile
+autoreconf
+make
+sudo make install
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline8" class="outline-3">
+<h3 id="orgheadline8">安装nfsen</h3>
+<div class="outline-text-3" id="text-orgheadline8">
+<pre class="example">
+cd nfsen-1.3.6p1
+cd etc
+cp nfsen-dist.conf nfsen.conf
+vi nfsen.conf
+  $BASEDIR = "/opt/nfsen";
+  $HTMLDIR = "/opt/nfsen/www/";
+  $PREFIX  = '/opt/nfdump/bin';
+  $WWWUSER  = "apache";
+  $WWWGROUP = "apache";
+
+  $MAIL_FROM   = 'nfsen@yourdomain.tld';
+  $SMTP_SERVER = 'fqdn.mail.server';
+
+  %sources = (
+      'source1' =&gt; { 'port' =&gt; '2055', 'IP' =&gt; '192.168.1.1', 'col' =&gt; '#0000ff', 'type' =&gt; 'netflow' },
+      'source2' =&gt; { 'port' =&gt; '2055', 'IP' =&gt; '192.168.1.2', 'col' =&gt; '#ff00ff', 'type' =&gt; 'netflow' },
+      'source3' =&gt; { 'port' =&gt; '2055', 'IP' =&gt; '192.168.1.3', 'col' =&gt; '#00ffff', 'type' =&gt; 'netflow' },
+  );
+
+cd ..
+sudo ./install.pl etc/nfsen.conf
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orgheadline9" class="outline-3">
+<h3 id="orgheadline9">apache配置/etc/httpd/conf.d/nfsen.conf</h3>
+<div class="outline-text-3" id="text-orgheadline9">
+<pre class="example">
+&lt;Directory "/opt/nfsen/www"&gt;
+   AllowOverride None
+   Require all granted
+&lt;/Directory&gt;
+
+Alias /nfsen "/opt/nfsen/www"
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orgheadline10" class="outline-3">
+<h3 id="orgheadline10">nfsen服务/etc/systemd/system/nfsen.service</h3>
+<div class="outline-text-3" id="text-orgheadline10">
+<pre class="example">
+[Unit]
+Description=NfSen Service
+After=network.target
+
+[Service]
+Type=forking
+PIDFile=/opt/nfsen/var/run/nfsend.pid
+ExecStart=/opt/nfsen/bin/nfsen start
+ExecStop=/opt/nfsen/bin/nfsen stop
+Restart=on-abort
+
+[Install]
+WantedBy=multi-user.target
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orgheadline11" class="outline-3">
+<h3 id="orgheadline11">启动服务</h3>
+<div class="outline-text-3" id="text-orgheadline11">
+<div class="org-src-container">
+
+<pre class="src src-sh">systemctl enable httpd
+systemctl start httpd
+systemctl enable nfsen
+systemctl start nfsen
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline13" class="outline-2">
+<h2 id="orgheadline13">参考资料</h2>
+<div class="outline-text-2" id="text-orgheadline13">
+<ol class="org-ol">
+<li><a href="http://nfsen.sourceforge.net/">nfsen manual</a></li>
+<li><a href="https://wiki.polaire.nl/doku.php?id=nfsen_centos7">NfSen - CentOS 7.x</a></li>
+</ol>
+</div>
+</div>

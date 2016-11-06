@@ -5,9 +5,245 @@
     <description>Wonder is the beginning of wisdom</description>
     <link>/</link>
     <atom:link href="/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Sat, 29 Oct 2016 10:21:57 -0400</pubDate>
-    <lastBuildDate>Sat, 29 Oct 2016 10:21:57 -0400</lastBuildDate>
+    <pubDate>Sun, 06 Nov 2016 09:05:26 -0500</pubDate>
+    <lastBuildDate>Sun, 06 Nov 2016 09:05:26 -0500</lastBuildDate>
     <generator>Jekyll v3.3.0</generator>
+    
+      <item>
+        <title>Netflow with nfsen on CentOS 7.x</title>
+        <description>&lt;div id=&quot;table-of-contents&quot;&gt;
+&lt;h2&gt;Table of Contents&lt;/h2&gt;
+&lt;div id=&quot;text-table-of-contents&quot;&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline3&quot;&gt;准备&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline1&quot;&gt;软件包&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline2&quot;&gt;Cisco路由器配置&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline12&quot;&gt;安装nfsen&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline4&quot;&gt;安装rpm依赖包&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline5&quot;&gt;配置php时区&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline6&quot;&gt;用户与组&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline7&quot;&gt;安装nfdump&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline8&quot;&gt;安装nfsen&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline9&quot;&gt;apache配置/etc/httpd/conf.d/nfsen.conf&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline10&quot;&gt;nfsen服务/etc/systemd/system/nfsen.service&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline11&quot;&gt;启动服务&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline13&quot;&gt;参考资料&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;!--abstract-begin--&gt;
+&lt;p&gt;
+之前写过一篇&lt;a href=&quot;http://www.wanglifeng.info/network/netflow-with-elk.html&quot;&gt;用ELK来分析Netflow数据&lt;/a&gt; ，最终用下来发现logstash的decoder效率不是很高，且在grafana中显示es数据的时候非常卡，遂有另寻netflow sensor的想法。对比了一些解决方案:
+&lt;/p&gt;
+
+&lt;ul class=&quot;org-ul&quot;&gt;
+&lt;li&gt;&lt;a href=&quot;http://www.ntop.org/&quot;&gt;ntopng + nprobe&lt;/a&gt; 组合虽有很好的界面展示，但nprobe需enterprise license。换言之，需要收取一笔不小的费用。&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;http://wvnetflow.sourceforge.net/&quot;&gt;webview&lt;/a&gt; 在使用logstash decoder之前，一直使用该产品，但实在太古老，功能有限，且有些小bug。&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;http://nfsen.sourceforge.net/&quot;&gt;nfsen + nfdump&lt;/a&gt; 是一个完全开源免费的netflow解决方案，支持插件扩展，该项目托管于sourceforge, 是一个五星项目。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;
+权衡各种利弊，最终nfsen的方案胜出。
+&lt;/p&gt;
+&lt;!--abstract-end--&gt;
+
+&lt;div id=&quot;outline-container-orgheadline3&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline3&quot;&gt;准备&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline3&quot;&gt;
+&lt;/div&gt;&lt;div id=&quot;outline-container-orgheadline1&quot; class=&quot;outline-3&quot;&gt;
+&lt;h3 id=&quot;orgheadline1&quot;&gt;软件包&lt;/h3&gt;
+&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline1&quot;&gt;
+&lt;ul class=&quot;org-ul&quot;&gt;
+&lt;li&gt;nfsen-1.3.6p1.tar.gz&lt;/li&gt;
+&lt;li&gt;nfdump-1.6.13.tar.gz&lt;/li&gt;
+&lt;li&gt;epel repository&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline2&quot; class=&quot;outline-3&quot;&gt;
+&lt;h3 id=&quot;orgheadline2&quot;&gt;Cisco路由器配置&lt;/h3&gt;
+&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline2&quot;&gt;
+&lt;pre class=&quot;example&quot;&gt;
+interface GigabitEthernet0/0
+ ip flow ingress
+interface GigabitEthernet0/1.2
+ ip flow ingress
+interface GigabitEthernet0/1.3
+ ip flow ingress
+ip flow-export source Loopback0
+ip flow-export version 9
+ip flow-export destination 1.1.1.1 2055
+&lt;/pre&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;
+此处1.1.1.1为nfsen所处机器IP地址，2055为侦听端口，需与nfsen配置文件对应
+&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline12&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline12&quot;&gt;安装nfsen&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline12&quot;&gt;
+&lt;/div&gt;&lt;div id=&quot;outline-container-orgheadline4&quot; class=&quot;outline-3&quot;&gt;
+&lt;h3 id=&quot;orgheadline4&quot;&gt;安装rpm依赖包&lt;/h3&gt;
+&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline4&quot;&gt;
+&lt;div class=&quot;org-src-container&quot;&gt;
+
+&lt;pre class=&quot;src src-sh&quot;&gt;yum groupinstall development tools
+yum install rrdtool rrdtool-devel
+yum install httpd php perl-MailTools rrdtool-perl perl-Socket6 perl-Sys-Syslog.x86_64
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline5&quot; class=&quot;outline-3&quot;&gt;
+&lt;h3 id=&quot;orgheadline5&quot;&gt;配置php时区&lt;/h3&gt;
+&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline5&quot;&gt;
+&lt;div class=&quot;org-src-container&quot;&gt;
+
+&lt;pre class=&quot;src src-sh&quot;&gt;&lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;echo&lt;/span&gt; &lt;span style=&quot;color: #800;&quot;&gt;&quot;date.timezone = Asia/Shanghai&quot;&lt;/span&gt; &amp;gt; /etc/php.ini
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline6&quot; class=&quot;outline-3&quot;&gt;
+&lt;h3 id=&quot;orgheadline6&quot;&gt;用户与组&lt;/h3&gt;
+&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline6&quot;&gt;
+&lt;div class=&quot;org-src-container&quot;&gt;
+
+&lt;pre class=&quot;src src-sh&quot;&gt;useradd netflow
+usermod -G apache netflow
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline7&quot; class=&quot;outline-3&quot;&gt;
+&lt;h3 id=&quot;orgheadline7&quot;&gt;安装nfdump&lt;/h3&gt;
+&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline7&quot;&gt;
+&lt;div class=&quot;org-src-container&quot;&gt;
+
+&lt;pre class=&quot;src src-sh&quot;&gt;&lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;cd&lt;/span&gt; nfdump-1.6.13
+./configure --prefix=/opt/nfdump --enable-nfprofile
+autoreconf
+make
+sudo make install
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline8&quot; class=&quot;outline-3&quot;&gt;
+&lt;h3 id=&quot;orgheadline8&quot;&gt;安装nfsen&lt;/h3&gt;
+&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline8&quot;&gt;
+&lt;pre class=&quot;example&quot;&gt;
+cd nfsen-1.3.6p1
+cd etc
+cp nfsen-dist.conf nfsen.conf
+vi nfsen.conf
+  $BASEDIR = &quot;/opt/nfsen&quot;;
+  $HTMLDIR = &quot;/opt/nfsen/www/&quot;;
+  $PREFIX  = '/opt/nfdump/bin';
+  $WWWUSER  = &quot;apache&quot;;
+  $WWWGROUP = &quot;apache&quot;;
+
+  $MAIL_FROM   = 'nfsen@yourdomain.tld';
+  $SMTP_SERVER = 'fqdn.mail.server';
+
+  %sources = (
+      'source1' =&amp;gt; { 'port' =&amp;gt; '2055', 'IP' =&amp;gt; '192.168.1.1', 'col' =&amp;gt; '#0000ff', 'type' =&amp;gt; 'netflow' },
+      'source2' =&amp;gt; { 'port' =&amp;gt; '2055', 'IP' =&amp;gt; '192.168.1.2', 'col' =&amp;gt; '#ff00ff', 'type' =&amp;gt; 'netflow' },
+      'source3' =&amp;gt; { 'port' =&amp;gt; '2055', 'IP' =&amp;gt; '192.168.1.3', 'col' =&amp;gt; '#00ffff', 'type' =&amp;gt; 'netflow' },
+  );
+
+cd ..
+sudo ./install.pl etc/nfsen.conf
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline9&quot; class=&quot;outline-3&quot;&gt;
+&lt;h3 id=&quot;orgheadline9&quot;&gt;apache配置/etc/httpd/conf.d/nfsen.conf&lt;/h3&gt;
+&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline9&quot;&gt;
+&lt;pre class=&quot;example&quot;&gt;
+&amp;lt;Directory &quot;/opt/nfsen/www&quot;&amp;gt;
+   AllowOverride None
+   Require all granted
+&amp;lt;/Directory&amp;gt;
+
+Alias /nfsen &quot;/opt/nfsen/www&quot;
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline10&quot; class=&quot;outline-3&quot;&gt;
+&lt;h3 id=&quot;orgheadline10&quot;&gt;nfsen服务/etc/systemd/system/nfsen.service&lt;/h3&gt;
+&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline10&quot;&gt;
+&lt;pre class=&quot;example&quot;&gt;
+[Unit]
+Description=NfSen Service
+After=network.target
+
+[Service]
+Type=forking
+PIDFile=/opt/nfsen/var/run/nfsend.pid
+ExecStart=/opt/nfsen/bin/nfsen start
+ExecStop=/opt/nfsen/bin/nfsen stop
+Restart=on-abort
+
+[Install]
+WantedBy=multi-user.target
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline11&quot; class=&quot;outline-3&quot;&gt;
+&lt;h3 id=&quot;orgheadline11&quot;&gt;启动服务&lt;/h3&gt;
+&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline11&quot;&gt;
+&lt;div class=&quot;org-src-container&quot;&gt;
+
+&lt;pre class=&quot;src src-sh&quot;&gt;systemctl enable httpd
+systemctl start httpd
+systemctl enable nfsen
+systemctl start nfsen
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline13&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline13&quot;&gt;参考资料&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline13&quot;&gt;
+&lt;ol class=&quot;org-ol&quot;&gt;
+&lt;li&gt;&lt;a href=&quot;http://nfsen.sourceforge.net/&quot;&gt;nfsen manual&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://wiki.polaire.nl/doku.php?id=nfsen_centos7&quot;&gt;NfSen - CentOS 7.x&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+</description>
+        <pubDate>Sun, 06 Nov 2016 00:00:00 -0400</pubDate>
+        <link>/network/netflow-with-nfsen.html</link>
+        <guid isPermaLink="true">/network/netflow-with-nfsen.html</guid>
+        
+        <category>netflow</category>
+        
+        
+        <category>network</category>
+        
+      </item>
     
       <item>
         <title>Owncloud distributed architecture</title>
@@ -2874,274 +3110,6 @@ IPV6INIT=no
         
         
         <category>linux</category>
-        
-      </item>
-    
-      <item>
-        <title>持续集成工具之jenkins</title>
-        <description>&lt;div id=&quot;table-of-contents&quot;&gt;
-&lt;h2&gt;Table of Contents&lt;/h2&gt;
-&lt;div id=&quot;text-table-of-contents&quot;&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&quot;#orgheadline1&quot;&gt;jenkins安装&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#orgheadline2&quot;&gt;插件安装&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#orgheadline3&quot;&gt;配置环境&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#orgheadline4&quot;&gt;新建Job&lt;/a&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&quot;#orgheadline5&quot;&gt;SCM&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#orgheadline6&quot;&gt;Build Triggers&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#orgheadline7&quot;&gt;Configure Maven&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#orgheadline8&quot;&gt;Post Steps&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#orgheadline11&quot;&gt;备机安装与数据同步&lt;/a&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&quot;#orgheadline9&quot;&gt;同步脚本&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#orgheadline10&quot;&gt;定期执行&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#orgheadline12&quot;&gt;附录: Maven通过nexus下载构建的配置文件&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;!--abstract-begin--&gt;
-&lt;p&gt;
-本文介绍使用jenkins实现持续集成。
-&lt;/p&gt;
-&lt;!--abstract-end--&gt;
-
-&lt;div id=&quot;outline-container-orgheadline1&quot; class=&quot;outline-2&quot;&gt;
-&lt;h2 id=&quot;orgheadline1&quot;&gt;jenkins安装&lt;/h2&gt;
-&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline1&quot;&gt;
-&lt;p&gt;
-官方提供的是一个war包，可以直接放在tomcat容器中运行。jenkins不需要任何后台数据库支持，所有的变更纪录均放置在JENKINS_HOME，默认为~/.jenkins。
-&lt;/p&gt;
-
-&lt;p&gt;
-单独运行jenkins的命令如下:
-&lt;/p&gt;
-&lt;pre class=&quot;example&quot;&gt;
-java -jar jenkins.war --httpPort=8081
-&lt;/pre&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id=&quot;outline-container-orgheadline2&quot; class=&quot;outline-2&quot;&gt;
-&lt;h2 id=&quot;orgheadline2&quot;&gt;插件安装&lt;/h2&gt;
-&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline2&quot;&gt;
-&lt;p&gt;
-选择Manage Jenkins -&amp;gt; Manage Plugins进行插件的安装。如果CI服务器本身需要代理才能连接互联网，可以在Advanced中进行设置。常用的插件有Github Plugins，安装此插件同时会安装所依赖插件。
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id=&quot;outline-container-orgheadline3&quot; class=&quot;outline-2&quot;&gt;
-&lt;h2 id=&quot;orgheadline3&quot;&gt;配置环境&lt;/h2&gt;
-&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline3&quot;&gt;
-&lt;p&gt;
-Manage Jenkins -&amp;gt; Configure System 此处设置JDK的HOME目录，Maven的目录, git可执行文件路径等。
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id=&quot;outline-container-orgheadline4&quot; class=&quot;outline-2&quot;&gt;
-&lt;h2 id=&quot;orgheadline4&quot;&gt;新建Job&lt;/h2&gt;
-&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline4&quot;&gt;
-&lt;p&gt;
-输入Job的名称，此处以从git仓库clone Maven项目作为示例。
-&lt;/p&gt;
-&lt;/div&gt;
-
-&lt;div id=&quot;outline-container-orgheadline5&quot; class=&quot;outline-3&quot;&gt;
-&lt;h3 id=&quot;orgheadline5&quot;&gt;SCM&lt;/h3&gt;
-&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline5&quot;&gt;
-&lt;ol class=&quot;org-ol&quot;&gt;
-&lt;li&gt;Source Code Management 选择git&lt;/li&gt;
-&lt;li&gt;Repository URL: ssh://admin@gerrit:29418/reponame&lt;/li&gt;
-&lt;/ol&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id=&quot;outline-container-orgheadline6&quot; class=&quot;outline-3&quot;&gt;
-&lt;h3 id=&quot;orgheadline6&quot;&gt;Build Triggers&lt;/h3&gt;
-&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline6&quot;&gt;
-&lt;ol class=&quot;org-ol&quot;&gt;
-&lt;li&gt;Build when a change is pushed to GitHub (代码更新时build)&lt;/li&gt;
-&lt;li&gt;Poll SCM (周期性从repo中checkout)&lt;/li&gt;
-&lt;/ol&gt;
-&lt;pre class=&quot;example&quot;&gt;
-*/10 * * * *
-&lt;/pre&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id=&quot;outline-container-orgheadline7&quot; class=&quot;outline-3&quot;&gt;
-&lt;h3 id=&quot;orgheadline7&quot;&gt;Configure Maven&lt;/h3&gt;
-&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline7&quot;&gt;
-&lt;ol class=&quot;org-ol&quot;&gt;
-&lt;li&gt;Root POM : pom.xml&lt;/li&gt;
-&lt;li&gt;Goals and options: clean install&lt;/li&gt;
-&lt;/ol&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id=&quot;outline-container-orgheadline8&quot; class=&quot;outline-3&quot;&gt;
-&lt;h3 id=&quot;orgheadline8&quot;&gt;Post Steps&lt;/h3&gt;
-&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline8&quot;&gt;
-&lt;p&gt;
-Execute shell
-&lt;/p&gt;
-
-&lt;div class=&quot;org-src-container&quot;&gt;
-
-&lt;pre class=&quot;src src-sh&quot;&gt;&lt;span style=&quot;color: #633;&quot;&gt;#&lt;/span&gt;&lt;span style=&quot;color: #633;&quot;&gt;!/bin/&lt;/span&gt;&lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;sh&lt;/span&gt;
-&lt;span style=&quot;color: #633;&quot;&gt;# &lt;/span&gt;&lt;span style=&quot;color: #633;&quot;&gt;copy built file to remote http server&lt;/span&gt;
-&lt;span style=&quot;color: #007;&quot;&gt;project&lt;/span&gt;=easy-springmvc-maven
-&lt;span style=&quot;color: #007;&quot;&gt;war_name&lt;/span&gt;=${&lt;span style=&quot;color: #007;&quot;&gt;project&lt;/span&gt;}.war
-&lt;span style=&quot;color: #007;&quot;&gt;file_path&lt;/span&gt;=/root/.jenkins/jobs/${&lt;span style=&quot;color: #007;&quot;&gt;project&lt;/span&gt;}/workspace/target
-&lt;span style=&quot;color: #007;&quot;&gt;now&lt;/span&gt;=$(date +&lt;span style=&quot;color: #800;&quot;&gt;&quot;%Y%m%d%H%M%S&quot;&lt;/span&gt;)
-
-&lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;cd&lt;/span&gt; $&lt;span style=&quot;color: #007;&quot;&gt;file_path&lt;/span&gt;
-&lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;if&lt;/span&gt; [ -f ${&lt;span style=&quot;color: #007;&quot;&gt;war_name&lt;/span&gt;} ]; &lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;then&lt;/span&gt;
-scp ${&lt;span style=&quot;color: #007;&quot;&gt;war_name&lt;/span&gt;} root@filesrv01:/usr/share/nginx/html/files/dist/${&lt;span style=&quot;color: #007;&quot;&gt;project&lt;/span&gt;}-${&lt;span style=&quot;color: #007;&quot;&gt;now&lt;/span&gt;}.war
-cp ${&lt;span style=&quot;color: #007;&quot;&gt;war_name&lt;/span&gt;} /opt/tomcat/webapps/${&lt;span style=&quot;color: #007;&quot;&gt;project&lt;/span&gt;}-${&lt;span style=&quot;color: #007;&quot;&gt;now&lt;/span&gt;}.war
-&lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;else&lt;/span&gt;
-&lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;echo&lt;/span&gt; &lt;span style=&quot;color: #800;&quot;&gt;&quot;${war_name} unexists&quot;&lt;/span&gt;
-&lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;fi&lt;/span&gt;
-&lt;/pre&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-
-&lt;div id=&quot;outline-container-orgheadline11&quot; class=&quot;outline-2&quot;&gt;
-&lt;h2 id=&quot;orgheadline11&quot;&gt;备机安装与数据同步&lt;/h2&gt;
-&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline11&quot;&gt;
-&lt;/div&gt;&lt;div id=&quot;outline-container-orgheadline9&quot; class=&quot;outline-3&quot;&gt;
-&lt;h3 id=&quot;orgheadline9&quot;&gt;同步脚本&lt;/h3&gt;
-&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline9&quot;&gt;
-&lt;p&gt;
-备机的安装方法与主机相同，数据通过如下脚本同步:
-&lt;/p&gt;
-
-&lt;div class=&quot;org-src-container&quot;&gt;
-
-&lt;pre class=&quot;src src-sh&quot;&gt;&lt;span style=&quot;color: #633;&quot;&gt;#&lt;/span&gt;&lt;span style=&quot;color: #633;&quot;&gt;!/bin/&lt;/span&gt;&lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;sh&lt;/span&gt;
-&lt;span style=&quot;color: #633;&quot;&gt;#&lt;/span&gt;&lt;span style=&quot;color: #633;&quot;&gt;script name:rsyncjenkins.sh&lt;/span&gt;
-
-&lt;span style=&quot;color: #007;&quot;&gt;RsyncBin&lt;/span&gt;=&lt;span style=&quot;color: #800;&quot;&gt;&quot;/usr/bin/rsync&quot;&lt;/span&gt;
-&lt;span style=&quot;color: #007;&quot;&gt;RsyncPerm&lt;/span&gt;=&lt;span style=&quot;color: #800;&quot;&gt;'-avz -e ssh --delete --bwlimit=8000'&lt;/span&gt;
-&lt;span style=&quot;color: #007;&quot;&gt;jenkins_dir&lt;/span&gt;=&lt;span style=&quot;color: #800;&quot;&gt;'/root/.jenkins'&lt;/span&gt;
-
-&lt;span style=&quot;color: #007;&quot;&gt;LogFileDir&lt;/span&gt;=&lt;span style=&quot;color: #800;&quot;&gt;'/var/log/rsyncjenkins'&lt;/span&gt;
-&lt;span style=&quot;color: #007;&quot;&gt;Date&lt;/span&gt;=&lt;span style=&quot;font-weight: bold;&quot;&gt;`date +%Y-%m-%d`&lt;/span&gt;
-
-&lt;span style=&quot;color: #633;&quot;&gt;#&lt;/span&gt;&lt;span style=&quot;color: #633;&quot;&gt;check function&lt;/span&gt;
-
-&lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;function&lt;/span&gt; &lt;span style=&quot;color: #605; font-weight: bold;&quot;&gt;check&lt;/span&gt; {
-&lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;if&lt;/span&gt; [ $&lt;span style=&quot;color: #007;&quot;&gt;?&lt;/span&gt; -eq 0 ];&lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;then&lt;/span&gt;
-&lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;echo&lt;/span&gt; -e &lt;span style=&quot;color: #800;&quot;&gt;&quot;33[1;32mRsync is success!33[0m&quot;&lt;/span&gt; &amp;gt;&amp;gt;$&lt;span style=&quot;color: #007;&quot;&gt;LogFileDir&lt;/span&gt;/$&lt;span style=&quot;color: #007;&quot;&gt;Date&lt;/span&gt;.log
-&lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;else&lt;/span&gt;
-&lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;echo&lt;/span&gt; -e &lt;span style=&quot;color: #800;&quot;&gt;&quot;33[1;31mRsync is fail!33[0m&quot;&lt;/span&gt; &amp;gt;&amp;gt;$&lt;span style=&quot;color: #007;&quot;&gt;LogFileDir&lt;/span&gt;/$&lt;span style=&quot;color: #007;&quot;&gt;Date&lt;/span&gt;.log
-&lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;fi&lt;/span&gt;
-}
-
-&lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;if&lt;/span&gt; [ &lt;span style=&quot;color: #C00;&quot;&gt;!&lt;/span&gt; -d &lt;span style=&quot;color: #800;&quot;&gt;&quot;$jenkins_dir&quot;&lt;/span&gt; ];&lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;then&lt;/span&gt;
-mkdir -pv $&lt;span style=&quot;color: #007;&quot;&gt;jenkins_dir&lt;/span&gt;
-&lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;fi&lt;/span&gt;
-
-&lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;if&lt;/span&gt; [ &lt;span style=&quot;color: #C00;&quot;&gt;!&lt;/span&gt; -d &lt;span style=&quot;color: #800;&quot;&gt;&quot;$LogFileDir&quot;&lt;/span&gt; ];&lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;then&lt;/span&gt;
-mkdir -pv $&lt;span style=&quot;color: #007;&quot;&gt;LogFileDir&lt;/span&gt;
-&lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;fi&lt;/span&gt;
-
-&lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;echo&lt;/span&gt; &lt;span style=&quot;color: #800;&quot;&gt;'Now start to rsync jenkins home directory!'&lt;/span&gt; &amp;gt;&amp;gt;$&lt;span style=&quot;color: #007;&quot;&gt;LogFileDir&lt;/span&gt;/$&lt;span style=&quot;color: #007;&quot;&gt;Date&lt;/span&gt;.log
-$&lt;span style=&quot;color: #007;&quot;&gt;RsyncBin&lt;/span&gt; $&lt;span style=&quot;color: #007;&quot;&gt;RsyncPerm&lt;/span&gt; root@tomcat01:$&lt;span style=&quot;color: #007;&quot;&gt;jenkins_dir&lt;/span&gt;/jobs/ $&lt;span style=&quot;color: #007;&quot;&gt;jenkins_dir&lt;/span&gt;/jobs/ &amp;gt;&amp;gt;$&lt;span style=&quot;color: #007;&quot;&gt;LogFileDir&lt;/span&gt;/$&lt;span style=&quot;color: #007;&quot;&gt;Date&lt;/span&gt;.log
-$&lt;span style=&quot;color: #007;&quot;&gt;RsyncBin&lt;/span&gt; $&lt;span style=&quot;color: #007;&quot;&gt;RsyncPerm&lt;/span&gt; root@tomcat01:$&lt;span style=&quot;color: #007;&quot;&gt;jenkins_dir&lt;/span&gt;/plugins/ $&lt;span style=&quot;color: #007;&quot;&gt;jenkins_dir&lt;/span&gt;/plugins/ &amp;gt;&amp;gt;$&lt;span style=&quot;color: #007;&quot;&gt;LogFileDir&lt;/span&gt;/$&lt;span style=&quot;color: #007;&quot;&gt;Date&lt;/span&gt;.log
-$&lt;span style=&quot;color: #007;&quot;&gt;RsyncBin&lt;/span&gt; $&lt;span style=&quot;color: #007;&quot;&gt;RsyncPerm&lt;/span&gt; root@tomcat01:$&lt;span style=&quot;color: #007;&quot;&gt;jenkins_dir&lt;/span&gt;/*.xml $&lt;span style=&quot;color: #007;&quot;&gt;jenkins_dir&lt;/span&gt;/ &amp;gt;&amp;gt;$&lt;span style=&quot;color: #007;&quot;&gt;LogFileDir&lt;/span&gt;/$&lt;span style=&quot;color: #007;&quot;&gt;Date&lt;/span&gt;.log
-check&lt;span style=&quot;color: #800;&quot;&gt;&quot;]]&quot;&lt;/span&gt;}
-&lt;/pre&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id=&quot;outline-container-orgheadline10&quot; class=&quot;outline-3&quot;&gt;
-&lt;h3 id=&quot;orgheadline10&quot;&gt;定期执行&lt;/h3&gt;
-&lt;div class=&quot;outline-text-3&quot; id=&quot;text-orgheadline10&quot;&gt;
-&lt;pre class=&quot;example&quot;&gt;
-00 00 * * * /bin/sh /root/sh/rsyncjenkins.sh &amp;gt; /dev/null 2&amp;gt;&amp;amp;1
-&lt;/pre&gt;
-
-&lt;p&gt;
-&lt;code&gt;备机需要重启容器才能加载新的配置。&lt;/code&gt;
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id=&quot;outline-container-orgheadline12&quot; class=&quot;outline-2&quot;&gt;
-&lt;h2 id=&quot;orgheadline12&quot;&gt;附录: Maven通过nexus下载构建的配置文件&lt;/h2&gt;
-&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline12&quot;&gt;
-&lt;p&gt;
-cat ~/.m2/settings.xml
-&lt;/p&gt;
-
-&lt;div class=&quot;org-src-container&quot;&gt;
-
-&lt;pre class=&quot;src src-xml&quot;&gt;  &amp;lt;?&lt;span style=&quot;color: #800; font-weight: bold;&quot;&gt;xml&lt;/span&gt; &lt;span style=&quot;color: #800;&quot;&gt;version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;&lt;/span&gt;?&amp;gt;
-  &amp;lt;&lt;span style=&quot;color: #605; font-weight: bold;&quot;&gt;settings&lt;/span&gt; &lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;xmlns&lt;/span&gt;=&lt;span style=&quot;color: #800;&quot;&gt;&quot;&lt;/span&gt;&lt;span style=&quot;color: #800;&quot;&gt;http://maven.apache.org/SETTINGS/1.0.0&lt;/span&gt;&lt;span style=&quot;color: #800;&quot;&gt;&quot;&lt;/span&gt;
-            &lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;xmlns&lt;/span&gt;:&lt;span style=&quot;color: #007;&quot;&gt;xsi&lt;/span&gt;=&lt;span style=&quot;color: #800;&quot;&gt;&quot;&lt;/span&gt;&lt;span style=&quot;color: #800;&quot;&gt;http://www.w3.org/2001/XMLSchema-instance&lt;/span&gt;&lt;span style=&quot;color: #800;&quot;&gt;&quot;&lt;/span&gt;
-            &lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;xsi&lt;/span&gt;:&lt;span style=&quot;color: #007;&quot;&gt;schemaLocation&lt;/span&gt;=&lt;span style=&quot;color: #800;&quot;&gt;&quot;&lt;/span&gt;&lt;span style=&quot;color: #800;&quot;&gt;http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd&lt;/span&gt;&lt;span style=&quot;color: #800;&quot;&gt;&quot;&lt;/span&gt;&amp;gt;
-    &amp;lt;&lt;span style=&quot;color: #605; font-weight: bold;&quot;&gt;mirrors&lt;/span&gt;&amp;gt;
-      &amp;lt;&lt;span style=&quot;color: #605; font-weight: bold;&quot;&gt;mirror&lt;/span&gt;&amp;gt;
-        &amp;lt;&lt;span style=&quot;color: #605; font-weight: bold;&quot;&gt;id&lt;/span&gt;&amp;gt;nexus&amp;lt;/&lt;span style=&quot;color: #605; font-weight: bold;&quot;&gt;id&lt;/span&gt;&amp;gt;
-        &amp;lt;&lt;span style=&quot;color: #605; font-weight: bold;&quot;&gt;mirrorOf&lt;/span&gt;&amp;gt;*&amp;lt;/&lt;span style=&quot;color: #605; font-weight: bold;&quot;&gt;mirrorOf&lt;/span&gt;&amp;gt;
-        &amp;lt;&lt;span style=&quot;color: #605; font-weight: bold;&quot;&gt;name&lt;/span&gt;&amp;gt;Nexus Public Mirror&amp;lt;/&lt;span style=&quot;color: #605; font-weight: bold;&quot;&gt;name&lt;/span&gt;&amp;gt;
-        &amp;lt;&lt;span style=&quot;color: #605; font-weight: bold;&quot;&gt;url&lt;/span&gt;&amp;gt;http://nexusip:8081/nexus/content/groups/public&amp;lt;/&lt;span style=&quot;color: #605; font-weight: bold;&quot;&gt;url&lt;/span&gt;&amp;gt;
-      &amp;lt;/&lt;span style=&quot;color: #605; font-weight: bold;&quot;&gt;mirror&lt;/span&gt;&amp;gt;
-    &amp;lt;/&lt;span style=&quot;color: #605; font-weight: bold;&quot;&gt;mirrors&lt;/span&gt;&amp;gt;
-    &amp;lt;&lt;span style=&quot;color: #605; font-weight: bold;&quot;&gt;profiles&lt;/span&gt;&amp;gt;
-      &amp;lt;&lt;span style=&quot;color: #605; font-weight: bold;&quot;&gt;profile&lt;/span&gt;&amp;gt;
-        &amp;lt;&lt;span style=&quot;color: #605; font-weight: bold;&quot;&gt;id&lt;/span&gt;&amp;gt;nexus&amp;lt;/&lt;span style=&quot;color: #605; font-weight: bold;&quot;&gt;id&lt;/span&gt;&amp;gt;
-        &amp;lt;&lt;span style=&quot;color: #605; font-weight: bold;&quot;&gt;repositories&lt;/span&gt;&amp;gt;
-          &amp;lt;&lt;span style=&quot;color: #605; font-weight: bold;&quot;&gt;repository&lt;/span&gt;&amp;gt;
-            &amp;lt;&lt;span style=&quot;color: #605; font-weight: bold;&quot;&gt;id&lt;/span&gt;&amp;gt;central&amp;lt;/&lt;span style=&quot;color: #605; font-weight: bold;&quot;&gt;id&lt;/span&gt;&amp;gt;
-            &amp;lt;&lt;span style=&quot;color: #605; font-weight: bold;&quot;&gt;url&lt;/span&gt;&amp;gt;http://central&amp;lt;/&lt;span style=&quot;color: #605; font-weight: bold;&quot;&gt;url&lt;/span&gt;&amp;gt;
-            &amp;lt;&lt;span style=&quot;color: #605; font-weight: bold;&quot;&gt;releases&lt;/span&gt;&amp;gt;&amp;lt;&lt;span style=&quot;color: #605; font-weight: bold;&quot;&gt;enabled&lt;/span&gt;&amp;gt;true&amp;lt;/&lt;span style=&quot;color: #605; font-weight: bold;&quot;&gt;enabled&lt;/span&gt;&amp;gt;&amp;lt;/&lt;span style=&quot;color: #605; font-weight: bold;&quot;&gt;releases&lt;/span&gt;&amp;gt;
-            &amp;lt;&lt;span style=&quot;color: #605; font-weight: bold;&quot;&gt;snapshots&lt;/span&gt;&amp;gt;&amp;lt;&lt;span style=&quot;color: #605; font-weight: bold;&quot;&gt;enabled&lt;/span&gt;&amp;gt;true&amp;lt;/&lt;span style=&quot;color: #605; font-weight: bold;&quot;&gt;enabled&lt;/span&gt;&amp;gt;&amp;lt;/&lt;span style=&quot;color: #605; font-weight: bold;&quot;&gt;snapshots&lt;/span&gt;&amp;gt;
-          &amp;lt;/&lt;span style=&quot;color: #605; font-weight: bold;&quot;&gt;repository&lt;/span&gt;&amp;gt;
-        &amp;lt;/&lt;span style=&quot;color: #605; font-weight: bold;&quot;&gt;repositories&lt;/span&gt;&amp;gt;
-        &amp;lt;&lt;span style=&quot;color: #605; font-weight: bold;&quot;&gt;pluginRepositories&lt;/span&gt;&amp;gt;
-          &amp;lt;&lt;span style=&quot;color: #605; font-weight: bold;&quot;&gt;pluginRepository&lt;/span&gt;&amp;gt;
-            &amp;lt;&lt;span style=&quot;color: #605; font-weight: bold;&quot;&gt;id&lt;/span&gt;&amp;gt;central&amp;lt;/&lt;span style=&quot;color: #605; font-weight: bold;&quot;&gt;id&lt;/span&gt;&amp;gt;
-            &amp;lt;&lt;span style=&quot;color: #605; font-weight: bold;&quot;&gt;url&lt;/span&gt;&amp;gt;http://central&amp;lt;/&lt;span style=&quot;color: #605; font-weight: bold;&quot;&gt;url&lt;/span&gt;&amp;gt;
-            &amp;lt;&lt;span style=&quot;color: #605; font-weight: bold;&quot;&gt;releases&lt;/span&gt;&amp;gt;&amp;lt;&lt;span style=&quot;color: #605; font-weight: bold;&quot;&gt;enabled&lt;/span&gt;&amp;gt;true&amp;lt;/&lt;span style=&quot;color: #605; font-weight: bold;&quot;&gt;enabled&lt;/span&gt;&amp;gt;&amp;lt;/&lt;span style=&quot;color: #605; font-weight: bold;&quot;&gt;releases&lt;/span&gt;&amp;gt;
-            &amp;lt;&lt;span style=&quot;color: #605; font-weight: bold;&quot;&gt;snapshots&lt;/span&gt;&amp;gt;&amp;lt;&lt;span style=&quot;color: #605; font-weight: bold;&quot;&gt;enabled&lt;/span&gt;&amp;gt;true&amp;lt;/&lt;span style=&quot;color: #605; font-weight: bold;&quot;&gt;enabled&lt;/span&gt;&amp;gt;&amp;lt;/&lt;span style=&quot;color: #605; font-weight: bold;&quot;&gt;snapshots&lt;/span&gt;&amp;gt;
-          &amp;lt;/&lt;span style=&quot;color: #605; font-weight: bold;&quot;&gt;pluginRepository&lt;/span&gt;&amp;gt;
-        &amp;lt;/&lt;span style=&quot;color: #605; font-weight: bold;&quot;&gt;pluginRepositories&lt;/span&gt;&amp;gt;
-      &amp;lt;/&lt;span style=&quot;color: #605; font-weight: bold;&quot;&gt;profile&lt;/span&gt;&amp;gt;
-    &amp;lt;/&lt;span style=&quot;color: #605; font-weight: bold;&quot;&gt;profiles&lt;/span&gt;&amp;gt;
-    &amp;lt;&lt;span style=&quot;color: #605; font-weight: bold;&quot;&gt;activeProfiles&lt;/span&gt;&amp;gt;
-      &amp;lt;&lt;span style=&quot;color: #605; font-weight: bold;&quot;&gt;activeProfile&lt;/span&gt;&amp;gt;nexus&amp;lt;/&lt;span style=&quot;color: #605; font-weight: bold;&quot;&gt;activeProfile&lt;/span&gt;&amp;gt;
-    &amp;lt;/&lt;span style=&quot;color: #605; font-weight: bold;&quot;&gt;activeProfiles&lt;/span&gt;&amp;gt;
-  &amp;lt;/&lt;span style=&quot;color: #605; font-weight: bold;&quot;&gt;settings&lt;/span&gt;&amp;gt;
-&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;
-主要配置mirror，因为*可通配所有路径，此时profile中的url已经没意义，所有的构建将全部通过mirror指定的链接，即nexus中的public repository group去下载。
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-</description>
-        <pubDate>Sun, 06 Dec 2015 00:00:00 -0500</pubDate>
-        <link>/tools/jenkins-ci-setup.html</link>
-        <guid isPermaLink="true">/tools/jenkins-ci-setup.html</guid>
-        
-        <category>jenkins</category>
-        
-        
-        <category>tools</category>
         
       </item>
     
