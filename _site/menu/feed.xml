@@ -5,8 +5,8 @@
     <description>Wonder is the beginning of wisdom</description>
     <link>/</link>
     <atom:link href="/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Sun, 04 Dec 2016 15:15:53 +0800</pubDate>
-    <lastBuildDate>Sun, 04 Dec 2016 15:15:53 +0800</lastBuildDate>
+    <pubDate>Fri, 17 Mar 2017 10:11:50 +0800</pubDate>
+    <lastBuildDate>Fri, 17 Mar 2017 10:11:50 +0800</lastBuildDate>
     <generator>Jekyll v3.3.0</generator>
     
       <item>
@@ -738,6 +738,7 @@ mount -t glusterfs server1:/gv0 /owncloud
 &lt;li&gt;&lt;a href=&quot;#orgheadline24&quot;&gt;atom&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&quot;#orgheadline25&quot;&gt;git&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&quot;#orgheadline26&quot;&gt;tweak tool&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline27&quot;&gt;Google Chrome browser&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/div&gt;
 &lt;/div&gt;
@@ -809,9 +810,8 @@ sudo reboot
 &lt;div class=&quot;org-src-container&quot;&gt;
 
 &lt;pre class=&quot;src src-sh&quot;&gt;sudo apt-get install git
-sudo mkdir -p /opt/git
-sudo chown -R wesley:wesley /opt/git
-&lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;cd&lt;/span&gt; /opt/git
+sudo ln -s /home/wesley/git /opt/git
+&lt;span style=&quot;color: #058; font-weight: bold;&quot;&gt;cd&lt;/span&gt; /home/wesley/git
 git clone git@github.com:wanglf/dotfiles.git dotfiles.git
 &lt;/pre&gt;
 &lt;/div&gt;
@@ -1048,6 +1048,19 @@ install following packages:
 &lt;p&gt;
 open gnome-tweak-tool, goto Typing menu, Caps Lock key behavior
 &lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id=&quot;outline-container-orgheadline27&quot; class=&quot;outline-2&quot;&gt;
+&lt;h2 id=&quot;orgheadline27&quot;&gt;Google Chrome browser&lt;/h2&gt;
+&lt;div class=&quot;outline-text-2&quot; id=&quot;text-orgheadline27&quot;&gt;
+&lt;div class=&quot;org-src-container&quot;&gt;
+
+&lt;pre class=&quot;src src-sh&quot;&gt;sudo add-apt-repository ppa:a-v-shkop/chromium
+sudo apt-get update
+sudo apt-get install chromium-browser
+&lt;/pre&gt;
+&lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 </description>

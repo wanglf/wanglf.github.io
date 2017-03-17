@@ -147,6 +147,7 @@
 <li><a href="#orgheadline24">atom</a></li>
 <li><a href="#orgheadline25">git</a></li>
 <li><a href="#orgheadline26">tweak tool</a></li>
+<li><a href="#orgheadline27">Google Chrome browser</a></li>
 </ul>
 </div>
 </div>
@@ -218,9 +219,8 @@ sudo reboot
 <div class="org-src-container">
 
 <pre class="src src-sh">sudo apt-get install git
-sudo mkdir -p /opt/git
-sudo chown -R wesley:wesley /opt/git
-<span style="color: #058; font-weight: bold;">cd</span> /opt/git
+sudo ln -s /home/wesley/git /opt/git
+<span style="color: #058; font-weight: bold;">cd</span> /home/wesley/git
 git clone git@github.com:wanglf/dotfiles.git dotfiles.git
 </pre>
 </div>
@@ -457,6 +457,19 @@ install following packages:
 <p>
 open gnome-tweak-tool, goto Typing menu, Caps Lock key behavior
 </p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline27" class="outline-2">
+<h2 id="orgheadline27">Google Chrome browser</h2>
+<div class="outline-text-2" id="text-orgheadline27">
+<div class="org-src-container">
+
+<pre class="src src-sh">sudo add-apt-repository ppa:a-v-shkop/chromium
+sudo apt-get update
+sudo apt-get install chromium-browser
+</pre>
+</div>
 </div>
 </div>
 
